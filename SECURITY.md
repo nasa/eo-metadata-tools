@@ -8,4 +8,5 @@
 
 ## Reporting a Vulnerability
 
-Issues can be submited to the CMR Jira Project
+To report a security issue with this code, please create
+[GitHub Issue](https://github.com/nasa/eo-metadata-tools/issues).
