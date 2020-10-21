@@ -8,5 +8,5 @@
 
 ## Reporting a Vulnerability
 
-To report a security issue with this code, please create
-[GitHub Issue](https://github.com/nasa/eo-metadata-tools/issues).
+To report a security issue please contact:
+[support@earthdata.nasa.gov](support@earthdata.nasa.gov?subject=Security)
