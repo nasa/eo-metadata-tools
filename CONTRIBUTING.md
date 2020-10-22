@@ -27,10 +27,12 @@ summery on naming conventions can be found [here][pnames].
 
 ## Disclaimer
 
-The CMR develoment team will review all pull requests submitted.
-Only requests that meet the standard of quality set forth by existing code,
-following the patterns set forth by existing code, and adhering to the design
-patterns set forth by existing UI elements will be considered and/or accepted.
+For now, the CMR develoment team will be taking a lead on review all pull
+requests submitted. Only requests that meet the standard of quality set forth by
+existing code, following the patterns set forth by existing code, and adhering
+to the design patterns set forth by existing UI elements will be considered
+and/or accepted. It is expected that these rules will change and evolve as more
+groups become involved.
 
 For general tips on open source contributions, see [Contributing to Open Source][contrib]
 on GitHub.
