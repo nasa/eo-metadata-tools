@@ -27,7 +27,7 @@ summery on naming conventions can be found [here][pnames].
 
 ## Disclaimer
 
-For now, the CMR development team will be taking a lead on review all pull
+For now, the CMR development team will be taking a lead on reviewing all pull
 requests submitted. Only requests that meet the standard of quality set forth by
 existing code, following the patterns set forth by existing code, and adhering
 to the design patterns set forth by existing UI elements will be considered
