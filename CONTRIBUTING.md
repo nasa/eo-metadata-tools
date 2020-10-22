@@ -17,7 +17,7 @@ To allow us to incorporate your changes, please use the following process:
 
 Our ticketing and CI/CD tools may be configured to sync statuses amongst each
 other. Commits play an important role in this process. Please start all commits
-with the CMR ticket number associated with your feature, task, or bug. All
+with the Github ticket number associated with your feature, task, or bug. All
 commit messages should follow the format "#XXXX: [Your commit message here]"
 
 ## Code standards
@@ -27,7 +27,7 @@ summery on naming conventions can be found [here][pnames].
 
 ## Disclaimer
 
-For now, the CMR develoment team will be taking a lead on review all pull
+For now, the CMR development team will be taking a lead on review all pull
 requests submitted. Only requests that meet the standard of quality set forth by
 existing code, following the patterns set forth by existing code, and adhering
 to the design patterns set forth by existing UI elements will be considered
