@@ -8,4 +8,5 @@
 
 ## Reporting a Vulnerability
 
-Issues can be submited to the CMR Jira Project
+To report a security issue please contact:
+[support@earthdata.nasa.gov](support@earthdata.nasa.gov?subject=Security)
