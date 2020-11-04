@@ -56,6 +56,16 @@ class TestToken(unittest.TestCase):
     # **********************************************************************
     # Tests
 
+    def test_url(self):
+        """ test how CMR urls are built """
+        # pylint: disable=W0212
+        self.assertEqual("https://cmr.sit.earthdata.nasa.gov/legacy-services/rest/tokens.json",
+            t._cmr_url(t.sit()))
+        self.assertEqual("https://cmr.uat.earthdata.nasa.gov/legacy-services/rest/tokens.json",
+            t._cmr_url(t.uat()))
+        self.assertEqual("https://cmr.earthdata.nasa.gov/legacy-services/rest/tokens.json",
+            t._cmr_url(t.prod()))
+
     def test_age(self):
         """ test the function used to judge if a file is too old to use """
         # pylint: disable=W0212

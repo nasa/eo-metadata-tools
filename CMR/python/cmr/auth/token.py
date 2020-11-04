@@ -154,6 +154,11 @@ def _execute_command(cmd):
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     return result.stdout.decode('utf-8')
 
+def _cmr_url(env):
+    env = env if env=="" or env.endswith(".") else env + "."
+    url='https://cmr.{}earthdata.nasa.gov/legacy-services/rest/tokens.json'.format(env)
+    return url
+
 # ##############################################################################
 # lambdas
 
@@ -243,7 +248,6 @@ def _request_token(user, options):
         token_text = None
     if token_text is not None and len(token)>0:
         return token_text
-    env = env if env.endswith(".") else env + "."
     data='<token>\
 <username>{}</username>\
 <password>{}</password>\
@@ -251,7 +255,8 @@ def _request_token(user, options):
 <user_ip_address>{}</user_ip_address>\
 </token>'.format(user, clear_password, client_name, client_address)
 
-    url='https://cmr.{}earthdata.nasa.gov/legacy-services/rest/tokens.json'.format(env)
+    url = _cmr_url(env)
+
     encoded_data = str.encode(data)
     req = urllib.request.Request(url, data=encoded_data)
     req.add_header('Content-Type', 'application/xml')
@@ -285,14 +290,9 @@ def token(edl_user_name, password_lambda=password_file, opts=None):
         "address": c.dict_or_default(opts, 'client.address', _get_local_ip),
         "client_name": c.dict_or_default(opts, 'client.name', 'python_cmr_lib'),
         "cached": c.dict_or_default(opts, "cache.token", True),
-        "clear_text_password": password_lambda(id, opts)}
+        "clear_text_password": password_lambda(edl_user_name, opts)}
 
     edl_token = _request_token(edl_user_name, clean)
-    #    clear_text_password,
-    #    cached,
-    #    client_name,
-    #    env=env,
-    #    client_address=address)
     return edl_token
 
 def print_help(prefix=""):
