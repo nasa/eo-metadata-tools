@@ -26,12 +26,10 @@ jobs:
           python-version: 3.3.7
       - name: Display the path
         run: echo $PATH
-        shell: bash
       - name: print working
         run: pwd
       - name: look around
         run: "ls -la"
       - name: Run Unit Tests
-        working-directory: ./CMR/python
-        run: python -m unittest discover
-        shell: bash
+        working-directory: /home/runner/work/eo-metadata-tools/eo-metadata-tools/CMR/python
+        run: python3 -m unittest discover
