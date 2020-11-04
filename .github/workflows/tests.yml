@@ -29,7 +29,7 @@ jobs:
       - name: print working
         run: pwd
       - name: look around
-        run: "ls -la"
+        run: pwd ; ls -la
       - name: Run Unit Tests
-        working-directory: /home/runner/work/eo-metadata-tools/eo-metadata-tools/CMR/python
+        working-directory: /home/runner/work/eo-metadata-tools/CMR/python
         run: python3 -m unittest discover
