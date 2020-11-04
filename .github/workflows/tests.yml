@@ -26,4 +26,4 @@ jobs:
           # Version range or exact version of a Python version to use, using SemVer's version range syntax.
           python-version: 3.3
       - name: unittest
-        run: python3 -m unittest discover
+        run: python3 -m unittest discover ./CMR/python
