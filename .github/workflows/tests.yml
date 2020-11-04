@@ -8,7 +8,9 @@ on:
 
 #defaults:
 #  run:
-#    working-directory: ./CMR/python #if more projects are added, then remove this
+#    # Having a global working directory will not work when more projects are added
+#    working-directory: ./CMR/python
+
 jobs:
   Test:
     runs-on: ubuntu-latest
