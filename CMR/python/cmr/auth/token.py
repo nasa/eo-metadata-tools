@@ -21,7 +21,6 @@ specific language governing permissions and limitations under the License.
 # date: 2020-10-26
 # since: 0.0
 
-#import base64
 import json
 import os
 import re
@@ -36,6 +35,8 @@ import cmr.util.common as c
 # ##############################################################################
 # local utilities
 
+SEC_PER_DAY = 86400.0
+
 def _get_local_ip():
     """
     Note, this function may not always work for all users on all operating
@@ -47,7 +48,7 @@ def _get_local_ip():
         hostname = socket.gethostname()
         ip_address = socket.gethostbyname(hostname)
         socket.close()
-    except:
+    except socket.error as _:
         # try another way to do this
         ip_address = _get_public_ip()
     return ip_address
@@ -106,7 +107,7 @@ def _write_token_file(token_text, options=None):
 
 def _days_old_from_time(past_timestamp, current_timestamp=time.time(), age=1.0):
     """
-    tests if a difference between timestamps are old
+    Tests if a difference between timestamps are old
     Parameters:
         past_timestamp(float): timestamp of file
         current_timestamp(float): default to now, timestamp
@@ -114,13 +115,13 @@ def _days_old_from_time(past_timestamp, current_timestamp=time.time(), age=1.0):
     Returns:
         true if the file is older then age
     """
-    days_old = (current_timestamp - past_timestamp)/60.0/60.0/24.0
+    days_old = (current_timestamp - past_timestamp)/SEC_PER_DAY
     return days_old > age
 
 def _old_file(path):
     """
     non-pure function
-    to get age of a file from today
+    To get age of a file from today
     Parameters:
         path(string): path to file to test
     Returns:
@@ -130,7 +131,7 @@ def _old_file(path):
 
 def _read_token_file(options=None):
     """
-    load a password from a local user file assuming ~/.password
+    Load a password from a local user file assuming ~/.password
     Parameters:
         options(dictionary): responds to 'cmr.token.file'
     Returns:
@@ -145,7 +146,7 @@ def _read_token_file(options=None):
 
 def _execute_command(cmd):
     """
-    a utility method to execute a shell command and return a string of the output
+    A utility method to execute a shell command and return a string of the output
     Parameters:
         cmd(string) unix command to execute
     Returns:
@@ -166,7 +167,7 @@ def _execute_command(cmd):
 
 def password(clear_password):
     """
-    create a pass through lambda function to allow plain text passwords, not an
+    Create a pass through lambda function to allow plain text passwords, not an
     encouraged act however
     Parameters:
         clear_password(string): password
@@ -177,7 +178,7 @@ def password(clear_password):
 
 def password_file(_, options=None):
     """
-    load a password from a local user file assuming ~/.cmr_password
+    Load a password from a local user file assuming ~/.cmr_password
     """
     if options is None:
         options = {}
@@ -222,7 +223,7 @@ def prod():
 
 def _request_token(user, options):
     """
-    internal worker function to call CMR and request a token
+    Internal worker function to call CMR and request a token
     Parameters:
         user(string): EDL user name
         password(string): EDL password
@@ -305,7 +306,7 @@ def print_help(prefix=""):
         filter(string): filters out functions beginning with this text, defaults to all
     """
     layout = "\n%s:\n%s\n"
-    # n=name, c=content
+    # n=name, c=content ; made short to keep line length down and pylint happy
     out = lambda n, c : print (layout % (n, c.__doc__.strip())) if n.startswith(prefix) else None
 
     print ("**** Functions:")

@@ -1,12 +1,13 @@
 # CMR Python Wrapper
 
-A wrapper for https://github.com/nasa/Common-Metadata-Repository/ in python
+A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 
 ## Assumptions
 
 1. Python 3.2 or better.
 2. Can access [cmr.earthdata.nasa.gov][cmr]
-3. Optional: an account on [urs.earthdata.nasa.gov][urs]
+3. Optional: an account on [urs.earthdata.nasa.gov][edl]
+4. Third party libraries are not to be used unless absolutely necessary (none as of now)
 
 ## Styles
 
@@ -18,7 +19,7 @@ A wrapper for https://github.com/nasa/Common-Metadata-Repository/ in python
 
 ### Getting a token
 
-There are three ways to store a password for use in scripts. Plain text in the script (not recommended), in a file, but still clear text, or if your a mac or compatible system, you can use the password manager which on Mac OS X will come from Keychain. These three methods are selected by passing in a lambda function to the token() function
+There are three ways to store a password for use in scripts. Plain text in the script (not recommended), in a file, but still clear text, or if you are on a mac or compatible system, you can use the password manager which on Mac OS X will come from Keychain. These three methods are selected by passing in a lambda function to the token() function
 
     import cmr.auth.token as t
     edl_token = t.token(user_id)
@@ -34,7 +35,10 @@ There are three ways to store a password for use in scripts. Plain text in the s
         * `password.manager.app` = command to use
         * `password.manager.service` = keychain object name
 * options is a dictionary where overrides can be passed in
-    * "cmr.env" - cmr server to use, defaults to production, can also be set to "sit." or "uat."
+    * "cmr.env" - cmr server to use, defaults to production, can also be set to    
+        * "sit"
+        * "uat",
+        * "" (empty string ; the default) for production.
     * 'client.address' - client IP address to use, will try to discover it if not provided
     * 'client.name' - HTTP Agent name to use
     * "cache.token" - will cache tokens to a file - default is True
@@ -45,5 +49,6 @@ There are three ways to store a password for use in scripts. Plain text in the s
 
 [pep8]: https://www.python.org/dev/peps/pep-0008/ "Python coding standard"
 [cmr]: https://cmr.earthdata.nasa.gov/ "CMR API"
+[git_cmr]: https://github.com/nasa/Common-Metadata-Repository/ "CMR GitHub Repository"
 [edl]: https://urs.earthdata.nasa.gov/ "Earth Data Login"
 [econfig]: https://editorconfig.org/ "Editor Config Definition"
