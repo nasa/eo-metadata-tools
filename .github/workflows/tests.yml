@@ -27,8 +27,8 @@ jobs:
           python-version: 3.3
       #- name: printworking
       #  run: pwd
-      - name: look around
-        run: "ls -la"
+      #- name: look around
+      #  run: "ls -la"
       - name: Run Unit Tests
         working-directory: ./CMR/python
         run: "cd CMR/python ; python3 -m unittest discover"
