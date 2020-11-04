@@ -23,14 +23,14 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2.1.4
         with:
-          python-version: 3.3
-      #- name: print working
-      #  run: pwd
-      #- name: look around
-      #  run: "ls -la"
+          python-version: 3.3.7
       - name: Display the path
         run: echo $PATH
         shell: bash
+      - name: print working
+        run: pwd
+      - name: look around
+        run: "ls -la"
       - name: Run Unit Tests
         working-directory: ./CMR/python
         run: python -m unittest discover
