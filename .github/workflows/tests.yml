@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./CMR/python/
+    working-directory: ./CMR/python
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -22,8 +22,10 @@ jobs:
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2.1.4
+        working-directory: ./CMR/python
         with:
           # Version range or exact version of a Python version to use, using SemVer's version range syntax.
           python-version: 3.3
       - name: unittest
-        run: python3 -m unittest discover ./CMR/python
+        #run: pwd
+        run: python3 -m unittest discover
