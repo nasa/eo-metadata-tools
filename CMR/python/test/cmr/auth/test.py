@@ -57,7 +57,7 @@ class TestToken(unittest.TestCase):
     # Tests
 
     def test_age(self):
-        """ test the function used to judge if a file is to old to use """
+        """ test the function used to judge if a file is too old to use """
         # pylint: disable=W0212
         self.assertEqual(True, t._days_old_from_time(1))
         self.assertEqual(False, t._days_old_from_time(86400, 86400))

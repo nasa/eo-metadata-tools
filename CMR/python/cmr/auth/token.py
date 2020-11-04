@@ -73,12 +73,11 @@ def _read_file(path):
     Returns:
         None if file was not found, contents otherwise
     """
+    text = None
     if os.path.isfile(path):
         file = open(path, "r")
         text = file.read().strip()
         file.close()
-    else:
-        text = None
     return text
 
 def _write_file(path, text):
@@ -184,10 +183,7 @@ def password_file(_, options=None):
         options = {}
     path_to_use = c.dict_or_default(options, "password.path", "~/.cmr_password")
     path = os.path.expanduser(path_to_use)
-    if os.path.isfile(path):
-        clear_text = _read_file(path)
-    else:
-        clear_text = None
+    clear_text = _read_file(path)
     return clear_text
 
 def password_manager(account, options=None):

@@ -1,21 +1,16 @@
 name: CI
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
 
-defaults:
-  run:
-    working-directory: ./CMR/python
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+#defaults:
+#  run:
+#    working-directory: ./CMR/python #if more projects are added, then remove this
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  Test:
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -26,12 +21,6 @@ jobs:
           python-version: 3.3.7
       - name: Get code
         uses: actions/checkout@v2
-      - name: Display the path
-        run: echo $PATH
-      - name: print working
-        run: pwd
-      - name: look around
-        run: pwd ; ls -la ; which python3
-      - name: Run Unit Tests
-        #working-directory: /home/runner/work/eo-metadata-tools/CMR/python
+     - name: Run Unit Tests
         run: python3 -m unittest discover
+        working-directory: ./CMR/python #if more projects are added, then remove this
