@@ -25,7 +25,10 @@ jobs:
         with:
           # Version range or exact version of a Python version to use, using SemVer's version range syntax.
           python-version: 3.3
+      - name: look around
+          run: ls -la
+      - name: printworking
+          run: pwd
       - name: unittest
         working-directory: ./CMR/python
-        #run: pwd
         run: python3 -m unittest discover
