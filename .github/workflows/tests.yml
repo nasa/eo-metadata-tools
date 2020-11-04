@@ -13,14 +13,13 @@ jobs:
   Test:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Setup Python
         uses: actions/setup-python@v2.1.4
         with:
-          python-version: 3.3.7
-      - name: Get code
+          python-version: 3.3
+      - name: Checkout code
         uses: actions/checkout@v2
      - name: Run Unit Tests
         run: python3 -m unittest discover
-        working-directory: ./CMR/python #if more projects are added, then remove this
+        working-directory: ./CMR/python
