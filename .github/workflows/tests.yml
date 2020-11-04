@@ -20,6 +20,6 @@ jobs:
           python-version: 3.3
       - name: Checkout code
         uses: actions/checkout@v2
-     - name: Run Unit Tests
+      - name: Run Unit Tests
         run: python3 -m unittest discover
         working-directory: ./CMR/python
