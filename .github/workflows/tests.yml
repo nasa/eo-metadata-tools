@@ -28,7 +28,10 @@ jobs:
       #  run: pwd
       #- name: look around
       #  run: "ls -la"
+      - name: Display the path
+        run: echo $PATH
+        shell: bash
       - name: Run Unit Tests
         working-directory: ./CMR/python
         run: python -m unittest discover
-        shell: sh
+        shell: bash
