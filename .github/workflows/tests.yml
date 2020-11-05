@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+#defaults:
+#  run:
+#    # Having a global working directory will not work when more projects are added
+#    working-directory: ./CMR/python
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2.1.4
+        with:
+          python-version: 3.3
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Unit Tests
+        run: python3 -m unittest discover
+        working-directory: ./CMR/python
