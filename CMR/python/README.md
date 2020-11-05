@@ -17,15 +17,15 @@ A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 
 ## Usage
 
-### Getting a token
+### Getting an EDL token
 
 There are three ways to store a password for use in scripts. Plain text in the script (not recommended), in a file, but still clear text, or if you are on a mac or compatible system, you can use the password manager which on Mac OS X will come from Keychain. These three methods are selected by passing in a lambda function to the token() function
 
-    import cmr.auth.token as t
-    edl_token = t.token(user_id)
-    edl_token = t.token(user_id, t.password("clear_text"))
-    edl_token = t.token(user_id, t.password_file, {"password_file":"~/.passwd"})
-    edl_token = t.token(user_id, t.password_manager, {})
+    import cmr.auth.token as edl
+    edl_token = edl.token(user_id)
+    edl_token = edl.token(user_id, edl.password("clear_text"))
+    edl_token = edl.token(user_id, edl.password_file, {"password_file":"~/.passwd"})
+    edl_token = edl.token(user_id, edl.password_manager, {})
 
 * user_id is the Earthdata login name
 * `password_lambda` is a function for returning passwords and defaults to `password_file`.

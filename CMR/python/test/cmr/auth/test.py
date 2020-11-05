@@ -25,10 +25,10 @@ from unittest.mock import Mock
 from unittest.mock import patch
 import json
 import unittest
-import urllib.error as e
+import urllib.error as urlerr
 
 import test.cmr as util
-import cmr.auth.token as t
+import cmr.auth.token as token
 
 # ******************************************************************************
 
@@ -60,27 +60,27 @@ class TestToken(unittest.TestCase):
         """ test how CMR urls are built """
         # pylint: disable=W0212
         self.assertEqual("https://cmr.sit.earthdata.nasa.gov/legacy-services/rest/tokens.json",
-            t._cmr_url(t.sit()))
+            token._cmr_url(token.sit()))
         self.assertEqual("https://cmr.uat.earthdata.nasa.gov/legacy-services/rest/tokens.json",
-            t._cmr_url(t.uat()))
+            token._cmr_url(token.uat()))
         self.assertEqual("https://cmr.earthdata.nasa.gov/legacy-services/rest/tokens.json",
-            t._cmr_url(t.prod()))
+            token._cmr_url(token.prod()))
 
     def test_age(self):
         """ test the function used to judge if a file is too old to use """
         # pylint: disable=W0212
-        self.assertEqual(True, t._days_old_from_time(1))
-        self.assertEqual(False, t._days_old_from_time(86400, 86400))
-        self.assertEqual(False, t._days_old_from_time(86400, 86400, 1.0))
-        self.assertEqual(False, t._days_old_from_time(86400, 86400*2, 1.0))
-        self.assertEqual(True, t._days_old_from_time(86400, 86400*2+1, 1.0))
-        self.assertEqual(True, t._days_old_from_time(86400, 86400*3, 1.0))
-        self.assertEqual(False, t._days_old_from_time(86400, 86400*3, 2.0))
-        self.assertEqual(True, t._days_old_from_time(86400, 86400*4, 2.0))
+        self.assertEqual(True, token._days_old_from_time(1))
+        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY))
+        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY, 1.0))
+        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*2, 1.0))
+        self.assertEqual(True, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*2+1, 1.0))
+        self.assertEqual(True, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*3, 1.0))
+        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*3, 2.0))
+        self.assertEqual(True, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*4, 2.0))
 
     def test_password(self):
         """Test the password pass through function"""
-        pass_func = t.password("test")
+        pass_func = token.password("test")
         self.assertEqual(pass_func("foo", {}), "test")
         self.assertEqual(pass_func("", {}), "test")
         self.assertEqual(pass_func(None, {}), "test")
@@ -89,51 +89,50 @@ class TestToken(unittest.TestCase):
     def test_token(self, urlopen_mock):
         """Test a valid login using the clear text password lambda"""
         options = {'cache.token': False, 'client.address':'127.0.0.1'}
-        pfunc = t.password("Text-Password")
+        pfunc = token.password("Text-Password")
         self.assertEqual ("Text-Password", pfunc("Test.User", options))
 
         urlopen_mock.return_value = valid_login_response()
-        actual = t.token("Test.User", t.password("Text-Password"), options)
+        actual = token.token("Test.User", token.password("Text-Password"), options)
         self.assertEqual('fake-token', actual)
 
     @patch('urllib.request.urlopen')
-    @patch('cmr.auth.token._read_file')
+    @patch('cmr.util.common.read_file')
     def test_password_file(self, read_mock, urlopen_mock):
         """Test a valid login using the password file lambda"""
         user = "Test.User"
         expected_password = "File-Password"
         options = {'cache.token': False, 'client.address':'127.0.0.1'}
         read_mock.return_value = expected_password
-        self.assertEqual (expected_password, t.password_file(user, options))
+        self.assertEqual (expected_password, token.password_file(user, options))
 
         urlopen_mock.return_value = valid_login_response()
-        actual = str(t.token(user, t.password_file, options))
+        actual = str(token.token(user, token.password_file, options))
         self.assertEqual ("fake-token", actual)
 
     @patch('urllib.request.urlopen')
-    @patch('cmr.auth.token._execute_command')
+    @patch('cmr.util.common.execute_command')
     def test_password_manager(self, cmd_mock, urlopen_mock):
         """test a valid login using the password manager"""
         user = "Test.User"
         expected_password = "Secure-Password"
         options = {'cache.token': False, 'client.address':'127.0.0.1'}
         cmd_mock.return_value = expected_password
-        self.assertEqual(cmd_mock.return_value, t.password_manager(user, options))
+        self.assertEqual(cmd_mock.return_value, token.password_manager(user, options))
 
         urlopen_mock.return_value = valid_login_response()
-        actual = str(t.token(user, t.password_manager, options))
+        actual = str(token.token(user, token.password_manager, options))
         self.assertEqual ('fake-token', actual)
 
     @patch('urllib.request.urlopen')
     def test_bad_login(self, urlopen_mock):
         """Test an invalid login"""
         options = {'cache.token': False, 'client.address':'127.0.0.1'}
-        urlopen_mock.side_effect = e.HTTPError(Mock(status=422), "422",
+        urlopen_mock.side_effect = urlerr.HTTPError(Mock(status=422), "422",
             "Unprocessable Entity", None, None)
         expected = 'HTTP Error 422: Unprocessable Entity'
-        actual = str(t.token("Test.User", t.password("test"), options))
+        actual = str(token.token("Test.User", token.password("test"), options))
         self.assertEqual (expected, actual)
 
 if __name__ == '__main__':
     unittest.main()
-    #unittest.main(warnings='ignore')

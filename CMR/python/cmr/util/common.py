@@ -21,6 +21,9 @@ specific language governing permissions and limitations under the License.
 #date 2020-10-26
 #since 0.0
 
+import os
+import subprocess
+
 def dict_or_default(dictionary, key, default):
     """
     return the contents of a dictionary pointed to with a key, or a default
@@ -41,3 +44,41 @@ def dict_or_default(dictionary, key, default):
         else:
             ret = default
     return ret
+
+def read_file(path):
+    """
+    Read and return the contents of a file
+    Parameters:
+        path (string): full path to file to read
+    Returns:
+        None if file was not found, contents otherwise
+    """
+    text = None
+    if os.path.isfile(path):
+        file = open(path, "r")
+        text = file.read().strip()
+        file.close()
+    return text
+
+def write_file(path, text):
+    """
+    Write (creating if need be) file and set it's content
+    Parameters:
+        path (string): path to file to write
+        text (string): content for file
+    """
+    path = os.path.expanduser(path)
+    cache = open(path, "w+")
+    cache.write(text)
+    cache.close()
+
+def execute_command(cmd):
+    """
+    A utility method to execute a shell command and return a string of the output
+    Parameters:
+        cmd(string) unix command to execute
+    Returns:
+        response from command
+    """
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    return result.stdout.decode('utf-8')

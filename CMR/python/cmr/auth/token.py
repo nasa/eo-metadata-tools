@@ -23,86 +23,17 @@ specific language governing permissions and limitations under the License.
 
 import json
 import os
-import re
-import socket
-import subprocess
 import time
 import urllib.parse
 import urllib.request
 
-import cmr.util.common as c
+import cmr.util.common as common
+import cmr.util.network as net
 
 # ##############################################################################
 # local utilities
 
 SEC_PER_DAY = 86400.0
-
-def _get_local_ip():
-    """
-    Note, this function may not always work for all users on all operating
-    systems.
-    Returns:
-        Computer's IP address, or the public IP address, or 127.0.0.1
-    """
-    try:
-        hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        socket.close()
-    except socket.error as _:
-        # try another way to do this
-        ip_address = _get_public_ip()
-    return ip_address
-
-def _get_public_ip():
-    """
-    Check with an external site to get the public IP address
-    Returns:
-        Public IP address or 127.0.0.1 if there was an error
-    """
-    data = str(urllib.request.urlopen('http://checkip.dyndns.com/').read())
-    found = re.compile(r'Address: (\d+\.\d+\.\d+\.\d+)').search(data)
-    if found is not None:
-        return found.group(1)
-    return "127.0.0.1"
-
-def _read_file(path):
-    """
-    Read and return the contents of a file
-    Parameters:
-        path (string): full path to file to read
-    Returns:
-        None if file was not found, contents otherwise
-    """
-    text = None
-    if os.path.isfile(path):
-        file = open(path, "r")
-        text = file.read().strip()
-        file.close()
-    return text
-
-def _write_file(path, text):
-    """
-    Write (creating if need be) file and set it's content
-    Parameters:
-        path (string): path to file to write
-        text (string): content for file
-    """
-    path = os.path.expanduser(path)
-    cache = open(path, "w+")
-    cache.write(text)
-    cache.close()
-
-def _write_token_file(token_text, options=None):
-    """
-    Write out a token cache file
-    Parameters:
-        token_text (string) : content to write out
-        options (dictionary): overrides, responds to 'cmr.token.file'
-    """
-    if options is None:
-        options = {}
-    token_path = c.dict_or_default(options, "cmr_token_file", "~/.cmr_token")
-    _write_file(token_path, token_text)
 
 def _days_old_from_time(past_timestamp, current_timestamp=time.time(), age=1.0):
     """
@@ -138,21 +69,22 @@ def _read_token_file(options=None):
     """
     if options is None:
         options = {}
-    raw_path = c.dict_or_default(options, "cmr.token.file", "~/.cmr_token")
+    raw_path = common.dict_or_default(options, "cmr.token.file", "~/.cmr_token")
     path = os.path.expanduser(raw_path)
-    clear_text = None if _old_file(path) else _read_file(path)
+    clear_text = None if _old_file(path) else common.read_file(path)
     return clear_text
 
-def _execute_command(cmd):
+def _write_token_file(token_text, options=None):
     """
-    A utility method to execute a shell command and return a string of the output
+    Write out a token cache file
     Parameters:
-        cmd(string) unix command to execute
-    Returns:
-        response from command
+        token_text (string) : content to write out
+        options (dictionary): overrides, responds to 'cmr.token.file'
     """
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    return result.stdout.decode('utf-8')
+    if options is None:
+        options = {}
+    token_path = common.dict_or_default(options, "cmr_token_file", "~/.cmr_token")
+    common.write_file(token_path, token_text)
 
 def _cmr_url(env):
     env = env if env=="" or env.endswith(".") else env + "."
@@ -186,9 +118,9 @@ def password_file(_, options=None):
     """
     if options is None:
         options = {}
-    path_to_use = c.dict_or_default(options, "password.path", "~/.cmr_password")
+    path_to_use = common.dict_or_default(options, "password.path", "~/.cmr_password")
     path = os.path.expanduser(path_to_use)
-    clear_text = _read_file(path)
+    clear_text = common.read_file(path)
     return clear_text
 
 def password_manager(account, options=None):
@@ -199,10 +131,10 @@ def password_manager(account, options=None):
     """
     if options is None:
         options = {}
-    app = c.dict_or_default(options, "password.manager.app", "/usr/bin/security")
-    service = c.dict_or_default(options, "password.manager.service", "cmr-lib")
+    app = common.dict_or_default(options, "password.manager.app", "/usr/bin/security")
+    service = common.dict_or_default(options, "password.manager.service", "cmr-lib")
     cmd = [app, "find-generic-password", "-a", account, "-s", service, "-w"]
-    result = _execute_command(cmd)
+    result = common.execute_command(cmd)
     if result is not None:
         result = result.strip()
     return result
@@ -286,10 +218,10 @@ def token(edl_user_name, password_lambda=password_file, opts=None):
     # handle the default, don't pass in bad data to the internal handler
     if opts is None:
         opts = {}
-    clean={"env": c.dict_or_default(opts, "cmr.env", prod()),
-        "address": c.dict_or_default(opts, 'client.address', _get_local_ip),
-        "client_name": c.dict_or_default(opts, 'client.name', 'python_cmr_lib'),
-        "cached": c.dict_or_default(opts, "cache.token", True),
+    clean={"env": common.dict_or_default(opts, "cmr.env", prod()),
+        "address": common.dict_or_default(opts, 'client.address', net.get_local_ip),
+        "client_name": common.dict_or_default(opts, 'client.name', 'python_cmr_lib'),
+        "cached": common.dict_or_default(opts, "cache.token", True),
         "clear_text_password": password_lambda(edl_user_name, opts)}
 
     edl_token = _request_token(edl_user_name, clean)
