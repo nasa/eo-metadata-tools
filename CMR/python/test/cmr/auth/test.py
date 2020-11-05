@@ -29,6 +29,7 @@ import urllib.error as urlerr
 
 import test.cmr as util
 import cmr.auth.token as token
+import cmr.util.common as common
 
 # ******************************************************************************
 
@@ -69,14 +70,19 @@ class TestToken(unittest.TestCase):
     def test_age(self):
         """ test the function used to judge if a file is too old to use """
         # pylint: disable=W0212
-        self.assertEqual(True, token._days_old_from_time(1))
-        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY))
-        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY, 1.0))
-        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*2, 1.0))
-        self.assertEqual(True, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*2+1, 1.0))
-        self.assertEqual(True, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*3, 1.0))
-        self.assertEqual(False, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*3, 2.0))
-        self.assertEqual(True, token._days_old_from_time(token.SEC_PER_DAY, token.SEC_PER_DAY*4, 2.0))
+        # use lambdas to keep the lines short and readable
+        test = lambda s,l,r : self.assertEqual(s, token._days_old_from_time(l,r))
+        test_x = lambda s,l,r,x : self.assertEqual(s, token._days_old_from_time(l,r,x))
+        test_1 = lambda s,l : self.assertEqual(s, token._days_old_from_time(l))
+
+        test_1(True, 1)
+        test(False, token.SEC_PER_DAY, token.SEC_PER_DAY)
+        test_x(False, token.SEC_PER_DAY, token.SEC_PER_DAY, 1.0)
+        test_x(False, token.SEC_PER_DAY, token.SEC_PER_DAY*2, 1.0)
+        test_x(True, token.SEC_PER_DAY, token.SEC_PER_DAY*2+1, 1.0)
+        test_x(True, token.SEC_PER_DAY, token.SEC_PER_DAY*3, 1.0)
+        test_x(False, token.SEC_PER_DAY, token.SEC_PER_DAY*3, 2.0)
+        test_x(True, token.SEC_PER_DAY, token.SEC_PER_DAY*4, 2.0)
 
     def test_password(self):
         """Test the password pass through function"""
@@ -109,6 +115,41 @@ class TestToken(unittest.TestCase):
         urlopen_mock.return_value = valid_login_response()
         actual = str(token.token(user, token.password_file, options))
         self.assertEqual ("fake-token", actual)
+
+    @patch('urllib.request.urlopen')
+    def test_cached_password_file(self, urlopen_mock):
+        """
+        Test a valid login using the password file lambda with caching on. This
+        will require that the test be able to write to a temp directory
+        """
+
+        #setup
+        password_file = "/tmp/__test_password_file__.txt"
+        token_file = "/tmp/__test_cached_token_file__.txt"
+        util.delete_file(password_file)
+        util.delete_file(token_file)
+        expected_password = "File-Password"
+        common.write_file(password_file, expected_password)
+
+        #test
+        user = "Test.User"
+        options = {'cache.token': True,
+            'cmr.token.file': token_file,
+            'password.path': password_file,
+            'client.address':'127.0.0.1'
+            }
+        self.assertEqual (expected_password, token.password_file(user, options))
+
+        urlopen_mock.return_value = valid_login_response()
+        actual = str(token.token(user, token.password_file, options))
+        self.assertEqual ("fake-token", actual)
+
+        actual_cached_token = common.read_file(token_file)
+        self.assertEqual("fake-token", actual_cached_token)
+
+        #cleanup
+        util.delete_file(password_file)
+        util.delete_file(token_file)
 
     @patch('urllib.request.urlopen')
     @patch('cmr.util.common.execute_command')

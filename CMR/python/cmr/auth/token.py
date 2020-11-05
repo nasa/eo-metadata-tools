@@ -71,7 +71,10 @@ def _read_token_file(options=None):
         options = {}
     raw_path = common.dict_or_default(options, "cmr.token.file", "~/.cmr_token")
     path = os.path.expanduser(raw_path)
-    clear_text = None if _old_file(path) else common.read_file(path)
+    clear_text = None
+    if os.path.isfile(raw_path):
+        if not _old_file(path):
+            clear_text = common.read_file(path)
     return clear_text
 
 def _write_token_file(token_text, options=None):
@@ -83,11 +86,11 @@ def _write_token_file(token_text, options=None):
     """
     if options is None:
         options = {}
-    token_path = common.dict_or_default(options, "cmr_token_file", "~/.cmr_token")
+    token_path = common.dict_or_default(options, "cmr.token.file", "~/.cmr_token")
     common.write_file(token_path, token_text)
 
 def _cmr_url(env):
-    env = env if env=="" or env.endswith(".") else env + "."
+    env = env if env=="" else env + "."
     url='https://cmr.{}earthdata.nasa.gov/legacy-services/rest/tokens.json'.format(env)
     return url
 
@@ -128,6 +131,7 @@ def password_manager(account, options=None):
     Use a system like the MacOS X Keychain app. Any os which also has the
     security app would also work.
     Responds to 'password.manager.app' and 'password.manager.service'
+    'password.manager.service' defaults to 'cmr-lib'
     """
     if options is None:
         options = {}
@@ -144,41 +148,42 @@ def password_manager(account, options=None):
 
 def sit():
     """ User to return the URL part that points to SIT """
-    return "sit."
+    return "sit"
 
 def uat():
     """ User to return the URL part that points to UAT """
-    return "uat."
+    return "uat"
 
 def prod():
     """ User to return the URL part that points to production """
     return ""
 
-def _request_token(user, options):
+def _request_token(user, clear_password, options):
     """
     Internal worker function to call CMR and request a token
     Parameters:
         user(string): EDL user name
-        password(string): EDL password
-        use_cache(boolean): True if tokens are to be cached and reused
-        client_name: HTTP client name to use in communications
-        env(string): CMR environment, defaults to prod
-        client_address(string): ip address of the machine making the request for token
+        clear_password(string): EDL password - in clear text ; protect this
+        options(dictionary): configuration object
+            cmr.env(string): CMR environment, defaults to prod
+            client.name: HTTP client name to use in communications
+            client.address(string): ip address of the machine making the request for token
+            cache.token(boolean): True if tokens are to be cached and reused
+
     Returns:
         token or text of exceptions from HTTPError
     """
     #unpack
-    clear_password = options["clear_text_password"]
-    use_cache = options["cached"]
-    client_name = options["client_name"]
-    env = options["env"]
-    client_address = options["address"]
+    env = common.dict_or_default(options, "cmr.env", prod())
+    client_address = common.dict_or_default(options, 'client.address', net.get_local_ip)
+    client_name = common.dict_or_default(options, 'client.name', 'python_cmr_lib')
+    use_cache = common.dict_or_default(options, "cache.token", True)
 
     if use_cache:
-        token_text = _read_token_file()
+        token_text = _read_token_file(options)
     else:
         token_text = None
-    if token_text is not None and len(token)>0:
+    if token_text is not None and len(token_text)>0:
         return token_text
     data='<token>\
 <username>{}</username>\
@@ -199,7 +204,7 @@ def _request_token(user, options):
 
         token_text = obj_json['token']['id']
         if use_cache:
-            _write_token_file(token_text)
+            _write_token_file(token_text, options)
         return token_text
     except urllib.error.HTTPError as exception:
         return exception
@@ -214,17 +219,9 @@ def token(edl_user_name, password_lambda=password_file, opts=None):
     Returns:
         token or text of exceptions from HTTPError
     """
-
-    # handle the default, don't pass in bad data to the internal handler
-    if opts is None:
-        opts = {}
-    clean={"env": common.dict_or_default(opts, "cmr.env", prod()),
-        "address": common.dict_or_default(opts, 'client.address', net.get_local_ip),
-        "client_name": common.dict_or_default(opts, 'client.name', 'python_cmr_lib'),
-        "cached": common.dict_or_default(opts, "cache.token", True),
-        "clear_text_password": password_lambda(edl_user_name, opts)}
-
-    edl_token = _request_token(edl_user_name, clean)
+    options = opts.copy() #never change the user's options
+    clear_text_password = password_lambda(edl_user_name, options)
+    edl_token = _request_token(edl_user_name, clear_text_password, options)
     return edl_token
 
 def print_help(prefix=""):
@@ -238,7 +235,7 @@ def print_help(prefix=""):
     out = lambda n, c : print (layout % (n, c.__doc__.strip())) if n.startswith(prefix) else None
 
     print ("**** Functions:")
-    out("helout()", help)
+    out("print_help()", help)
     out("token(id, lambda, options)", token)
     out("sit()", sit)
     out("uat()", uat)
