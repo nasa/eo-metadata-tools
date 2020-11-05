@@ -33,7 +33,7 @@ There are three ways to store a password for use in scripts. Plain text in the s
     * `password_file` = uses the contents of `~/.cmr_password`. File can be overwritten by setting `password.path`
     * `password_manager` = will check a password manager, specifically the `/usr/bin/security` command and response to the following overrides
         * `password.manager.app` = command to use
-        * `password.manager.service` = keychain object name
+        * `password.manager.service` = keychain object name, defaults to cmr-lib
 * options is a dictionary where overrides can be passed in
     * "cmr.env" - cmr server to use, defaults to production, can also be set to    
         * "sit"

@@ -22,6 +22,8 @@ specific language governing permissions and limitations under the License.
 #Created: 2020-10-26
 #since: 0.0.0
 
+import os
+
 class MockResponse():
     """
     Mock up a Response object like what would be returned from
@@ -48,3 +50,8 @@ class MockStream():
     def get_result(self):
         """ return the internal result ; silence PEP8 R0903 """
         return self.result
+
+def delete_file(path):
+    """ A basic delete file function for use by tests that need to clean up """
+    if os.path.isfile(path):
+        os.remove(path)

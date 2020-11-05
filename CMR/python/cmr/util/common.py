@@ -39,8 +39,6 @@ def dict_or_default(dictionary, key, default):
         if hasattr(default, '__call__'):
             # Python > 3.2 way of doing things
             ret = default()
-        #elif callable(default):
-        #    ret = default()
         else:
             ret = default
     return ret
