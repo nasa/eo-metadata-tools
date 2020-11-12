@@ -7,3 +7,12 @@ languages.
 ## Projects ##
 
 * [CMR Python Wrapper](CMR/python)
+
+## Community
+
+Please review the following files:
+
+* [Code of Conduct](CODE_OF_CONDUCT.md)
+* [Contributing](CONTRIBUTING.md)
+* [License](LICENSE)
+* [Security](SECURITY.md)
