@@ -21,8 +21,15 @@ specific language governing permissions and limitations under the License.
 #date 2020-10-26
 #since 0.0
 
+from enum import Enum
 import os
 import subprocess
+
+def enum_value(value):
+    """ Get a value either directly or from an Enum """
+    if isinstance(value, Enum):
+        value = value.value
+    return value
 
 def dict_or_default(dictionary, key, default):
     """
@@ -33,6 +40,8 @@ def dict_or_default(dictionary, key, default):
     key(string)= index in dictionary to look for
     default(string/lambda)= text or function that gets text to use if value does not exist
     """
+    if dictionary is None:
+        dictionary = {}
     if key in dictionary:
         ret = dictionary[key]
     else:
@@ -80,3 +89,22 @@ def execute_command(cmd):
     """
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     return result.stdout.decode('utf-8')
+
+def call_security(account, service, app="/usr/bin/security"):
+    """Call the security command to look up encrypted values"""
+    cmd = [app, "find-generic-password", "-a", account, "-s", service, "-w"]
+    result = execute_command(cmd)
+    if result is not None:
+        result = result.strip()
+    else:
+        raise TypeError("account not found in keychain")
+    return result
+
+def help_format_lambda(prefix=""):
+    """
+    Return a lambda to be used to format help output for a function
+    """
+    layout = "\n{}:\n{}\n"
+    # n=name, c=content ; made short to keep line length down and pylint happy
+    out = lambda n, c : (layout.format(n, c.__doc__.strip())) if n.startswith(prefix) else ""
+    return out
