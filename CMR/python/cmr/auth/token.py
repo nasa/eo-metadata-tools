@@ -1,6 +1,6 @@
 # NASA EO-Metadata-Tools Python interface for the Common Metadata Repository (CMR)
 #
-#     https://github.com/nasa/Common-Metadata-Repository/
+#     https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 #
 # Copyright (c) 2020 United States Government as represented by the Administrator
 # of the National Aeronautics and Space Administration. All Rights Reserved.
