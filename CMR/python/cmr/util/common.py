@@ -21,7 +21,7 @@ specific language governing permissions and limitations under the License.
 #date 2020-10-26
 #since 0.0
 
-from enum import Enum
+from enum import Enum # requires Python 3.4
 import os
 import subprocess
 
