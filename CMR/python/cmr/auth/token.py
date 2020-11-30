@@ -135,7 +135,7 @@ def print_help(prefix=""):
 
     out += ("\n**** Functions:\n")
     for item in [print_help, token]:
-        out += formater(item.__name__+"()", item)
+        out += formater(item.__name__ + "()", item)
 
     out += "\n**** Token Lambdas:\n"
     for item in [token_literal, token_config, token_file, token_manager]:
