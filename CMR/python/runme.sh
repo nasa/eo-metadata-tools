@@ -5,7 +5,7 @@
 
 printf "*********************************************************************\n"
 printf "Run pylint to check for common code convention warnings\n"
-pylint *
+pylint * --ignore-patterns=".*\.md,.*\.sh,pylintrc"
 
 printf "*********************************************************************\n"
 printf "Run the unit test for all subdirectories\n"

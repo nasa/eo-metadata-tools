@@ -1,54 +1,128 @@
+# NASA EO-Metadata-Tools Python interface for the Common Metadata Repository (CMR)
+#
+#     https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
+#
+# Copyright (c) 2020 United States Government as represented by the Administrator
+# of the National Aeronautics and Space Administration. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed
+# under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+
 """
-NASA EO-Metadata-Tools Python interface for the Common Metadata Repository (CMR)
-
-    https://github.com/nasa/Common-Metadata-Repository/
-
-Copyright (c) 2020 United States Government as represented by the Administrator
-of the National Aeronautics and Space Administration. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-CONDITIONS OF ANY KIND, either express or implied. See the License for the
-specific language governing permissions and limitations under the License.
+date 2020-11-05
+since 0.0
 """
 
-#date 2020-11-05
-#since 0.0
-
-import re
-import socket
+import json
+import urllib.parse
 import urllib.request
 
-def get_local_ip():
-    """
-    Note, this function may not always work for all users on all operating
-    systems.
-    Returns:
-        Computer's IP address, or the public IP address, or 127.0.0.1
-    """
-    try:
-        hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        socket.close()
-    except socket.error as _:
-        # try another way to do this
-        ip_address = get_public_ip()
-    return ip_address
+import cmr.util.common as common
 
-def get_public_ip():
+def get_local_ip():
+    """ rewrite this stub"""
+    return '127.0.0.1'
+
+def value_to_param(key, value):
     """
-    Check with an external site to get the public IP address
-    Returns:
-        Public IP address or 127.0.0.1 if there was an error
+    Convert a key value pair into a URL parameter pair
     """
-    data = str(urllib.request.urlopen('http://checkip.dyndns.com/').read())
-    found = re.compile(r'Address: (\d+\.\d+\.\d+\.\d+)').search(data)
-    if found is not None:
-        return found.group(1)
-    return "127.0.0.1"
+    value = common.enum_value(value)
+    encoded_key = urllib.parse.quote(key)
+    encoded_value = urllib.parse.quote(value)
+    result = encoded_key + "=" + encoded_value
+    return result
+
+def expand_parameter_to_parameters(key, parameter):
+    """
+    Convert a list of values into a list of URL parameters
+    """
+    result = []
+    if isinstance(parameter, list):
+        for item in parameter:
+            param = value_to_param(key, item)
+            result.append(param)
+    else:
+        value = common.enum_value(parameter)
+        encoded_key = urllib.parse.quote(key)
+        encoded_value = urllib.parse.quote(value)
+        result.append(encoded_key + "=" + encoded_value)
+    return result
+
+def expand_query_to_parameters(query=None):
+    """ Convert a dictionary to URL parameters """
+    params = []
+    if query is None:
+        return ""
+    for key in query:
+        value = query[key]
+        params = params + expand_parameter_to_parameters(key, value)
+    return "&".join(params)
+
+def apply_headers(req, headers):
+    """Apply a headers to a urllib request object """
+    if headers is not None and req is not None:
+        for key in headers:
+            value = headers[key]
+            if value is not None and len(value)>0:
+                req.add_header(key, value)
+
+def transform_results(results, keys_of_interest):
+    """
+    Take a list of results and convert them to a multi valued dictionary. The
+    real world use case is to take values from a list of collections and pass
+    them to a granule search.
+
+    [{key1:value1},{key1:value2},...] -> {"key1": [value1,value2]} ->
+        &key1=value1&key1=value2 ( via expand_query_to_parameters() )
+    """
+    params = {}
+    for item in results:
+        for key in keys_of_interest:
+            if key in item:
+                value = item[key]
+                if key in params:
+                    params[key].append(value)
+                else:
+                    params[key] = [value]
+    return params
+
+def options_to_header(options, source_key, headers, destination_key=None, default=None):
+    """
+    Copy a value in the options into a header dictionary for use by urllib
+    """
+    if destination_key is None:
+        destination_key = source_key
+    value = common.dict_or_default(options, source_key, default)
+    if destination_key is not None and value is not None:
+        if headers is None:
+            headers = {}
+        headers[destination_key] = value
+
+def get(url, accept=None, client_id=None, headers=None):
+    """
+    Make a basic HTTP call to CMR
+    Parameters:
+        url (string): resource to get
+        accept (string): encoding of the returned data, some form of json is expected
+        client_id (string): name of the client making the (not python or curl)
+        headers (dictionary): HTTP headers to apply
+    """
+    req = urllib.request.Request(url)
+    apply_headers(req, {'Accept': accept, 'Client-Id': client_id})
+    apply_headers(req, headers)
+    try:
+        resp = urllib.request.urlopen(req)
+        raw_response = resp.read().decode('utf-8')
+        obj_json = json.loads(raw_response)
+        return obj_json
+    except urllib.error.HTTPError as exception:
+        return exception
