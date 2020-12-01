@@ -106,6 +106,7 @@ def options_to_header(options, source_key, headers, destination_key=None, defaul
         if headers is None:
             headers = {}
         headers[destination_key] = value
+    return headers
 
 def get(url, accept=None, client_id=None, headers=None):
     """
