@@ -56,12 +56,13 @@ class TestSearch(unittest.TestCase):
 
     def test_expand_query_to_parameters(self):
         """ Test the function that expands dictionaries into URL queries """
-        self.assertEqual("", net.expand_query_to_parameters({}))
-        self.assertEqual("key1=v1", net.expand_query_to_parameters({'key1':'v1'}))
+        self.assertEqual('', net.expand_query_to_parameters({}))
+        self.assertEqual('key1=v1', net.expand_query_to_parameters({'key1':'v1'}))
 
-        expected = "key1=v1&key2=v2"
+        expected1 = 'key1=v1&key2=v2'
+        expected2 = 'key2=v2&key1=v1'
         actual = net.expand_query_to_parameters({'key1':'v1', 'key2':'v2'})
-        self.assertEqual(expected, actual)
+        self.assertTrue(actual in [expected1,expected2])
 
     def test_transform_results(self):
         """
