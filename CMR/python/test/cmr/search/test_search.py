@@ -47,12 +47,33 @@ class TestSearch(unittest.TestCase):
     # Tests
 
     @patch('urllib.request.urlopen')
+    def test_limited_search(self, urlopen_mock):
+        """
+        Test that the limit parameter will not allow more data to be returned.
+        CMR may return more data on the last page if a page value is specified.
+        For this test, 10 results are returned and the API will opt to return
+        fewer to the caller
+        """
+        # Setup
+        recorded_data_file = 'test/data/cmr/search/ten_results_from_ghrc.json'
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+
+        # tests
+        for index in [1,2,5,10]:
+            result = coll.search({'provider':'GHRC_CLOUD'}, limit=index)
+            self.assertEqual(index, len(result))
+
+        over_result = coll.search({'provider':'GHRC_CLOUD'}, limit=11)
+        self.assertEqual(10, len(over_result))
+
+    @patch('urllib.request.urlopen')
     def test_search(self, urlopen_mock):
         """
         def search(query=None, filters=None, limit=None, config=None):
         """
         # Setup
-        urlopen_mock.return_value = valid_cmr_response('test/data/cmr/search/one_cmr_result.json')
+        recorded_data_file = 'test/data/cmr/search/one_cmr_result.json'
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
 
         full_result = coll.search({'provider':'SEDAC'}, limit=1)
         self.assertEqual(1, len(full_result))
