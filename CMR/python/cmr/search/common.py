@@ -182,7 +182,7 @@ def create_page_state(page_size=10, page_num=1, took=0, limit=10):
     took = max(0, took)
     if limit is None:
         limit = 10
-    limit = max(1, min(limit, 100_000))
+    limit = max(1, min(limit, int(100_000)))
 
     if limit<2000:
         # page_size and limit are the same thing in this case
