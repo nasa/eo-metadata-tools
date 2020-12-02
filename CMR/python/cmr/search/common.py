@@ -175,14 +175,14 @@ def create_page_state(page_size=10, page_num=1, took=0, limit=10):
         page_size: number of hits per request, can be 1-2000, default to 10
         page_num: current page, can be 1-50, default to 1
         took: positive number, seconds of total processing
-        limit: max records to return, 1-100_000, default to 10
+        limit: max records to return, 1-100000, default to 10
     """
     page_size = max(1, min(page_size, 2000))
     page_num = max(1, min(page_num, 50))        # 2,000 * 50 = 100,000
     took = max(0, took)
     if limit is None:
         limit = 10
-    limit = max(1, min(limit, int(100_000)))
+    limit = max(1, min(limit, 100000))
 
     if limit<2000:
         # page_size and limit are the same thing in this case
