@@ -40,23 +40,23 @@ import cmr.search.common as scom
 # ******************************************************************************
 # filter function lambdas
 
-def columns_pass(item):
+def all_fields(item):
     """Pass through, do no filtering - is this needed outside of testing?"""
-    return scom.columns_pass(item)
-def columns_meta(item):
+    return scom.all_fields(item)
+def meta_fields(item):
     """Return only the the meta objects"""
-    return scom.columns_meta(item)
-def columns_umm(item):
+    return scom.meta_fields(item)
+def umm_fields(item):
     """Return only the UMM part of the data"""
-    return scom.columns_umm(item)
-def columns_concept_ids(item):
+    return scom.umm_fields(item)
+def concept_id_fields(item):
     """extract only fields that are used to identify a record"""
-    return scom.columns_concept_ids(item)
-def columns_drop(key):
+    return scom.concept_id_fields(item)
+def drop_fields(key):
     """drop a key from a dictionary"""
-    return scom.columns_drop(key)
+    return scom.drop_fields(key)
 
-def columns_collection_core_fields(item):
+def collection_core_fields(item):
     """Extract only fields that are used to identify a record"""
     if 'umm' in item:
         umm = item['umm']
@@ -72,7 +72,7 @@ def columns_collection_core_fields(item):
         'EntryTitle': umm['EntryTitle']}
     return record
 
-def columns_collection_ids_for_granules(item):
+def collection_ids_for_granules_fields(item):
     """Extract only the fields that are of interest to doing a granule search"""
     if 'umm' in item:
         umm = item['umm']
@@ -113,13 +113,13 @@ def open_api(section='#collection-search-by-parameters'):
     """Ask python to open up the API in a new browser window"""
     scom.open_api(section)
 
-def print_help(prefix=""):
+def print_help(contains=""):
     """
     Built in help - prints out the public function names for the collection object for the token API
     Parameters:
         filter(string): filters out functions beginning with this text, defaults to all
     """
-    functions = [print_help, search]
-    filters = [columns_collection_ids_for_granules, columns_collection_core_fields,
-        columns_drop, columns_concept_ids, columns_umm, columns_meta, columns_pass]
-    return scom.print_help(prefix, functions, filters)
+    functions = [open_api, print_help, search]
+    filters = [collection_ids_for_granules_fields, collection_core_fields,
+        drop_fields, concept_id_fields, umm_fields, meta_fields, all_fields]
+    return scom.print_help(contains, functions, filters)

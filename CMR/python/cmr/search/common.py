@@ -44,20 +44,20 @@ import cmr.util.logging as log
 # ******************************************************************************
 # filter function lambdas
 
-def columns_pass(item):
+def all_fields(item):
     """ Pass through, do no filtering - is this needed outside of testing?"""
     return item
-def columns_meta(item):
+def meta_fields(item):
     """return only the the meta objects"""
     if 'meta' in item:
         return item['meta']
     return item
-def columns_umm(item):
+def umm_fields(item):
     """return only the UMM part of the data"""
     if 'umm' in item:
         return item['umm']
     return item
-def columns_concept_ids(item):
+def concept_id_fields(item):
     """extract only fields that are used to identify a record"""
     if "meta" in item:
         meta = item['meta']
@@ -68,7 +68,7 @@ def columns_concept_ids(item):
         return item
     record = {'concept-id': concept_id}
     return record
-def columns_drop(key):
+def drop_fields(key):
     """drop a key from a dictionary"""
     return lambda dict : common.drop_key_safely(dict, key)
 

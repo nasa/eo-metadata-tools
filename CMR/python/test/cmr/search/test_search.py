@@ -59,13 +59,13 @@ class TestSearch(unittest.TestCase):
 
         # Unfiltered Test
         unfiltered_result = coll.search({'provider':'SEDAC'},
-            filters=[coll.columns_pass],
+            filters=[coll.all_fields],
             limit=1)
         self.assertEqual(full_result, unfiltered_result)
 
         # Meta filter Test
         meta_results = coll.search({'provider':'SEDAC'},
-            filters=[coll.columns_meta],
+            filters=[coll.meta_fields],
             limit=1)
         expected = [{'revision-id': 31,
             'deleted': False,
@@ -86,7 +86,7 @@ class TestSearch(unittest.TestCase):
 
         # UMM filter Test
         umm_results = coll.search({'provider':'SEDAC'},
-            filters=[coll.columns_umm],
+            filters=[coll.umm_fields],
             limit=1)
         expected = '2000 Pilot Environmental Sustainability Index (ESI)'
         self.assertEqual(expected, umm_results[0]['EntryTitle'])
@@ -94,17 +94,17 @@ class TestSearch(unittest.TestCase):
 
         # Collection ID Filter Test
         cid_results = coll.search({'provider':'SEDAC'},
-            filters=[coll.columns_concept_ids],
+            filters=[coll.concept_id_fields],
             limit=1)
         expected = [{'concept-id': 'C179001887-SEDAC'}]
         self.assertEqual(expected, cid_results)
 
         # Drop Filter Test
         drop_results = coll.search({'provider':'SEDAC'},
-            filters=[coll.columns_meta,
-                coll.columns_drop('has-temporal-subsetting'),
-                coll.columns_drop('revision-date'),
-                coll.columns_drop('has-spatial-subsetting')],
+            filters=[coll.meta_fields,
+                coll.drop_fields('has-temporal-subsetting'),
+                coll.drop_fields('revision-date'),
+                coll.drop_fields('has-spatial-subsetting')],
             limit=1)
         expected = [{'concept-id': 'C179001887-SEDAC'}]
         meta_count = len(meta_results[0].keys()) #from test above
@@ -113,7 +113,7 @@ class TestSearch(unittest.TestCase):
 
         #IDs Filter Test
         ids_results = coll.search({'provider':'SEDAC'},
-            filters=[coll.columns_collection_core_fields],
+            filters=[coll.collection_core_fields],
             limit=1)
         expected = [{'concept-id': 'C179001887-SEDAC',
             'ShortName': 'CIESIN_SEDAC_ESI_2000',
@@ -123,7 +123,7 @@ class TestSearch(unittest.TestCase):
 
         # Granule IDs Filter Tests
         gids_results = coll.search({'provider':'SEDAC'},
-            filters=[coll.columns_collection_ids_for_granules],
+            filters=[coll.collection_ids_for_granules_fields],
             limit=1)
         expected = [{'provider-id': 'SEDAC',
             'concept-id': 'C179001887-SEDAC',
@@ -135,13 +135,13 @@ class TestSearch(unittest.TestCase):
     def test_help_full(self):
         """Test the built in help"""
         result_full = coll.print_help()
-        self.assertTrue (-1<result_full.find("columns_collection_ids_for_granules"))
+        self.assertTrue (-1<result_full.find("collection_ids_for_granules_fields"))
         self.assertTrue (-1<result_full.find("search():"))
 
     def test_help_less(self):
         """Test the built in help for filtering"""
-        result_less = coll.print_help("columns_")
-        self.assertTrue (-1<result_less.find("columns_collection_ids_for_granules"))
+        result_less = coll.print_help("_fields")
+        self.assertTrue (-1<result_less.find("collection_ids_for_granules_fields"))
         self.assertFalse (-1<result_less.find("search():"))
 
     # Ignore this so that an example of how to run the code can be documented
@@ -156,7 +156,7 @@ class TestSearch(unittest.TestCase):
         #params["provider"] = "SEDAC"
         params['keyword'] = 'salt'
         results = coll.search(query=params,
-            filters=[coll.columns_collection_core_fields, coll.columns_drop('EntryTitle')],
+            filters=[coll.collection_core_fields, coll.drop_fields('EntryTitle')],
             limit=None,
             config=config)
         for i in results:
