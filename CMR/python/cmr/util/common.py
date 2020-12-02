@@ -30,6 +30,12 @@ def enum_value(value):
         value = value.value
     return value
 
+def drop_key_safely(dictionary, key):
+    """drop a key from a dict if it exists and return that change"""
+    if key in dictionary:
+        del dictionary[key]
+    return dictionary
+
 def dict_or_default(dictionary, key, default):
     """
     return the contents of a dictionary pointed to with a key, or a default
@@ -99,11 +105,11 @@ def call_security(account, service, app="/usr/bin/security"):
         raise TypeError("account not found in keychain")
     return result
 
-def help_format_lambda(prefix=""):
+def help_format_lambda(contains=""):
     """
     Return a lambda to be used to format help output for a function
     """
     layout = "\n{}:\n{}\n"
     # n=name, c=content ; made short to keep line length down and pylint happy
-    out = lambda n, c : (layout.format(n, c.__doc__.strip())) if n.startswith(prefix) else ""
+    out = lambda n, c : (layout.format(n, c.__doc__.strip())) if contains in n else ""
     return out
