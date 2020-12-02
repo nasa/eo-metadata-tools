@@ -4,7 +4,7 @@ A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 
 ## Assumptions
 
-1. Python 3.2 or better.
+1. Python 3.4 or better.
 2. Can access [cmr.earthdata.nasa.gov][cmr]
 3. Optional: an account on [urs.earthdata.nasa.gov][edl]
 4. Third party libraries are not to be used unless absolutely necessary (none as of now)
@@ -17,32 +17,11 @@ A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 
 ## Usage
 
-### Getting an EDL token
+### UAT vs Production
 
-There are three ways to store a password for use in scripts. Plain text in the script (not recommended), in a file, but still clear text, or if you are on a mac or compatible system, you can use the password manager which on Mac OS X will come from Keychain. These three methods are selected by passing in a lambda function to the token() function
+For testing and general exploration it is advised that the User Acceptance Testing (UAT) environment of CMR be used instead of Production. These two end points have different URLs which are managed by the API. The default is production, however to use the UAT service pass in an optional configuration as shown here:
 
-    import cmr.auth.token as edl
-    edl_token = edl.token(user_id)
-    edl_token = edl.token(user_id, edl.password("clear_text"))
-    edl_token = edl.token(user_id, edl.password_file, {"password_file":"~/.passwd"})
-    edl_token = edl.token(user_id, edl.password_manager, {})
-
-* user_id is the Earthdata login name
-* `password_lambda` is a function for returning passwords and defaults to `password_file`.
-    * `password(text)` = creates a lambda using a hard coded password.
-    * `password_file` = uses the contents of `~/.cmr_password`. File can be overwritten by setting `password.path`
-    * `password_manager` = will check a password manager, specifically the `/usr/bin/security` command and response to the following overrides
-        * `password.manager.app` = command to use
-        * `password.manager.service` = keychain object name, defaults to cmr-lib
-* options is a dictionary where overrides can be passed in
-    * "cmr.env" - cmr server to use, defaults to production, can also be set to    
-        * "sit"
-        * "uat",
-        * "" (empty string ; the default) for production.
-    * 'client.address' - client IP address to use, will try to discover it if not provided
-    * 'client.name' - HTTP Agent name to use
-    * "cache.token" - will cache tokens to a file - default is True
-    * "cmr.token.file" - location of token cache
+    results = coll.search(params, config={'env':'uat'})
 
 ### Testing
 `python3 -m unittest discover`
