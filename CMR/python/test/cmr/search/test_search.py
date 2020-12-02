@@ -144,6 +144,13 @@ class TestSearch(unittest.TestCase):
         self.assertTrue (-1<result_less.find("collection_ids_for_granules_fields"))
         self.assertFalse (-1<result_less.find("search():"))
 
+    def test_apply_filter(self):
+        """Test that apply filters function can be used to strip items out of the data"""
+        data = [{'a':'11', 'b':'21', 'c':'31'}, {'a':'12', 'b':'22', 'c':'32'}]
+        result = coll.apply_filters([coll.drop_fields('a'), coll.drop_fields('b')], data)
+        expected = [{'c': '31'}, {'c': '32'}]
+        self.assertEqual (expected, result)
+
     # Ignore this so that an example of how to run the code can be documented
     # pylint: disable=R0201
     def _test_live_search(self):

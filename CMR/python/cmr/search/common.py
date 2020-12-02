@@ -88,7 +88,7 @@ def _handle_all_filters(filter_list, item):
         result = filter_function(result)
     return result
 
-def _handle_filters(filters, items):
+def apply_filters(filters, items):
     """handle filters or a single filter"""
     result = []
 
@@ -221,7 +221,7 @@ def search_by_page(base, query=None, filters=None, page_state=None, config=None)
             'took': obj_json['took'],
             'items': obj_json['items']}
 
-        resp_stats['items'] = _handle_filters(filters, resp_stats['items'])
+        resp_stats['items'] = apply_filters(filters, resp_stats['items'])
 
         if _continue_download(resp_stats['hits'], page_state):
             next_page_state = _next_page_state(page_state, resp_stats['took'])
@@ -229,14 +229,14 @@ def search_by_page(base, query=None, filters=None, page_state=None, config=None)
             if next_page_state['took'] > max_time:
                 # Do not allow searches to go on forever
                 log.logging.warning("max search time exceeded")
-                return resp_stats['items']
+                return resp_stats['items'][:page_state['limit']]
             recursive_items = search_by_page(base,
                 query=query,
                 filters=filters,
                 page_state=next_page_state,
                 config=config)
             resp_stats['items'] = resp_stats['items'] + recursive_items
-    return resp_stats['items']
+    return resp_stats['items'][:page_state['limit']]
 
 def open_api(section):
     """ Ask python to open up the API in a new browser window - unsupported!"""

@@ -97,6 +97,17 @@ def collection_ids_for_granules_fields(item):
 # ******************************************************************************
 # public search functions
 
+def apply_filters(filters, items):
+    """
+    Apply all the filters on the downloaded data
+    Parameters:
+        filters(list): a list of filter lambdas which taken in a row and return and row
+        items(list): list of records from CMR
+    Returns:
+        Filtered data
+    """
+    return scom.apply_filters(filters, items)
+
 def search(query=None, filters=None, limit=None, config=None):
     """
     Search and return all records
@@ -119,7 +130,7 @@ def print_help(contains=""):
     Parameters:
         filter(string): filters out functions beginning with this text, defaults to all
     """
-    functions = [open_api, print_help, search]
+    functions = [apply_filters, open_api, print_help, search]
     filters = [collection_ids_for_granules_fields, collection_core_fields,
         drop_fields, concept_id_fields, umm_fields, meta_fields, all_fields]
     return scom.print_help(contains, functions, filters)
