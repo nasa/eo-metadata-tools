@@ -95,13 +95,13 @@ def transform_results(results, keys_of_interest):
                     params[key] = [value]
     return params
 
-def options_to_header(options, source_key, headers, destination_key=None, default=None):
+def config_to_header(config, source_key, headers, destination_key=None, default=None):
     """
-    Copy a value in the options into a header dictionary for use by urllib
+    Copy a value in the config into a header dictionary for use by urllib
     """
     if destination_key is None:
         destination_key = source_key
-    value = common.dict_or_default(options, source_key, default)
+    value = common.dict_or_default(config, source_key, default)
     if destination_key is not None and value is not None:
         if headers is None:
             headers = {}
@@ -110,7 +110,7 @@ def options_to_header(options, source_key, headers, destination_key=None, defaul
 
 def get(url, accept=None, client_id=None, headers=None):
     """
-    Make a basic HTTP call to CMR
+    Make a basic HTTP call to CMR using the GET action
     Parameters:
         url (string): resource to get
         accept (string): encoding of the returned data, some form of json is expected
@@ -118,6 +118,33 @@ def get(url, accept=None, client_id=None, headers=None):
         headers (dictionary): HTTP headers to apply
     """
     req = urllib.request.Request(url)
+    apply_headers(req, {'Accept': accept, 'Client-Id': client_id})
+    apply_headers(req, headers)
+    try:
+        resp = urllib.request.urlopen(req)
+        raw_response = resp.read().decode('utf-8')
+        obj_json = json.loads(raw_response)
+        return obj_json
+    except urllib.error.HTTPError as exception:
+        return exception
+
+def post(url, body, accept=None, client_id=None, headers=None):
+    """
+    Make a basic HTTP call to CMR using the POST action
+    Parameters:
+        url (string): resource to get
+        body (dictionary): parameters to send
+        accept (string): encoding of the returned data, some form of json is expected
+        client_id (string): name of the client making the (not python or curl)
+        headers (dictionary): HTTP headers to apply
+    """
+    # Do not use the standard url encoder `urllib.parse.urlencode(body)` for the
+    # body/data because it can not handle repeating values as required by CMR.
+    # For example: `{'version': ['2', '3']}` must become `version=2&version=3`
+    # not `version=[2, 3]`
+    data = expand_query_to_parameters(body)
+    data = data.encode('utf-8')
+    req = urllib.request.Request(url, data)
     apply_headers(req, {'Accept': accept, 'Client-Id': client_id})
     apply_headers(req, headers)
     try:

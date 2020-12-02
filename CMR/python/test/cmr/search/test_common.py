@@ -50,13 +50,13 @@ class TestSearch(unittest.TestCase):
     def test_create_state(self):
         """Test the function which generates a page state"""
         base_state = scom.create_page_state()
-        self.assertEqual(20, base_state['page_size'])
+        self.assertEqual(10, base_state['page_size'])
         self.assertEqual(1, base_state['page_num'])
         self.assertEqual(0, base_state['took'])
-        self.assertEqual(20, base_state['limit'])
+        self.assertEqual(10, base_state['limit'])
 
         limit_state = scom.create_page_state(limit=1000)
-        self.assertEqual(100, limit_state['page_size'])
+        self.assertEqual(1000, limit_state['page_size'])
         self.assertEqual(1000, limit_state['limit'])
 
         limit_priority_state = scom.create_page_state(page_size=1500, limit=1200)
@@ -64,48 +64,74 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(1200, limit_priority_state['limit'])
 
         mixed_state = scom.create_page_state(page_size=1200, limit=1500)
-        self.assertEqual(1200, mixed_state['page_size'])
+        self.assertEqual(1500, mixed_state['page_size'])
         self.assertEqual(1500, mixed_state['limit'])
+
+        high_state = scom.create_page_state(page_size=1000, limit=4000)
+        self.assertEqual(2000, high_state['page_size'])
+        self.assertEqual(4000, high_state['limit'])
 
     # pylint: disable=W0212
     def test_continue_download(self):
         """Test the function that checks if enough records have been downloaded"""
         #limit to 20, 100 per page, first page
         page_state = scom.create_page_state()
-
         self.assertFalse(scom._continue_download(42, page_state))
         self.assertFalse(scom._continue_download(10, page_state))
         self.assertFalse(scom._continue_download(20, page_state))
 
-        #limit to 1000, 100 per page
+        #limit to 1000, 1000 per page
         page_state = scom.create_page_state(limit=1000)
-        self.assertFalse(scom._continue_download(64, page_state))
+        self.assertFalse(scom._continue_download(1, page_state))
+        self.assertFalse(scom._continue_download(10, page_state))
         self.assertFalse(scom._continue_download(100, page_state))
-        self.assertTrue(scom._continue_download(255, page_state))
-        self.assertTrue(scom._continue_download(1024, page_state))
+        self.assertFalse(scom._continue_download(1000, page_state))
+        self.assertFalse(scom._continue_download(2000, page_state))
+        self.assertFalse(scom._continue_download(4000, page_state))
+
+        #limit to 1000, 1000 per page
+        page_state = scom.create_page_state(limit=4000)
+        self.assertFalse(scom._continue_download(64, page_state))
+        self.assertFalse(scom._continue_download(128, page_state))
+        self.assertFalse(scom._continue_download(255, page_state))
+        self.assertFalse(scom._continue_download(1000, page_state))
+        self.assertFalse(scom._continue_download(1024, page_state))
+        self.assertFalse(scom._continue_download(2000, page_state))
+        self.assertTrue(scom._continue_download(4000, page_state))  #only one page
+        self.assertTrue(scom._continue_download(8000, page_state))  #only one page
+
+        #limit to 1000, 2000 per page, 2 page
+        page_state = scom.create_page_state(page_num=2, limit=4000)
+        self.assertFalse(scom._continue_download(1, page_state))
+        self.assertFalse(scom._continue_download(10, page_state))
+        self.assertFalse(scom._continue_download(100, page_state))
+        self.assertFalse(scom._continue_download(1000, page_state))
+        self.assertFalse(scom._continue_download(2000, page_state))
+        self.assertFalse(scom._continue_download(4000, page_state))  #only one page
+        self.assertFalse(scom._continue_download(8000, page_state))  #only one page
 
     # pylint: disable=W0212
-    def test_standard_headers_from_options(self):
+    def test_standard_headers_from_config(self):
         """test that standard headers can be setup"""
         basic_expected = {'Client-Id': 'python_cmr_lib'}
-        basic_result = scom._standard_headers_from_options({'a':1})
+        basic_result = scom._standard_headers_from_config({'a':1})
         self.assertEqual(basic_expected, basic_result)
 
-        options = {'cmr-token': 'a-cmr-token',
+        config = {'cmr-token': 'a-cmr-token',
             'X-Request-Id': '0123-45-6789',
             'Client-Id': 'fancy-client',
             'Not-A-Header': 'do not include me'}
         defined_expected = {'Echo-Token': 'a-cmr-token',
             'X-Request-Id': '0123-45-6789',
             'Client-Id': 'fancy-client'}
-        defined_result = scom._standard_headers_from_options(options)
+        defined_result = scom._standard_headers_from_config(config)
         self.assertEqual(defined_expected, defined_result)
 
-        options = {'cmr-token': 'a-cmr-token',
+        config = {'cmr-token': 'a-cmr-token',
             'Not-A-Header': 'do not include me'}
         token_expected = {'Echo-Token': 'a-cmr-token',
             'Client-Id': 'python_cmr_lib'}
-        token_result = scom._standard_headers_from_options(options)
+        token_result = scom._standard_headers_from_config(config)
         self.assertEqual(token_expected, token_result)
 
     # pylint: disable=W0212
@@ -114,20 +140,20 @@ class TestSearch(unittest.TestCase):
         page_state = scom.create_page_state()
         result = scom._cmr_url("search", {'provider':'p01'}, page_state, {'env':'sit'})
         expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
-            'page_size=20&page_num=1&provider=p01'
+            'page_size=10&page_num=1&provider=p01'
         self.assertEqual(expected, result)
 
         result = scom._cmr_url("search", {'provider':'p01'}, page_state, {'env':'sit.'})
         expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
-            'page_size=20&page_num=1&provider=p01'
+            'page_size=10&page_num=1&provider=p01'
         self.assertEqual(expected, result)
 
         result = scom._cmr_url("search", {'provider':'p01'}, page_state, {})
         expected = 'https://cmr.earthdata.nasa.gov/search/search?' \
-            'page_size=20&page_num=1&provider=p01'
+            'page_size=10&page_num=1&provider=p01'
         self.assertEqual(expected, result)
 
         result = scom._cmr_url("search", {}, page_state, {})
         expected = 'https://cmr.earthdata.nasa.gov/search/search?' \
-            'page_size=20&page_num=1&'
+            'page_size=10&page_num=1&'
         self.assertEqual(expected, result)

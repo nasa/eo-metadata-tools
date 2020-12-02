@@ -27,56 +27,40 @@ This function can handle any query parameter which is supported by the CMR.
     search_by_page()
         base - CMR API end point directory
         query - a dictionary of CMR parameters
-        filters - a list of filter lambdas
+        filters - a list of result filter lambdas
         page_state - a page_state dictionary for current page
-        options - configurations
-
-Queries can be modified to support sorting by using two base functions which
-take in a query dictionary and modify it to include the sorting instructions.
-    sort_by() : adds the sort key to the query
-        sort_type - granule or collection
-        params - original query
-        *Sort (enum) - with values supported by CMR
-    descending(): modify an existing sort key to be in reverse, or set it if provided
-        sort_type - granule or collection
-        params - original query
-        Sort (enum) - Optional, with values supported by CMR
+        config - configurations
 
 More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
 """
 
-#from enum import Enum, IntEnum
-import sys
-
+import webbrowser as web
 import cmr.util.common as common
 import cmr.util.network as net
 import cmr.util.logging as log
 
 # ******************************************************************************
-# utility functions
-
-# ******************************************************************************
 # filter function lambdas
 
-def filter_none(item):
+def columns_pass(item):
     """ Pass through, do no filtering - is this needed outside of testing?"""
     return item
-def filter_meta(item):
+def columns_meta(item):
     """return only the the meta objects"""
     if 'meta' in item:
         return item['meta']
     return item
-def filter_umm(item):
+def columns_umm(item):
     """return only the UMM part of the data"""
     if 'umm' in item:
         return item['umm']
     return item
-def filter_concept_ids(item):
+def columns_concept_ids(item):
     """extract only fields that are used to identify a record"""
     if "meta" in item:
-        meta = filter_meta(item)
+        meta = item['meta']
         concept_id = meta['concept-id']
     elif "concept-id" in item:
         concept_id = item['concept-id']
@@ -84,7 +68,7 @@ def filter_concept_ids(item):
         return item
     record = {'concept-id': concept_id}
     return record
-def filter_drop(key):
+def columns_drop(key):
     """drop a key from a dictionary"""
     return lambda dict : common.drop_key_safely(dict, key)
 
@@ -131,18 +115,17 @@ def _continue_download(hits, page_state):
     Returns:
         True if another page can be downloaded, False otherwise
     """
+    limit = page_state['limit'] # user requested limit
     items_downloaded = page_state['page_size']*page_state['page_num']
-    limit = page_state['limit']
-    # -1 means limit is never reached ; user requests that all records be downloaded
-    under_limit = limit == -1 or items_downloaded < limit
     more_to_download = items_downloaded < hits
+    under_limit = items_downloaded < limit
     return more_to_download and under_limit
 
-def _standard_headers_from_options(options):
+def _standard_headers_from_config(config):
     """
     Create a dictionary with the CMR specific headers meant to be passed to urllib
     Parameters:
-        options (dictionary): where to pull options from, responds to:
+        config (dictionary): where to pull configurations from, responds to:
             * cmr-token: a CMR token, AKA an Echo Token, any token CMR will accept
             * X-Request-Id: Used for tracking requests across systems
             * Client-Id: Browser Agent Name
@@ -150,25 +133,27 @@ def _standard_headers_from_options(options):
         dictionary with headers suitable for passing to urllib
     """
     headers = None
-    headers = net.options_to_header(options, 'cmr-token', headers, 'Echo-Token')
-    headers = net.options_to_header(options, 'X-Request-Id', headers)
-    headers = net.options_to_header(options, 'Client-Id', headers, default='python_cmr_lib')
+    headers = net.config_to_header(config, 'cmr-token', headers, 'Echo-Token')
+    headers = net.config_to_header(config, 'X-Request-Id', headers)
+    headers = net.config_to_header(config, 'Client-Id', headers, default='python_cmr_lib')
     return headers
 
-def _cmr_url(base, query, page_state, options=None):
+def _cmr_url(base, query, page_state, config=None):
     """
     Create a GET url for calling CMR
     Parameters:
         base: CMR endpoint
         query: dictionary of search options
         page_state: current page information
-        options: configurations, responds to:
+        config: configurations, responds to:
             * env - sit, uat, or blank for production
     """
     expanded = net.expand_query_to_parameters(query)
-    env = common.dict_or_default(options, 'env', '')
+    env = common.dict_or_default(config, 'env', '').lower().strip()
     if len(env)>0 and not env.endswith("."):
         env += "."
+    if env in ["prod", "ops"]:
+        env = ""
     url = ('https://cmr.{}earthdata.nasa.gov' +
         '/search/{}' +
         '?page_size={}' +
@@ -183,44 +168,30 @@ def _cmr_url(base, query, page_state, options=None):
 # ******************************************************************************
 # public search functions
 
-def sort_by(sort_type, params, sort):
+def create_page_state(page_size=10, page_num=1, took=0, limit=10):
     """
-    Add sorting to the CMR parameters. This will change the params.
+    Quick and dirty dictionary to hold page state for the recursive call
     Parameters:
-        params(dictionary): the CMR parameters to add to
-        sort(Sort): a value from the Sort enum
-    Returns:
-        params - can be chained
+        page_size: number of hits per request, can be 1-2000, default to 10
+        page_num: current page, can be 1-50, default to 1
+        took: positive number, seconds of total processing
+        limit: max records to return, 1-100_000, default to 10
     """
-    if params is not None and sort is not None and isinstance(sort, sort_type):
-        params['sort_key'] = sort.value
-    return params
-
-def descending(sort_type, params, sort=None):
-    """
-    Add reverses the sorting in the CMR parameters. This will change the params.
-    Parameters:
-        params(dictionary): the CMR parameters to add to
-        sort(Sort): Optional, will set the value from the Sort enum
-    Returns:
-        params - can be chained
-    """
-    if sort is not None:
-        params = sort_by(sort_type, params, sort)
-    if params is not None and 'sort_key' in params:
-        value = params['sort_key']
-        if not value.startswith('-'):
-            params['sort_key'] = '-' + value
-    return params
-
-def create_page_state(page_size=100, page_num=1, took=0, limit=None):
-    """Quick and dirty dictionary to hold page state for the recursive call"""
+    page_size = max(1, min(page_size, 2000))
+    page_num = max(1, min(page_num, 50))        # 2,000 * 50 = 100,000
+    took = max(0, took)
     if limit is None:
-        limit = 20
-    page_size = min(page_size, limit)
+        limit = 10
+    limit = max(1, min(limit, 100_000))
+
+    if limit<2000:
+        # page_size and limit are the same thing in this case
+        page_size = limit
+    else:
+        page_size = 2000
     return {'page_size': page_size, 'page_num': page_num, 'took':took, 'limit':limit}
 
-def search_by_page(base, query=None, filters=None, page_state=None, options=None):
+def search_by_page(base, query=None, filters=None, page_state=None, config=None):
     """
     Recursive function to download all the pages of data. Note, this function
     will only run for 5 minutes and then will refuse to pull more pages
@@ -229,18 +200,22 @@ def search_by_page(base, query=None, filters=None, page_state=None, options=None
         query (dictionary): CMR parameters and their values
         filters (list): A list of lambda functions to reduce the number of columns
         page_state (dictionary): the current page to download
-        options (dictionary): configurations settings
+        config (dictionary): configurations settings responds to:
+            * accept - the format for the return defaults to UMM-JSON
+            * max-time - total processing time allowed for all calls
     return collected items
     """
     if page_state is None:
         page_state = create_page_state()  # must be the first page
 
-    headers = _standard_headers_from_options(options)
-    accept = common.dict_or_default(options, 'accept',
+    headers = _standard_headers_from_config(config)
+    accept = common.dict_or_default(config, 'accept',
         "application/vnd.nasa.cmr.umm_results+json")
-    url = _cmr_url(base, query, page_state, options)
+    #url = _cmr_url(base, query, page_state, config)
+    url = _cmr_url(base, '', page_state, config)
     log.logging.info(url)
-    obj_json = net.get(url, accept=accept, headers=headers)
+    #obj_json = net.get(url, accept=accept, headers=headers)
+    obj_json = net.post(url, query, accept=accept, headers=headers)
     if not isinstance(obj_json, str):
         resp_stats = {'hits': obj_json['hits'],
             'took': obj_json['took'],
@@ -250,7 +225,7 @@ def search_by_page(base, query=None, filters=None, page_state=None, options=None
 
         if _continue_download(resp_stats['hits'], page_state):
             next_page_state = _next_page_state(page_state, resp_stats['took'])
-            max_time = common.dict_or_default(options, 'max_time', 300000)
+            max_time = common.dict_or_default(config, 'max-time', 300000)
             if next_page_state['took'] > max_time:
                 # Do not allow searches to go on forever
                 log.logging.warning("max search time exceeded")
@@ -259,19 +234,12 @@ def search_by_page(base, query=None, filters=None, page_state=None, options=None
                 query=query,
                 filters=filters,
                 page_state=next_page_state,
-                options=options)
+                config=config)
             resp_stats['items'] = resp_stats['items'] + recursive_items
     return resp_stats['items']
 
 def open_api(section):
     """ Ask python to open up the API in a new browser window - unsupported!"""
-    # Do not actually import this functionality if the user never asks for it.
-    # This is a 'nice to have' function in Jupyter Notebook but is not a needed
-    # function of the API, so some rule breaking is okay here.
-    # Note, this function is not to be tested
-    if 'webbrowser' not in sys.modules:
-        # pylint: disable=C0415
-        import webbrowser as web
     url = 'https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html'
     if section is not None:
         url = url + section

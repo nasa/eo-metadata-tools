@@ -88,13 +88,13 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(expected, result)
 
 
-    def test_options_to_header(self):
+    def test_config_to_header(self):
         """
-        Test the helper function which converts values in the options dictionary
+        Test the helper function which converts values in the config dictionary
         to the header dictionary
         """
         # pylint: disable=C0301 # lambda lines can be shorter
-        test = lambda exp, opt, src, head, dest=None, defa=None : self.assertEqual(exp, net.options_to_header(opt, src, head, dest, defa))
+        test = lambda exp, opt, src, head, dest=None, defa=None : self.assertEqual(exp, net.config_to_header(opt, src, head, dest, defa))
 
         test(None, None, None, None)
         test({}, {}, 'user-setting', {})
