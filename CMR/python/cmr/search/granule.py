@@ -40,23 +40,26 @@ import cmr.search.common as scom
 # filter function lambdas
 
 def all_fields(item):
-    """ Pass through, do no filtering - is this needed outside of testing?"""
+    """
+    Makes no change to the item, passes through. Used primarily as an example
+    and for testing the filter workflow
+    """
     return scom.all_fields(item)
 def meta_fields(item):
-    """return only the the meta objects"""
+    """Return only the the meta objects"""
     return scom.meta_fields(item)
 def umm_fields(item):
-    """return only the UMM part of the data"""
+    """Return only the UMM part of the data"""
     return scom.umm_fields(item)
 def concept_id_fields(item):
-    """extract only fields that are used to identify a record"""
+    """Extract only fields that are used to identify a record"""
     return scom.concept_id_fields(item)
 def drop_fields(key):
-    """drop a key from a dictionary"""
+    """Drop a key from a dictionary"""
     return scom.drop_fields(key)
 
 def granule_core_fields(item):
-    """extract only fields that are used to identify a record"""
+    """Extract only fields that are used to identify a record"""
     record = {}
     if 'umm' in item:
         umm = item['umm']
@@ -112,7 +115,7 @@ def open_api(section='#granule-search-by-parameters'):
     scom.open_api(section)
 
 def print_help(contains=""):
-    """return help for the public functions in the Granule api"""
+    """Return help for the public functions in the Granule api"""
     functions = [apply_filters, open_api, print_help, search]
     filters = [granule_core_fields, drop_fields, concept_id_fields, meta_fields,
         umm_fields, all_fields]

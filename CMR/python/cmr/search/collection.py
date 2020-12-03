@@ -41,7 +41,10 @@ import cmr.search.common as scom
 # filter function lambdas
 
 def all_fields(item):
-    """Pass through, do no filtering - is this needed outside of testing?"""
+    """
+    Makes no change to the item, passes through. Used primarily as an example
+    and for testing the filter workflow
+    """
     return scom.all_fields(item)
 def meta_fields(item):
     """Return only the the meta objects"""
@@ -50,10 +53,10 @@ def umm_fields(item):
     """Return only the UMM part of the data"""
     return scom.umm_fields(item)
 def concept_id_fields(item):
-    """extract only fields that are used to identify a record"""
+    """Extract only fields that are used to identify a record"""
     return scom.concept_id_fields(item)
 def drop_fields(key):
-    """drop a key from a dictionary"""
+    """Drop a key from a dictionary"""
     return scom.drop_fields(key)
 
 def collection_core_fields(item):

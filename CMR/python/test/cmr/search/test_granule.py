@@ -34,7 +34,7 @@ import cmr.search.granule as gran
 # ******************************************************************************
 
 def valid_cmr_response(file):
-    """return a valid login response"""
+    """Return a valid login response"""
     json_response = common.read_file(file)
     return tutil.MockResponse(json_response)
 

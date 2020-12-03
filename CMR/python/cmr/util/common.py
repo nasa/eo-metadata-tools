@@ -31,14 +31,14 @@ def enum_value(value):
     return value
 
 def drop_key_safely(dictionary, key):
-    """drop a key from a dict if it exists and return that change"""
+    """Drop a key from a dict if it exists and return that change"""
     if key in dictionary:
         del dictionary[key]
     return dictionary
 
 def dict_or_default(dictionary, key, default):
     """
-    return the contents of a dictionary pointed to with a key, or a default
+    Return the contents of a dictionary pointed to with a key, or a default
     value. The default can either be a raw value or a pointer to a function
     that will return the default
     dictionary(dictionary)= thing to check
