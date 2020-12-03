@@ -112,7 +112,7 @@ class TestSearch(unittest.TestCase):
 
     # pylint: disable=W0212
     def test_standard_headers_from_config(self):
-        """test that standard headers can be setup"""
+        """Test that standard headers can be setup"""
         basic_expected = {'Client-Id': 'python_cmr_lib'}
         basic_result = scom._standard_headers_from_config({'a':1})
         self.assertEqual(basic_expected, basic_result)
