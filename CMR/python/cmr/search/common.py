@@ -45,20 +45,23 @@ import cmr.util.logging as log
 # filter function lambdas
 
 def all_fields(item):
-    """ Pass through, do no filtering - is this needed outside of testing?"""
+    """
+    Makes no change to the item, passes through. Used primarily as an example
+    and for testing the filter workflow
+    """
     return item
 def meta_fields(item):
-    """return only the the meta objects"""
+    """Return only the the meta objects"""
     if 'meta' in item:
         return item['meta']
     return item
 def umm_fields(item):
-    """return only the UMM part of the data"""
+    """Return only the UMM part of the data"""
     if 'umm' in item:
         return item['umm']
     return item
 def concept_id_fields(item):
-    """extract only fields that are used to identify a record"""
+    """Extract only fields that are used to identify a record"""
     if "meta" in item:
         meta = item['meta']
         concept_id = meta['concept-id']
@@ -69,7 +72,7 @@ def concept_id_fields(item):
     record = {'concept-id': concept_id}
     return record
 def drop_fields(key):
-    """drop a key from a dictionary"""
+    """Drop a key from a dictionary"""
     return lambda dict : common.drop_key_safely(dict, key)
 
 # ******************************************************************************
@@ -82,14 +85,14 @@ def _next_page_state(page_state, took):
     return page_state
 
 def _handle_all_filters(filter_list, item):
-    """run through the list of filters and apply them"""
+    """Run through the list of filters and apply them"""
     result = item
     for filter_function in filter_list:
         result = filter_function(result)
     return result
 
 def apply_filters(filters, items):
-    """handle filters or a single filter"""
+    """Handle filters or a single filter"""
     result = []
 
     if filters is None:
@@ -239,7 +242,7 @@ def search_by_page(base, query=None, filters=None, page_state=None, config=None)
     return resp_stats['items'][:page_state['limit']]
 
 def open_api(section):
-    """ Ask python to open up the API in a new browser window - unsupported!"""
+    """Ask python to open up the API in a new browser window - unsupported!"""
     url = 'https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html'
     if section is not None:
         url = url + section

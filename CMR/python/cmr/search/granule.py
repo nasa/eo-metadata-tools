@@ -17,7 +17,7 @@
 # specific language governing permissions and limitations under the License.
 
 """
-A Library for building and requesting CMR collection searches
+A Library for building and requesting CMR granule searches
 date: 2020-11-23
 since: 0.0
 
@@ -27,12 +27,11 @@ This function can handle any query parameter which is supported by the CMR.
     search()
         query - a dictionary of CMR parameters
         filters - a list of result filter lambdas
-        limit - int, limiting the number of records returned
+        limit - int limiting the number of records returned
         config - configurations
 
 More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
-
 """
 
 import cmr.search.common as scom
@@ -59,43 +58,20 @@ def drop_fields(key):
     """Drop a key from a dictionary"""
     return scom.drop_fields(key)
 
-def collection_core_fields(item):
+def granule_core_fields(item):
     """Extract only fields that are used to identify a record"""
+    record = {}
     if 'umm' in item:
         umm = item['umm']
-    else:
-        return item
+        record['GranuleUR'] = umm['GranuleUR']
     if 'meta' in item:
         meta = item['meta']
-    else:
-        return item
-    record = {'concept-id': meta['concept-id'],
-        'ShortName': umm['ShortName'],
-        'Version': umm['Version'],
-        'EntryTitle': umm['EntryTitle']}
-    return record
-
-def collection_ids_for_granules_fields(item):
-    """Extract only the fields that are of interest to doing a granule search"""
-    if 'umm' in item:
-        umm = item['umm']
-    else:
-        return item
-    if 'meta' in item:
-        meta = item['meta']
-    else:
-        return item
-    provider_id = meta['provider-id']
-    collection_concept_id = meta['concept-id']
-    short_name = umm['ShortName']
-    version = umm['Version']
-    entry_title = umm['EntryTitle']
-    record = {'provider-id': provider_id,
-        'concept-id': collection_concept_id,
-        'ShortName': short_name,
-        'Version': version,
-        'EntryTitle': entry_title}
-    return record
+        record['concept-id'] = meta['concept-id']
+        record['revision-id'] = meta['revision-id']
+        record['native-id'] = meta['native-id']
+    if len(record.keys())>0:
+        return record
+    return item
 
 # ******************************************************************************
 # public search functions
@@ -111,29 +87,36 @@ def apply_filters(filters, items):
     """
     return scom.apply_filters(filters, items)
 
-def search(query=None, filters=None, limit=None, config=None):
+def search(query, filters=None, limit=None, config=None):
     """
     Search and return all records
+    Parameters:
+        query (dictionary): required, CMR search parameters
+        filters (list): column filter lambdas
+        limit (int): number from 1 to 100000
+        config (dictionary): configuration settings
+    Returns:
+        JSON results from CMR
     """
     page_state = scom.create_page_state(limit=limit)
-    found_items = scom.search_by_page("collections",
+    found_items = scom.search_by_page("granules",
         query=query,
         filters=filters,
         page_state=page_state,
         config=config)
     return found_items
 
-def open_api(section='#collection-search-by-parameters'):
-    """Ask python to open up the API in a new browser window"""
+def open_api(section='#granule-search-by-parameters'):
+    """
+    Ask python to open up the API in a new browser window
+    Parameters:
+        selection(string): HTML Anchor Tag, default is #granule-search-by-parameters
+    """
     scom.open_api(section)
 
 def print_help(contains=""):
-    """
-    Built in help - prints out the public function names for the collection object for the token API
-    Parameters:
-        filter(string): filters out functions beginning with this text, defaults to all
-    """
+    """Return help for the public functions in the Granule api"""
     functions = [apply_filters, open_api, print_help, search]
-    filters = [collection_ids_for_granules_fields, collection_core_fields,
-        drop_fields, concept_id_fields, umm_fields, meta_fields, all_fields]
+    filters = [granule_core_fields, drop_fields, concept_id_fields, meta_fields,
+        umm_fields, all_fields]
     return scom.print_help(contains, functions, filters)
