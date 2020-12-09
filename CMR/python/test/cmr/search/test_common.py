@@ -116,7 +116,7 @@ class TestSearch(unittest.TestCase):
     # pylint: disable=W0212
     def test_standard_headers_from_config(self):
         """Test that standard headers can be setup"""
-        basic_expected = {'Client-Id': 'python_cmr_lib'}
+        basic_expected = {'Client-Id': 'python_cmr_lib', 'User-Agent': 'python_cmr_lib'}
         basic_result = scom._standard_headers_from_config({'a':1})
         self.assertEqual(basic_expected, basic_result)
 
@@ -126,6 +126,7 @@ class TestSearch(unittest.TestCase):
             'Not-A-Header': 'do not include me'}
         defined_expected = {'Echo-Token': 'a-cmr-token',
             'X-Request-Id': '0123-45-6789',
+            'User-Agent': 'python_cmr_lib',
             'Client-Id': 'fancy-client'}
         defined_result = scom._standard_headers_from_config(config)
         self.assertEqual(defined_expected, defined_result)
@@ -133,6 +134,7 @@ class TestSearch(unittest.TestCase):
         config = {'cmr-token': 'a-cmr-token',
             'Not-A-Header': 'do not include me'}
         token_expected = {'Echo-Token': 'a-cmr-token',
+            'User-Agent': 'python_cmr_lib',
             'Client-Id': 'python_cmr_lib'}
         token_result = scom._standard_headers_from_config(config)
         self.assertEqual(token_expected, token_result)

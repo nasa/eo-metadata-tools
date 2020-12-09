@@ -168,6 +168,7 @@ def _make_search_request(base, query, page_state, config):
         JSON object with either data from CMR, or on error you get the error response
     """
     # Build headers
+
     headers = _standard_headers_from_config(config)
     if 'CMR-Scroll-Id' in page_state:
         logger.debug("Setting scroll id to %s.", page_state['CMR-Scroll-Id'])
@@ -259,6 +260,8 @@ def clear_scroll(scroll_id, config=None):
     Returns:
         error dictionary if there was a problem, otherwise a JSON object of response headers
     """
+    if config is None:
+        config = {}
 
     # Build headers
     headers = _standard_headers_from_config(config)
@@ -314,6 +317,8 @@ def search_by_page(base, query=None, filters=None, page_state=None, config=None)
     """
     if page_state is None:
         page_state = create_page_state()  # must be the first page
+    if config is None:
+        config = {}
 
     obj_json = _make_search_request(base, query, page_state, config)
 
@@ -367,6 +372,8 @@ def experimintal_search_by_page_generator(base, query=None, filters=None,
 
     if page_state is None:
         page_state = create_page_state()  # must be the first page
+    if config is None:
+        config = {}
 
     obj_json = _make_search_request(base, query, page_state, config)
 
