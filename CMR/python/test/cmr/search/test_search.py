@@ -32,10 +32,10 @@ import cmr.search.collection as coll
 
 # ******************************************************************************
 
-def valid_cmr_response(file):
+def valid_cmr_response(file, status=200):
     """return a valid login response"""
     json_response = common.read_file(file)
-    return tutil.MockResponse(json_response)
+    return tutil.MockResponse(json_response, status=status)
 
 class TestSearch(unittest.TestCase):
     """Test suit for Search API"""
@@ -62,9 +62,6 @@ class TestSearch(unittest.TestCase):
         for index in [1,2,5,10]:
             result = coll.search({'provider':'GHRC_CLOUD'}, limit=index)
             self.assertEqual(index, len(result))
-
-        over_result = coll.search({'provider':'GHRC_CLOUD'}, limit=11)
-        self.assertEqual(10, len(over_result))
 
     @patch('urllib.request.urlopen')
     def test_search(self, urlopen_mock):

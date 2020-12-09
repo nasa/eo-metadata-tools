@@ -20,15 +20,29 @@ date 2020-10-26
 since 0.0
 """
 
-from enum import Enum # requires Python 3.4
 import os
 import subprocess
 
-def enum_value(value):
-    """ Get a value either directly or from an Enum """
-    if isinstance(value, Enum):
-        value = value.value
-    return value
+def conj(coll, to_add):
+    """Similar to clojure's function, add items to a list or dictionary"""
+    ret = coll
+    if isinstance(coll, list):
+        ret = coll + to_add
+    elif isinstance(coll, tuple):
+        ret = list([])
+        for item in coll:
+            ret.append(item)
+        for item in to_add:
+            ret.insert(0, item)
+        ret = tuple(ret)
+    elif isinstance(coll, dict):
+        ret = {}
+        for key in coll:
+            ret[key] = coll[key]
+        for key in to_add:
+            if key not in ret:
+                ret[key] = to_add[key]
+    return ret
 
 def drop_key_safely(dictionary, key):
     """Drop a key from a dict if it exists and return that change"""
