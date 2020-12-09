@@ -152,7 +152,8 @@ def _cmr_url(base, query, page_state, config=None):
             * env - sit, uat, or blank for production
     """
     expanded = net.expand_query_to_parameters(query)
-    env = common.dict_or_default(config, 'env', '').lower().strip()
+    config = config if isinstance(config, dict) else {}
+    env = config.get('env', '').lower().strip()
     if len(env)>0 and not env.endswith("."):
         env += "."
     if env in ["prod", "ops"]:
@@ -180,19 +181,12 @@ def create_page_state(page_size=10, page_num=1, took=0, limit=10):
         took: positive number, seconds of total processing
         limit: max records to return, 1-100000, default to 10
     """
-    page_size = max(1, min(page_size, 2000))
     page_num = max(1, min(page_num, 50))        # 2,000 * 50 = 100,000
     took = max(0, took)
-    if limit is None:
-        limit = 10
-    limit = max(1, min(limit, 100000))
-
-    if limit<2000:
-        # page_size and limit are the same thing in this case
-        page_size = limit
-    else:
-        page_size = 2000
+    limit = max(1, min(limit or 10, 100000))
+    page_size = limit if limit < 2000 else 2000
     return {'page_size': page_size, 'page_num': page_num, 'took':took, 'limit':limit}
+
 
 def search_by_page(base, query=None, filters=None, page_state=None, config=None):
     """
@@ -208,12 +202,11 @@ def search_by_page(base, query=None, filters=None, page_state=None, config=None)
             * max-time - total processing time allowed for all calls
     return collected items
     """
+    config = config if isinstance(config, dict) else {}
     if page_state is None:
         page_state = create_page_state()  # must be the first page
-
     headers = _standard_headers_from_config(config)
-    accept = common.dict_or_default(config, 'accept',
-        "application/vnd.nasa.cmr.umm_results+json")
+    accept = config.get('accept', "application/vnd.nasa.cmr.umm_results+json")
     #url = _cmr_url(base, query, page_state, config)
     url = _cmr_url(base, '', page_state, config)
     log.logging.info(url)
@@ -228,7 +221,7 @@ def search_by_page(base, query=None, filters=None, page_state=None, config=None)
 
         if _continue_download(resp_stats['hits'], page_state):
             next_page_state = _next_page_state(page_state, resp_stats['took'])
-            max_time = common.dict_or_default(config, 'max-time', 300000)
+            max_time = config.get('max-time', 300000)
             if next_page_state['took'] > max_time:
                 # Do not allow searches to go on forever
                 log.logging.warning("max search time exceeded")

@@ -99,9 +99,10 @@ def config_to_header(config, source_key, headers, destination_key=None, default=
     """
     Copy a value in the config into a header dictionary for use by urllib
     """
+    config = config if isinstance(config, dict) else {}
     if destination_key is None:
         destination_key = source_key
-    value = common.dict_or_default(config, source_key, default)
+    value = config.get(source_key, default)
     if destination_key is not None and value is not None:
         if headers is None:
             headers = {}
