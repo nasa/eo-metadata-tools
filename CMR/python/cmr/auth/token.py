@@ -63,7 +63,8 @@ def token_config(options: dict = None):
         options (dictionary): Responds to:
             "cmr.token.value": value of token, defaults to 'None'
     """
-    return dict(options).get("cmr.token.value", None)
+    options = options if isinstance(options, dict) else {}
+    return options.get("cmr.token.value", None)
 
 
 def token_file(options: dict = None):
