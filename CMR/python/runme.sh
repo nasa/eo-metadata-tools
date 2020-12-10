@@ -10,7 +10,7 @@ help()
     echo 'Run all the code life cycle steps: lint, test, package, install, uninstall, and clean'
     echo
     echo 'Usage:'
-    echo '    ./runme.sh -[chlpt] -[i | u]'
+    echo '    ./runme.sh -[cfhlpt] -[i | u]'
     echo '    ./runme.sh'
     echo '        same as ./runme.sh -l -t      #list, test'
     echo '    ./runme.sh -l -t -p -i            #lint, test, package, install'
@@ -20,6 +20,7 @@ help()
     printf "${format}" Flag Name Description
     printf "${format}" ---- ---------- ------------------------------
     printf "${format}" '-c' 'clean' 'Clean up all generated files and directories'
+    printf "${format}" '-f' 'find' 'Find the package in pip3'
     printf "${format}" '-h' 'help' 'Print out this help message'
     printf "${format}" '-i' 'install' 'Install latest wheel file'
     printf "${format}" '-u' 'uninstall' 'Uninstall the wheel file'
