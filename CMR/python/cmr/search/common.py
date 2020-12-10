@@ -242,7 +242,7 @@ def create_page_state(page_size=10, page_num=1, took=0, limit=10):
             logger.info("page size is %d and overage is %d.", page_size, overage)
     return {'page_size': page_size, 'page_num': page_num, 'took':took, 'limit':limit}
 
-def clear_scroll(scroll_id, config=None):
+def clear_scroll(scroll_id, config:dict = None):
     """
     This action is called to clear a scroll ID from CMR allowing CMR to free up
     memory associated with the current search.
@@ -301,7 +301,7 @@ def apply_filters(filters, items):
                 result.append(filters(item))
     return result
 
-def search_by_page(base, query=None, filters=None, page_state=None, config=None):
+def search_by_page(base, query=None, filters=None, page_state=None, config:dict = None):
     """
     Recursive function to download all the pages of data. Note, this function
     will only run for 5 minutes and then will refuse to pull more pages
@@ -361,7 +361,7 @@ def search_by_page(base, query=None, filters=None, page_state=None, config=None)
     return items[:page_state['limit']]
 
 def experimintal_search_by_page_generator(base, query=None, filters=None,
-        page_state=None, config=None):
+        page_state=None, config:dict = None):
     """
     WARNING: This is an experimental function, do not use in an operational
     system, this function will go away.

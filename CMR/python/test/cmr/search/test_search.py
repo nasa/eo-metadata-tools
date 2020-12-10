@@ -150,6 +150,54 @@ class TestSearch(unittest.TestCase):
             'EntryTitle': '2000 Pilot Environmental Sustainability Index (ESI)'}]
         self.assertEqual(expected, gids_results)
 
+    def test_collection_ids_for_granules_fields(self):
+        """
+        Test that the function conforms to expectations by only returning the
+        fields of interest
+        """
+        actual = coll.collection_ids_for_granules_fields({})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        actual = coll.collection_ids_for_granules_fields({'unrelated':'field'})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        #setup, something in umm, something in meta
+        umm = {'ShortName': 'name is short',
+            'provider-id':'provider-in-wrong-location'}
+        meta = {'provider-id':'GHRC'}
+        data = {'umm':umm, 'meta':meta}
+
+        #test
+        actual = coll.collection_ids_for_granules_fields(data)
+        expected = {'ShortName': 'name is short', 'provider-id':'GHRC'}
+        self.assertEqual(expected, actual)
+
+
+    def test_collection_core_fields(self):
+        """
+        Test that the function conforms to expectations by only returning the
+        fields of interest
+        """
+        actual = coll.collection_core_fields({})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        actual = coll.collection_core_fields({'unrelated':'field'})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        #setup, something in umm, something in meta
+        umm = {'ShortName': 'name is short'}
+        meta = {'provider-id':'GHRC', 'concept-id':'C01234-GHRC'}
+        data = {'umm':umm, 'meta':meta}
+
+        #test
+        actual = coll.collection_core_fields(data)
+        expected = {'ShortName': 'name is short', 'concept-id':'C01234-GHRC'}
+        self.assertEqual(expected, actual)
+
     def test_help_full(self):
         """Test the built in help"""
         result_full = coll.print_help()

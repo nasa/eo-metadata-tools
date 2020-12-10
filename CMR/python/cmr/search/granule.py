@@ -61,17 +61,14 @@ def drop_fields(key):
 def granule_core_fields(item):
     """Extract only fields that are used to identify a record"""
     record = {}
-    if 'umm' in item:
-        umm = item['umm']
-        record['GranuleUR'] = umm.get('GranuleUR', '')
-    if 'meta' in item:
-        meta = item['meta']
-        record['concept-id'] = meta.get('concept-id', '')
-        record['revision-id'] = meta.get('revision-id', '')
-        record['native-id'] = meta.get('native-id', '')
-    if len(record.keys())>0:
-        return record
-    return item
+    umm = item.get('umm', {})
+    record['GranuleUR'] = umm.get('GranuleUR')
+
+    meta = item.get('meta', {})
+    record['concept-id'] = meta.get('concept-id')
+    record['revision-id'] = meta.get('revision-id')
+    record['native-id'] = meta.get('native-id')
+    return {key: value for key, value in record.items() if value}
 
 # ******************************************************************************
 # public search functions
@@ -87,7 +84,7 @@ def apply_filters(filters, items):
     """
     return scom.apply_filters(filters, items)
 
-def search(query, filters=None, limit=None, config=None):
+def search(query, filters=None, limit=None, config:dict=None):
     """
     Search and return all records
     Parameters:
@@ -106,7 +103,7 @@ def search(query, filters=None, limit=None, config=None):
         config=config)
     return found_items
 
-def experimintal_search_generator(query, filters=None, limit=None, config=None):
+def experimintal_search_generator(query, filters=None, limit=None, config:dict =None):
     """
     WARNING: This is an experimental function, do not use in an operational
     system, this function will go away.

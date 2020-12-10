@@ -62,32 +62,29 @@ def drop_fields(key):
 def collection_core_fields(item):
     """Extract only fields that are used to identify a record"""
     record = {}
-    if 'umm' in item:
-        umm = item['umm']
-        record['ShortName'] = umm.get('ShortName', '')
-        record['Version'] = umm.get('Version', '')
-        record['EntryTitle'] = umm.get('EntryTitle', '')
-    if 'meta' in item:
-        meta = item['meta']
-        record['concept-id'] = meta.get('concept-id', '')
+    # Define umm
+    umm = item.get('umm', {})
+    record['ShortName'] = umm.get('ShortName')
+    record['Version'] = umm.get('Version')
+    record['EntryTitle'] = umm.get('EntryTitle')
+    # Define meta
+    meta = item.get('meta', {})
+    record['concept-id'] = meta.get('concept-id')
+    return {key: value for key, value in record.items() if value}
 
-    return record
-
-def collection_ids_for_granules_fields(item):
+def collection_ids_for_granules_fields(item: object):
     """Extract only the fields that are of interest to doing a granule search"""
     record = {}
-    if 'umm' in item:
-        umm = item['umm']
-        record['ShortName'] = umm.get('ShortName', '')
-        record['Version'] = umm.get('Version', '')
-        record['EntryTitle'] = umm.get('EntryTitle', '')
-
-    if 'meta' in item:
-        meta = item['meta']
-        record['provider-id'] = meta.get('provider-id', '')
-        record['concept-id'] = meta.get('concept-id', '')
-
-    return record
+    # Define umm
+    umm = item.get('umm', {})
+    record['ShortName'] = umm.get('ShortName')
+    record['Version'] = umm.get('Version')
+    record['EntryTitle'] = umm.get('EntryTitle')
+    # Define meta
+    meta = item.get('meta', {})
+    record['provider-id'] = meta.get('provider-id')
+    record['concept-id'] = meta.get('concept-id')
+    return {key: value for key, value in record.items() if value}
 
 # ******************************************************************************
 # public search functions
@@ -103,7 +100,7 @@ def apply_filters(filters, items):
     """
     return scom.apply_filters(filters, items)
 
-def search(query=None, filters=None, limit=None, config=None):
+def search(query=None, filters=None, limit=None, config:dict = None):
     """
     Search and return all records
     """
