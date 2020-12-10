@@ -25,3 +25,13 @@ jobs:
       - name: Run Unit Tests
         run: python3 -m unittest discover
         working-directory: ./CMR/python
+      - name: Lint
+        run: ./runme.sh -l
+        working-directory: ./CMR/python
+      - name: Package
+        run: python3 setup.py sdist bdist_wheel
+        working-directory: ./CMR/python
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheel
+          path: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl
