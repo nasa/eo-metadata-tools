@@ -35,3 +35,10 @@ jobs:
         with:
           name: wheel
           path: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl.jar
