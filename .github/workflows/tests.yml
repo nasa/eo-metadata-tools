@@ -41,4 +41,4 @@ jobs:
           automatic_release_tag: "latest"
           prerelease: true
           title: "Development Build"
-          files: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl.jar
+          files: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl
