@@ -113,5 +113,4 @@ done
 if [[ $# -eq 0 ]] ; then
     lint
     unit_test
-    doc_all
 fi
