@@ -131,15 +131,16 @@ def _cmr_query_url(base, query, page_state, config=None):
     query = common.conj(query, {'page_size': page_state['page_size']})
     return _cmr_basic_url(base, query, config)
 
-def _cmr_basic_url(base, query, config=None):
+def _cmr_basic_url(base, query, config:dict = None):
     """
-    Create a GET url for calling any CMR search end point, should not make any
-    assumption, beyond the search directory
+    Create a url for calling any CMR search end point, should not make any
+    assumption, beyond the search directory. Will auto set the envirnment based
+    on how config is set
     Parameters:
         base: CMR endpoint
         query: dictionary url parameters
         config: configurations, responds to:
-            * env - sit, uat, or blank for production
+            * env - sit, uat, ops, prod, production, or blank for production
     """
     expanded = ""
     if query is not None and len(query)>0:
@@ -168,26 +169,18 @@ def _make_search_request(base, query, page_state, config):
         JSON object with either data from CMR, or on error you get the error response
     """
     # Build headers
-
     headers = _standard_headers_from_config(config)
     if 'CMR-Scroll-Id' in page_state:
-        logger.debug("Setting scroll id to %s.", page_state['CMR-Scroll-Id'])
+        logger.debug('Setting scroll id to %s.', page_state['CMR-Scroll-Id'])
         headers = common.conj(headers, {'CMR-Scroll-Id': page_state['CMR-Scroll-Id']})
-    accept = config.get('accept', "application/vnd.nasa.cmr.umm_results+json")
+    accept = config.get('accept', 'application/vnd.nasa.cmr.umm_results+json')
     headers = common.conj(headers, {'Accept': accept})
 
-    # Make get or post
-    method = config.get('http-method', 'POST').upper()
-    if method == 'GET':
-        url = _cmr_query_url(base, query, page_state, config=config)
-        logger.info(" - %s: %s", method, url)
-        obj_json = net.get(url, headers=headers)
-    elif method == 'POST':
-        url = _cmr_query_url(base, None, page_state, config=config)
-        logger.info(" - %s: %s", method, url)
-        obj_json = net.post(url, query, headers=headers)
-    else:
-        return _error_object(0, 'Method Not Supported')
+    # Build URL and make POST
+    url = _cmr_query_url(base, None, page_state, config=config)
+    logger.info(' - %s: %s', 'POST', url)
+    obj_json = net.post(url, query, headers=headers)
+
     return obj_json
 
 def _error_object(code, message):
@@ -336,12 +329,14 @@ def search_by_page(base, query=None, filters=None, page_state=None, config:dict 
 
     items = apply_filters(filters, items)
     if _continue_download(page_state):
-        next_page_state = _next_page_state(page_state, resp_stats['took'])
-        max_time = config.get('max-time', 300000)
-        if next_page_state['took'] > max_time:
-            # Do not allow searches to go on forever
+        accumulated_took_time = page_state['took'] + resp_stats['took']
+        max_allowed_time = config.get('max-time', 300000)
+        if  accumulated_took_time > max_allowed_time:
+            # Do not allow searches to go on forever, put an end to this and
+            # return what has been found so far, but leave a log message
             logger.warning("max search time exceeded")
             return items[:page_state['limit']]
+        next_page_state = _next_page_state(page_state, resp_stats['took'])
         recursive_items = search_by_page(base,
             query=query,
             filters=filters,
@@ -360,7 +355,7 @@ def search_by_page(base, query=None, filters=None, page_state=None, config:dict 
         resp_stats['took'])
     return items[:page_state['limit']]
 
-def experimintal_search_by_page_generator(base, query=None, filters=None,
+def experimental_search_by_page_generator(base, query=None, filters=None,
         page_state=None, config:dict = None):
     """
     WARNING: This is an experimental function, do not use in an operational
@@ -378,7 +373,7 @@ def experimintal_search_by_page_generator(base, query=None, filters=None,
     obj_json = _make_search_request(base, query, page_state, config)
 
     if page_state['page_num'] == 1:
-        logger.info('experimintal_search_by_page_generator is not a supported function')
+        logger.info('experimental_search_by_page_generator is not a supported function')
 
     if 'http-headers' in obj_json:
         http_headers = obj_json['http-headers']
@@ -397,7 +392,7 @@ def experimintal_search_by_page_generator(base, query=None, filters=None,
 
     if _continue_download(page_state):
         next_page_state = _next_page_state(page_state, 0)
-        recursive_items = experimintal_search_by_page_generator(base,
+        recursive_items = experimental_search_by_page_generator(base,
             query=query,
             filters=filters,
             page_state=next_page_state,

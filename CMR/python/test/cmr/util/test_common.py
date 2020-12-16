@@ -46,6 +46,7 @@ class TestSearch(unittest.TestCase):
 
     def test_conj(self):
         """Test the conj function"""
+        self.assertEqual([3, 4], com.conj(None, [3, 4]))
         self.assertEqual([1, 2, 3, 4], com.conj([1, 2], [3, 4]))
         self.assertEqual((4, 3, 1, 2), com.conj((1, 2), (3, 4)))
         self.assertEqual({'a': 'A', 'b': 'B'}, com.conj({'a':'A'}, {'b':'B'}))

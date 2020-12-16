@@ -103,7 +103,7 @@ def search(query, filters=None, limit=None, config:dict=None):
         config=config)
     return found_items
 
-def experimintal_search_generator(query, filters=None, limit=None, config:dict =None):
+def experimental_search_generator(query, filters=None, limit=None, config:dict = None):
     """
     WARNING: This is an experimental function, do not use in an operational
     system, this function will go away.
@@ -120,7 +120,7 @@ def experimintal_search_generator(query, filters=None, limit=None, config:dict =
         JSON results from CMR
     """
     page_state = scom.create_page_state(limit=limit)
-    found_items = scom.experimintal_search_by_page_generator("granules",
+    found_items = scom.experimental_search_by_page_generator("granules",
         query=query,
         filters=filters,
         page_state=page_state,

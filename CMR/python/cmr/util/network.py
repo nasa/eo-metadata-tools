@@ -119,34 +119,6 @@ def config_to_header(config, source_key, headers, destination_key=None, default=
         headers[destination_key] = value
     return headers
 
-def get(url, accept=None, headers=None):
-    """
-    Make a basic HTTP call to CMR using the GET action
-    Parameters:
-        url (string): resource to get
-        accept (string): encoding of the returned data, some form of json is expected
-        client_id (string): name of the client making the (not python or curl)
-        headers (dictionary): HTTP headers to apply
-    """
-    req = urllib.request.Request(url)
-    apply_headers_to_request(req, {'Accept': accept})
-    apply_headers_to_request(req, headers)
-    try:
-        resp = urllib.request.urlopen(req)
-        response = resp.read()
-        raw_response = response.decode('utf-8')
-        if resp.status == 200:
-            obj_json = json.loads(raw_response)
-        else:
-            return raw_response
-        return obj_json
-    except urllib.error.HTTPError as exception:
-        raw_response = exception.read()
-        obj_json = json.loads(raw_response)
-        obj_json['code'] = exception.code
-        obj_json['reason'] = exception.reason
-        return obj_json
-
 def post(url, body, accept=None, headers=None):
     """
     Make a basic HTTP call to CMR using the POST action
@@ -163,8 +135,8 @@ def post(url, body, accept=None, headers=None):
     else:
         # Do not use the standard url encoder `urllib.parse.urlencode(body)` for
         # the body/data because it can not handle repeating values as required
-        # by CMR. For example: `{'version': ['2', '3']}` must become
-        # `version=2&version=3` not `version=[2, 3]`
+        # by CMR. For example: `{'entry_title': ['2', '3']}` must become
+        # `entry_title=2&entry_title=3` not `entry_title=[2, 3]`
         data = expand_query_to_parameters(body)
     data = data.encode('utf-8')
     req = urllib.request.Request(url, data)

@@ -24,9 +24,28 @@ import os
 import subprocess
 
 def conj(coll, to_add):
-    """Similar to clojure's function, add items to a list or dictionary"""
+    """
+    Similar to clojure's function, add items to a list or dictionary
+
+    See https://clojuredocs.org/clojure.core/conj for more reading
+
+    Returns a new collection with the to_add 'added'. conj(None, item) returns
+    (item).  The 'addition' may happen at different 'places' depending on the
+    concrete type. if coll is:
+    [] - appends            [1, 2, 3, 4] == conj([1, 2], [3, 4])
+    () - prepend in reverse ((4, 3, 1, 2) == conj((1, 2), (3, 4))
+    {} - appends            {'a': 'A', 'b': 'B'} == conj({'a':'A'}, {'b':'B'})
+
+    Parameters:
+        coll: collection to add items to
+        to_add: items to be added to coll
+    Return:
+        object of the same type as coll but with to_add items added
+    """
     ret = coll
-    if isinstance(coll, list):
+    if coll is None:
+        ret = to_add
+    elif isinstance(coll, list):
         ret = coll + to_add
     elif isinstance(coll, tuple):
         ret = list([])
