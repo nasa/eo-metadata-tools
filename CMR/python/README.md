@@ -30,7 +30,7 @@ This tool is not presently hosted on [pypy.org][pypi]. There are several ways to
 To install the latest build directly from github, the following command can be.
 used. But be warned, 
 
-    pip3 install 'https://github.com/nasa/eo-metadata-tools/releases/download/latest/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl'
+    pip3 install https://github.com/nasa/eo-metadata-tools/releases/download/latest/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl
 
 ### Install Local Build:
 
