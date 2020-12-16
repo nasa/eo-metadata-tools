@@ -17,7 +17,7 @@ A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 
 ## Building and Installing
 
-As of this time the CMR library is not hosted on [pypy.org][pypi]. There are several ways to install the library:
+This tool is not presently hosted on [pypy.org][pypi]. There are several ways to install the library:
 
 ### Stable from github:
 
@@ -30,7 +30,7 @@ As of this time the CMR library is not hosted on [pypy.org][pypi]. There are sev
 To install the latest build directly from github, the following command can be.
 used. But be warned, 
 
-    pip3 install 'https://github.com/nasa/eo-metadata-tools/releases/download/latest/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl'{code}
+    pip3 install 'https://github.com/nasa/eo-metadata-tools/releases/download/latest/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl'
 
 ### Install Local Build:
 
@@ -69,7 +69,7 @@ For testing and general exploration it is advised that the User Acceptance Testi
 Use either `runme.sh -t` or `python3 -m unittest discover`
 
 ## Using the runme.sh script
-The runme.sh script documents how to run all the software life cycles for the project like testing, building, and installing. The script takes many flags, the lastest can be viewed by calling `./runme.sh -h`. Below is also a table of these flags. All flags can be called more then once except -h which ends the script.
+The runme.sh script documents how to run all the software stages for the project like testing, building, and installing. The script takes many flags. Below is a table of these flags.
 
 Usage example: `./runme.sh -f -u -f -p -i -f` which means:
 find, uninstall, find, package, install, find
@@ -78,7 +78,7 @@ find, uninstall, find, package, install, find
 | ---- | --------- | -------------------------------------------- |
 | -c   | clean     | Clean up all generated files and directories
 | -f   | find      | Find the package in pip3
-| -h   | help      | Print out this help message
+| -h   | help      | Print out this help message and then exits
 | -i   | install   | Install latest wheel file
 | -u   | uninstall | Uninstall the wheel file
 | -l   | lint      | Print out this help message

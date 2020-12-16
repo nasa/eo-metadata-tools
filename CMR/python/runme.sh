@@ -7,7 +7,7 @@
 # Print out a usage manual
 help()
 {
-    echo 'Run all the code life cycle steps: lint, test, package, install, uninstall, and clean'
+    echo 'Run all the code stages: lint, test, package, install, uninstall, and clean'
     echo
     echo 'Usage:'
     echo '    ./runme.sh -[cfhlpt] -[i | u]'
@@ -21,7 +21,7 @@ help()
     printf "${format}" ---- ---------- ------------------------------
     printf "${format}" '-c' 'clean' 'Clean up all generated files and directories'
     printf "${format}" '-f' 'find' 'Find the package in pip3'
-    printf "${format}" '-h' 'help' 'Print out this help message'
+    printf "${format}" '-h' 'help' 'Print out this help message and then exit'
     printf "${format}" '-i' 'install' 'Install latest wheel file'
     printf "${format}" '-u' 'uninstall' 'Uninstall the wheel file'
     printf "${format}" '-l' 'lint' 'Print out this help message'
