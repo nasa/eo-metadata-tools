@@ -32,10 +32,10 @@ import cmr.search.collection as coll
 
 # ******************************************************************************
 
-def valid_cmr_response(file):
+def valid_cmr_response(file, status=200):
     """return a valid login response"""
     json_response = common.read_file(file)
-    return tutil.MockResponse(json_response)
+    return tutil.MockResponse(json_response, status=status)
 
 class TestSearch(unittest.TestCase):
     """Test suit for Search API"""
@@ -62,9 +62,6 @@ class TestSearch(unittest.TestCase):
         for index in [1,2,5,10]:
             result = coll.search({'provider':'GHRC_CLOUD'}, limit=index)
             self.assertEqual(index, len(result))
-
-        over_result = coll.search({'provider':'GHRC_CLOUD'}, limit=11)
-        self.assertEqual(10, len(over_result))
 
     @patch('urllib.request.urlopen')
     def test_search(self, urlopen_mock):
@@ -152,6 +149,54 @@ class TestSearch(unittest.TestCase):
             'Version': '2000.00',
             'EntryTitle': '2000 Pilot Environmental Sustainability Index (ESI)'}]
         self.assertEqual(expected, gids_results)
+
+    def test_collection_ids_for_granules_fields(self):
+        """
+        Test that the function conforms to expectations by only returning the
+        fields of interest
+        """
+        actual = coll.collection_ids_for_granules_fields({})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        actual = coll.collection_ids_for_granules_fields({'unrelated':'field'})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        #setup, something in umm, something in meta
+        umm = {'ShortName': 'name is short',
+            'provider-id':'provider-in-wrong-location'}
+        meta = {'provider-id':'GHRC'}
+        data = {'umm':umm, 'meta':meta}
+
+        #test
+        actual = coll.collection_ids_for_granules_fields(data)
+        expected = {'ShortName': 'name is short', 'provider-id':'GHRC'}
+        self.assertEqual(expected, actual)
+
+
+    def test_collection_core_fields(self):
+        """
+        Test that the function conforms to expectations by only returning the
+        fields of interest
+        """
+        actual = coll.collection_core_fields({})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        actual = coll.collection_core_fields({'unrelated':'field'})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        #setup, something in umm, something in meta
+        umm = {'ShortName': 'name is short'}
+        meta = {'provider-id':'GHRC', 'concept-id':'C01234-GHRC'}
+        data = {'umm':umm, 'meta':meta}
+
+        #test
+        actual = coll.collection_core_fields(data)
+        expected = {'ShortName': 'name is short', 'concept-id':'C01234-GHRC'}
+        self.assertEqual(expected, actual)
 
     def test_help_full(self):
         """Test the built in help"""

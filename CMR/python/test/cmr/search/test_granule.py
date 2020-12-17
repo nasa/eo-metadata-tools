@@ -116,6 +116,33 @@ class TestSearch(unittest.TestCase):
             'GranuleUR': 'urbanspatial-hist-urban-pop-3700bc-ad2000-xlsx.xlsx'}]
         self.assertEqual(expected, ids_results)
 
+
+    def test_granule_core_fields(self):
+        """
+        Test that the function conforms to expectations by only returning the
+        fields of interest
+        """
+        actual = gran.granule_core_fields({})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        actual = gran.granule_core_fields({'unrelated':'field'})
+        expected = {}
+        self.assertEqual(expected, actual)
+
+        #setup, something in umm, something in meta
+        umm = {'GranuleUR': 'Some UR for Granules',
+            'concept-id':'concept-id-in-wrong-location'}
+        meta = {'concept-id':'G01234-GHRC', 'revision-id':'1', 'ignore':'this'}
+        data = {'umm':umm, 'meta':meta}
+
+        #test
+        actual = gran.granule_core_fields(data)
+        expected = {'GranuleUR': 'Some UR for Granules',
+            'concept-id':'G01234-GHRC',
+            'revision-id':'1'}
+        self.assertEqual(expected, actual)
+
     def test_apply_filter(self):
         """Test that apply filters function can be used to strip items out of the data"""
         data = [{'a':'11', 'b':'21', 'c':'31'}, {'a':'12', 'b':'22', 'c':'32'}]
