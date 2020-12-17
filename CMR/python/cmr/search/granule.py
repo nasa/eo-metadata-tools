@@ -61,17 +61,14 @@ def drop_fields(key):
 def granule_core_fields(item):
     """Extract only fields that are used to identify a record"""
     record = {}
-    if 'umm' in item:
-        umm = item['umm']
-        record['GranuleUR'] = umm['GranuleUR']
-    if 'meta' in item:
-        meta = item['meta']
-        record['concept-id'] = meta['concept-id']
-        record['revision-id'] = meta['revision-id']
-        record['native-id'] = meta['native-id']
-    if len(record.keys())>0:
-        return record
-    return item
+    umm = item.get('umm', {})
+    record['GranuleUR'] = umm.get('GranuleUR')
+
+    meta = item.get('meta', {})
+    record['concept-id'] = meta.get('concept-id')
+    record['revision-id'] = meta.get('revision-id')
+    record['native-id'] = meta.get('native-id')
+    return {key: value for key, value in record.items() if value}
 
 # ******************************************************************************
 # public search functions
@@ -87,7 +84,7 @@ def apply_filters(filters, items):
     """
     return scom.apply_filters(filters, items)
 
-def search(query, filters=None, limit=None, config=None):
+def search(query, filters=None, limit=None, config:dict=None):
     """
     Search and return all records
     Parameters:
@@ -106,6 +103,30 @@ def search(query, filters=None, limit=None, config=None):
         config=config)
     return found_items
 
+def experimental_search_generator(query, filters=None, limit=None, config:dict = None):
+    """
+    WARNING: This is an experimental function, do not use in an operational
+    system, this function will go away.
+
+    This function performs searches and returns data as a list generator. Errors
+    will go to logs. A list generator may be more performant on large datasets,
+    but some experimenting is needed.
+    Parameters:
+        query (dictionary): required, CMR search parameters
+        filters (list): column filter lambdas
+        limit (int): number from 1 to 100000
+        config (dictionary): configuration settings
+    Returns:
+        JSON results from CMR
+    """
+    page_state = scom.create_page_state(limit=limit)
+    found_items = scom.experimental_search_by_page_generator("granules",
+        query=query,
+        filters=filters,
+        page_state=page_state,
+        config=config)
+    yield from found_items
+
 def open_api(section='#granule-search-by-parameters'):
     """
     Ask python to open up the API in a new browser window
@@ -114,9 +135,27 @@ def open_api(section='#granule-search-by-parameters'):
     """
     scom.open_api(section)
 
+def set_logging_to(level):
+    """
+    Set the logging level to the stated value. Any of the standard logging level
+    as stated in https://docs.python.org/3/howto/logging.html#when-to-use-logging
+    can be used here. These include: DEBUG, INFO, WARNING, ERROR, and CRITICAL
+    Parameters:
+        level: a value like logging.INFO
+    """
+    scom.set_logging_to(level)
+
 def print_help(contains=""):
     """Return help for the public functions in the Granule api"""
-    functions = [apply_filters, open_api, print_help, search]
-    filters = [granule_core_fields, drop_fields, concept_id_fields, meta_fields,
-        umm_fields, all_fields]
+    functions = [apply_filters,
+        open_api,
+        print_help,
+        search,
+        set_logging_to]
+    filters = [all_fields,
+        concept_id_fields,
+        drop_fields,
+        granule_core_fields,
+        meta_fields,
+        umm_fields]
     return scom.print_help(contains, functions, filters)

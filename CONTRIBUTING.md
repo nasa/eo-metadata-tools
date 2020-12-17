@@ -18,7 +18,7 @@ To allow us to incorporate your changes, please use the following process:
 Our ticketing and CI/CD tools may be configured to sync statuses amongst each
 other. Commits play an important role in this process. Please start all commits
 with the Github ticket number associated with your feature, task, or bug. All
-commit messages should follow the format "#XXXX: [Your commit message here]"
+commit messages should follow the format "Issue #XXXX: [Your commit message here]"
 
 ## Code standards
 

@@ -61,41 +61,30 @@ def drop_fields(key):
 
 def collection_core_fields(item):
     """Extract only fields that are used to identify a record"""
-    if 'umm' in item:
-        umm = item['umm']
-    else:
-        return item
-    if 'meta' in item:
-        meta = item['meta']
-    else:
-        return item
-    record = {'concept-id': meta['concept-id'],
-        'ShortName': umm['ShortName'],
-        'Version': umm['Version'],
-        'EntryTitle': umm['EntryTitle']}
-    return record
+    record = {}
+    # Define umm
+    umm = item.get('umm', {})
+    record['ShortName'] = umm.get('ShortName')
+    record['Version'] = umm.get('Version')
+    record['EntryTitle'] = umm.get('EntryTitle')
+    # Define meta
+    meta = item.get('meta', {})
+    record['concept-id'] = meta.get('concept-id')
+    return {key: value for key, value in record.items() if value}
 
-def collection_ids_for_granules_fields(item):
+def collection_ids_for_granules_fields(item: object):
     """Extract only the fields that are of interest to doing a granule search"""
-    if 'umm' in item:
-        umm = item['umm']
-    else:
-        return item
-    if 'meta' in item:
-        meta = item['meta']
-    else:
-        return item
-    provider_id = meta['provider-id']
-    collection_concept_id = meta['concept-id']
-    short_name = umm['ShortName']
-    version = umm['Version']
-    entry_title = umm['EntryTitle']
-    record = {'provider-id': provider_id,
-        'concept-id': collection_concept_id,
-        'ShortName': short_name,
-        'Version': version,
-        'EntryTitle': entry_title}
-    return record
+    record = {}
+    # Define umm
+    umm = item.get('umm', {})
+    record['ShortName'] = umm.get('ShortName')
+    record['Version'] = umm.get('Version')
+    record['EntryTitle'] = umm.get('EntryTitle')
+    # Define meta
+    meta = item.get('meta', {})
+    record['provider-id'] = meta.get('provider-id')
+    record['concept-id'] = meta.get('concept-id')
+    return {key: value for key, value in record.items() if value}
 
 # ******************************************************************************
 # public search functions
@@ -111,7 +100,7 @@ def apply_filters(filters, items):
     """
     return scom.apply_filters(filters, items)
 
-def search(query=None, filters=None, limit=None, config=None):
+def search(query=None, filters=None, limit=None, config:dict = None):
     """
     Search and return all records
     """
@@ -123,6 +112,16 @@ def search(query=None, filters=None, limit=None, config=None):
         config=config)
     return found_items
 
+def set_logging_to(level):
+    """
+    Set the logging level to the stated value. Any of the standard logging level
+    as stated in https://docs.python.org/3/howto/logging.html#when-to-use-logging
+    can be used here. These include: DEBUG, INFO, WARNING, ERROR, and CRITICAL
+    Parameters:
+        level: a value like logging.INFO
+    """
+    scom.set_logging_to(level)
+
 def open_api(section='#collection-search-by-parameters'):
     """Ask python to open up the API in a new browser window"""
     scom.open_api(section)
@@ -133,7 +132,16 @@ def print_help(contains=""):
     Parameters:
         filter(string): filters out functions beginning with this text, defaults to all
     """
-    functions = [apply_filters, open_api, print_help, search]
-    filters = [collection_ids_for_granules_fields, collection_core_fields,
-        drop_fields, concept_id_fields, umm_fields, meta_fields, all_fields]
+    functions = [apply_filters,
+        open_api,
+        print_help,
+        search,
+        set_logging_to]
+    filters = [all_fields,
+        collection_core_fields,
+        collection_ids_for_granules_fields,
+        concept_id_fields,
+        drop_fields,
+        meta_fields,
+        umm_fields]
     return scom.print_help(contains, functions, filters)

@@ -28,15 +28,19 @@ class MockResponse():
     Mock up a Response object like what would be returned from
     `urllib.request.urlopen()`. Respond to a read() request.
     """
-    def __init__(self, result):
+    def __init__(self, result, status=200, headers=()):
         self.result = result
+        self.status = status
+        self.headers = headers
     def read(self):
-        """ Respond to the read request and return a stream """
+        """Respond to the read request and return a stream"""
         return MockStream(self.result)
     def get_result(self):
-        """ return the internal result ; silence PEP8 R0903 """
+        """Return the internal result ; silence PEP8 R0903"""
         return self.result
-
+    def getheaders(self):
+        """Return headers"""
+        return self.headers
 class MockStream():
     """
     Mock up a Stream object like what would be returned from a read() method.

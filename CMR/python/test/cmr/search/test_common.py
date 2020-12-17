@@ -22,10 +22,18 @@ Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-11-30
 """
 
+from unittest.mock import patch
 import unittest
+import test.cmr as tutil
+import cmr.util.common as common
 import cmr.search.common as scom
 
 # ******************************************************************************
+
+def valid_cmr_response(file, status=200):
+    """return a valid login response"""
+    json_response = common.read_file(file)
+    return tutil.MockResponse(json_response, status=status)
 
 class TestSearch(unittest.TestCase):
     """Test suit for Search API"""
@@ -71,49 +79,44 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(2000, high_state['page_size'])
         self.assertEqual(4000, high_state['limit'])
 
+        high_state = scom.create_page_state(limit=2048)
+        self.assertEqual(683, high_state['page_size'])
+
     # pylint: disable=W0212
     def test_continue_download(self):
         """Test the function that checks if enough records have been downloaded"""
-        #limit to 20, 100 per page, first page
+        #limit to 10, 10 per page, first page
         page_state = scom.create_page_state()
-        self.assertFalse(scom._continue_download(42, page_state))
-        self.assertFalse(scom._continue_download(10, page_state))
-        self.assertFalse(scom._continue_download(20, page_state))
+        self.assertFalse(scom._continue_download(page_state))
 
-        #limit to 1000, 1000 per page
+        #limit to 1000, 1000 per page, first page
         page_state = scom.create_page_state(limit=1000)
-        self.assertFalse(scom._continue_download(1, page_state))
-        self.assertFalse(scom._continue_download(10, page_state))
-        self.assertFalse(scom._continue_download(100, page_state))
-        self.assertFalse(scom._continue_download(1000, page_state))
-        self.assertFalse(scom._continue_download(2000, page_state))
-        self.assertFalse(scom._continue_download(4000, page_state))
+        self.assertFalse(scom._continue_download(page_state))
 
-        #limit to 1000, 1000 per page
+        #limit to 4000, 2000 per page, first page
         page_state = scom.create_page_state(limit=4000)
-        self.assertFalse(scom._continue_download(64, page_state))
-        self.assertFalse(scom._continue_download(128, page_state))
-        self.assertFalse(scom._continue_download(255, page_state))
-        self.assertFalse(scom._continue_download(1000, page_state))
-        self.assertFalse(scom._continue_download(1024, page_state))
-        self.assertFalse(scom._continue_download(2000, page_state))
-        self.assertTrue(scom._continue_download(4000, page_state))  #only one page
-        self.assertTrue(scom._continue_download(8000, page_state))  #only one page
+        self.assertTrue(scom._continue_download(page_state))
 
-        #limit to 1000, 2000 per page, 2 page
+        #limit to 1000, 2000 per page, second page
         page_state = scom.create_page_state(page_num=2, limit=4000)
-        self.assertFalse(scom._continue_download(1, page_state))
-        self.assertFalse(scom._continue_download(10, page_state))
-        self.assertFalse(scom._continue_download(100, page_state))
-        self.assertFalse(scom._continue_download(1000, page_state))
-        self.assertFalse(scom._continue_download(2000, page_state))
-        self.assertFalse(scom._continue_download(4000, page_state))  #only one page
-        self.assertFalse(scom._continue_download(8000, page_state))  #only one page
+        self.assertFalse(scom._continue_download(page_state))
+
+        #limit to 1000, 683 per page, second page
+        page_state = scom.create_page_state(page_num=1, limit=2048)
+        self.assertTrue(scom._continue_download(page_state))
+
+        #limit to 2048, 683 per page, second page
+        page_state = scom.create_page_state(page_num=2, limit=2048)
+        self.assertTrue(scom._continue_download(page_state))
+
+        #limit to 2048, 683 per page, third page
+        page_state = scom.create_page_state(page_num=3, limit=2048)
+        self.assertFalse(scom._continue_download(page_state))
 
     # pylint: disable=W0212
     def test_standard_headers_from_config(self):
         """Test that standard headers can be setup"""
-        basic_expected = {'Client-Id': 'python_cmr_lib'}
+        basic_expected = {'Client-Id': 'python_cmr_lib', 'User-Agent': 'python_cmr_lib'}
         basic_result = scom._standard_headers_from_config({'a':1})
         self.assertEqual(basic_expected, basic_result)
 
@@ -123,6 +126,7 @@ class TestSearch(unittest.TestCase):
             'Not-A-Header': 'do not include me'}
         defined_expected = {'Echo-Token': 'a-cmr-token',
             'X-Request-Id': '0123-45-6789',
+            'User-Agent': 'python_cmr_lib',
             'Client-Id': 'fancy-client'}
         defined_result = scom._standard_headers_from_config(config)
         self.assertEqual(defined_expected, defined_result)
@@ -130,30 +134,63 @@ class TestSearch(unittest.TestCase):
         config = {'cmr-token': 'a-cmr-token',
             'Not-A-Header': 'do not include me'}
         token_expected = {'Echo-Token': 'a-cmr-token',
+            'User-Agent': 'python_cmr_lib',
             'Client-Id': 'python_cmr_lib'}
         token_result = scom._standard_headers_from_config(config)
         self.assertEqual(token_expected, token_result)
 
     # pylint: disable=W0212
-    def test_cmr_url(self):
+    def test_cmr_query_url(self):
         """ Test that a CMR url can be built correctly"""
         page_state = scom.create_page_state()
-        result = scom._cmr_url("search", {'provider':'p01'}, page_state, {'env':'sit'})
+        result = scom._cmr_query_url("search", {'provider':'p01'}, page_state,
+            config={'env':'sit'})
         expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
-            'page_size=10&page_num=1&provider=p01'
+            'page_size=10&provider=p01'
         self.assertEqual(expected, result)
 
-        result = scom._cmr_url("search", {'provider':'p01'}, page_state, {'env':'sit.'})
+        #now test for scrolling
+        page_state = scom.create_page_state(limit=2048)
+
+        result = scom._cmr_query_url("search", {'provider':'p01'}, page_state,
+            config={'env':'sit'})
         expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
-            'page_size=10&page_num=1&provider=p01'
+            'page_size=683&provider=p01&scroll=true'
         self.assertEqual(expected, result)
 
-        result = scom._cmr_url("search", {'provider':'p01'}, page_state, {})
-        expected = 'https://cmr.earthdata.nasa.gov/search/search?' \
-            'page_size=10&page_num=1&provider=p01'
+        #now test for scrolling
+        result = scom._cmr_query_url("search", {'provider':'p01'}, page_state,
+            config={'env':'sit'})
+        expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
+            'page_size=683&provider=p01&scroll=true'
         self.assertEqual(expected, result)
 
-        result = scom._cmr_url("search", {}, page_state, {})
-        expected = 'https://cmr.earthdata.nasa.gov/search/search?' \
-            'page_size=10&page_num=1&'
+        result = scom._cmr_query_url("search", {'provider':'p01'}, page_state,
+            config={'env':'sit.'})
+        expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
+            'page_size=683&provider=p01&scroll=true'
         self.assertEqual(expected, result)
+
+        result = scom._cmr_query_url("search", {'provider':'p01'}, page_state,
+            config={})
+        expected = 'https://cmr.earthdata.nasa.gov/search/search?' \
+            'page_size=683&provider=p01&scroll=true'
+        self.assertEqual(expected, result)
+
+        result = scom._cmr_query_url("search", {}, page_state, config={})
+        expected = 'https://cmr.earthdata.nasa.gov/search/search?' \
+            'page_size=683&scroll=true'
+        self.assertEqual(expected, result)
+
+    @patch('urllib.request.urlopen')
+    def test_scroll(self, urlopen_mock):
+        """ Test the scroll clear function to see if it returns an error or not"""
+        recorded_data_file = 'test/data/cmr/common/scroll_good.json'
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 204)
+        result = scom.clear_scroll('-1')
+        self.assertFalse('errors' in result)
+
+        recorded_data_file = 'test/data/cmr/common/scroll_bad.json'
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 404)
+        result = scom.clear_scroll('0')
+        self.assertTrue('errors' in result)

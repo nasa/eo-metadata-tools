@@ -25,17 +25,15 @@ import json
 import urllib.parse
 import urllib.request
 
-import cmr.util.common as common
-
 def get_local_ip():
-    """ rewrite this stub"""
+    """Rewrite this stub, it is used in code not checked in yet """
     return '127.0.0.1'
 
 def value_to_param(key, value):
     """
     Convert a key value pair into a URL parameter pair
     """
-    value = common.enum_value(value)
+    value = str(value)
     encoded_key = urllib.parse.quote(key)
     encoded_value = urllib.parse.quote(value)
     result = encoded_key + "=" + encoded_value
@@ -51,7 +49,7 @@ def expand_parameter_to_parameters(key, parameter):
             param = value_to_param(key, item)
             result.append(param)
     else:
-        value = common.enum_value(parameter)
+        value = str(parameter)
         encoded_key = urllib.parse.quote(key)
         encoded_value = urllib.parse.quote(value)
         result.append(encoded_key + "=" + encoded_value)
@@ -62,12 +60,13 @@ def expand_query_to_parameters(query=None):
     params = []
     if query is None:
         return ""
-    for key in query:
+    keys = sorted(query.keys())
+    for key in keys:
         value = query[key]
         params = params + expand_parameter_to_parameters(key, value)
     return "&".join(params)
 
-def apply_headers(req, headers):
+def apply_headers_to_request(req, headers):
     """Apply a headers to a urllib request object """
     if headers is not None and req is not None:
         for key in headers:
@@ -97,60 +96,77 @@ def transform_results(results, keys_of_interest):
 
 def config_to_header(config, source_key, headers, destination_key=None, default=None):
     """
-    Copy a value in the config into a header dictionary for use by urllib
+    Copy a value in the config into a header dictionary for use by urllib. Written
+    to reduce boiler plate code
+
+    config[key] -> [or default] -> [rename] -> headers[key]
+
+    Parameters:
+        config(dictionary): where to look for values
+        source_key(string): name if configuration in config
+        headers(dictionary): where to copy values to
+        destination_key(string): name of key to save to in headers
+        default(string): value to use if value can not be found in config
     """
+    if config is None:
+        config = {}
     if destination_key is None:
         destination_key = source_key
-    value = common.dict_or_default(config, source_key, default)
+    value = config.get(source_key, default)
     if destination_key is not None and value is not None:
         if headers is None:
             headers = {}
         headers[destination_key] = value
     return headers
 
-def get(url, accept=None, client_id=None, headers=None):
-    """
-    Make a basic HTTP call to CMR using the GET action
-    Parameters:
-        url (string): resource to get
-        accept (string): encoding of the returned data, some form of json is expected
-        client_id (string): name of the client making the (not python or curl)
-        headers (dictionary): HTTP headers to apply
-    """
-    req = urllib.request.Request(url)
-    apply_headers(req, {'Accept': accept, 'Client-Id': client_id})
-    apply_headers(req, headers)
-    try:
-        resp = urllib.request.urlopen(req)
-        raw_response = resp.read().decode('utf-8')
-        obj_json = json.loads(raw_response)
-        return obj_json
-    except urllib.error.HTTPError as exception:
-        return exception
-
-def post(url, body, accept=None, client_id=None, headers=None):
+def post(url, body, accept=None, headers=None):
     """
     Make a basic HTTP call to CMR using the POST action
     Parameters:
         url (string): resource to get
-        body (dictionary): parameters to send
+        body (dictionary): parameters to send, or string if raw text to be sent
         accept (string): encoding of the returned data, some form of json is expected
         client_id (string): name of the client making the (not python or curl)
         headers (dictionary): HTTP headers to apply
     """
-    # Do not use the standard url encoder `urllib.parse.urlencode(body)` for the
-    # body/data because it can not handle repeating values as required by CMR.
-    # For example: `{'version': ['2', '3']}` must become `version=2&version=3`
-    # not `version=[2, 3]`
-    data = expand_query_to_parameters(body)
+    if isinstance(body, str):
+        #JSON string or other such text passed in"
+        data = body
+    else:
+        # Do not use the standard url encoder `urllib.parse.urlencode(body)` for
+        # the body/data because it can not handle repeating values as required
+        # by CMR. For example: `{'entry_title': ['2', '3']}` must become
+        # `entry_title=2&entry_title=3` not `entry_title=[2, 3]`
+        data = expand_query_to_parameters(body)
     data = data.encode('utf-8')
     req = urllib.request.Request(url, data)
-    apply_headers(req, {'Accept': accept, 'Client-Id': client_id})
-    apply_headers(req, headers)
+    if accept is not None:
+        apply_headers_to_request(req, {'Accept': accept})
+    apply_headers_to_request(req, headers)
     try:
         resp = urllib.request.urlopen(req)
-        raw_response = resp.read().decode('utf-8')
-        obj_json = json.loads(raw_response)
+        response = resp.read()
+        raw_response = response.decode('utf-8')
+        if resp.status == 200:
+            obj_json = json.loads(raw_response)
+            head_list = {}
+            for head in resp.getheaders():
+                head_list[head[0]] = head[1]
+            obj_json['http-headers'] = head_list
+        elif resp.status == 204:
+            obj_json = {}
+            head_list = {}
+            for head in resp.getheaders():
+                head_list[head[0]] = head[1]
+            obj_json['http-headers'] = head_list
+        else:
+            if raw_response.startswith("{") and raw_response.endswith("}"):
+                return json.loads(raw_response)
+            return raw_response
         return obj_json
     except urllib.error.HTTPError as exception:
-        return exception
+        raw_response = exception.read()
+        obj_json = json.loads(raw_response)
+        obj_json['code'] = exception.code
+        obj_json['reason'] = exception.reason
+        return obj_json

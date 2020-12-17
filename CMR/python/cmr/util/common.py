@@ -20,15 +20,48 @@ date 2020-10-26
 since 0.0
 """
 
-from enum import Enum # requires Python 3.4
 import os
 import subprocess
 
-def enum_value(value):
-    """ Get a value either directly or from an Enum """
-    if isinstance(value, Enum):
-        value = value.value
-    return value
+def conj(coll, to_add):
+    """
+    Similar to clojure's function, add items to a list or dictionary
+
+    See https://clojuredocs.org/clojure.core/conj for more reading
+
+    Returns a new collection with the to_add 'added'. conj(None, item) returns
+    (item).  The 'addition' may happen at different 'places' depending on the
+    concrete type. if coll is:
+    [] - appends            [1, 2, 3, 4] == conj([1, 2], [3, 4])
+    () - prepend in reverse ((4, 3, 1, 2) == conj((1, 2), (3, 4))
+    {} - appends            {'a': 'A', 'b': 'B'} == conj({'a':'A'}, {'b':'B'})
+
+    Parameters:
+        coll: collection to add items to
+        to_add: items to be added to coll
+    Return:
+        object of the same type as coll but with to_add items added
+    """
+    ret = coll
+    if coll is None:
+        ret = to_add
+    elif isinstance(coll, list):
+        ret = coll + to_add
+    elif isinstance(coll, tuple):
+        ret = list([])
+        for item in coll:
+            ret.append(item)
+        for item in to_add:
+            ret.insert(0, item)
+        ret = tuple(ret)
+    elif isinstance(coll, dict):
+        ret = {}
+        for key in coll:
+            ret[key] = coll[key]
+        for key in to_add:
+            if key not in ret:
+                ret[key] = to_add[key]
+    return ret
 
 def drop_key_safely(dictionary, key):
     """Drop a key from a dict if it exists and return that change"""
