@@ -137,7 +137,9 @@ def open_api(section='#granule-search-by-parameters'):
 
 def set_logging_to(level):
     """
-    Set the logging level to the stated value
+    Set the logging level to the stated value. Any of the standard logging level
+    as stated in https://docs.python.org/3/howto/logging.html#when-to-use-logging
+    can be used here. These include: DEBUG, INFO, WARNING, ERROR, and CRITICAL
     Parameters:
         level: a value like logging.INFO
     """
