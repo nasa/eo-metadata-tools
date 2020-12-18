@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module network</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>network</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br></font></td></tr></table>
+    <p><tt>date&nbsp;2020-11-05<br>
+since&nbsp;0.0</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="urllib.html">urllib</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-apply_headers_to_request"><strong>apply_headers_to_request</strong></a>(req, headers)</dt><dd><tt>Apply&nbsp;a&nbsp;headers&nbsp;to&nbsp;a&nbsp;urllib&nbsp;request&nbsp;object</tt></dd></dl>
+ <dl><dt><a name="-config_to_header"><strong>config_to_header</strong></a>(config, source_key, headers, destination_key=None, default=None)</dt><dd><tt>Copy&nbsp;a&nbsp;value&nbsp;in&nbsp;the&nbsp;config&nbsp;into&nbsp;a&nbsp;header&nbsp;dictionary&nbsp;for&nbsp;use&nbsp;by&nbsp;urllib.&nbsp;Written<br>
+to&nbsp;reduce&nbsp;boiler&nbsp;plate&nbsp;code<br>
+&nbsp;<br>
+config[key]&nbsp;-&gt;&nbsp;[or&nbsp;default]&nbsp;-&gt;&nbsp;[rename]&nbsp;-&gt;&nbsp;headers[key]<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config(dictionary):&nbsp;where&nbsp;to&nbsp;look&nbsp;for&nbsp;values<br>
+&nbsp;&nbsp;&nbsp;&nbsp;source_key(string):&nbsp;name&nbsp;if&nbsp;configuration&nbsp;in&nbsp;config<br>
+&nbsp;&nbsp;&nbsp;&nbsp;headers(dictionary):&nbsp;where&nbsp;to&nbsp;copy&nbsp;values&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;destination_key(string):&nbsp;name&nbsp;of&nbsp;key&nbsp;to&nbsp;save&nbsp;to&nbsp;in&nbsp;headers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;default(string):&nbsp;value&nbsp;to&nbsp;use&nbsp;if&nbsp;value&nbsp;can&nbsp;not&nbsp;be&nbsp;found&nbsp;in&nbsp;config</tt></dd></dl>
+ <dl><dt><a name="-expand_parameter_to_parameters"><strong>expand_parameter_to_parameters</strong></a>(key, parameter)</dt><dd><tt>Convert&nbsp;a&nbsp;list&nbsp;of&nbsp;values&nbsp;into&nbsp;a&nbsp;list&nbsp;of&nbsp;URL&nbsp;parameters</tt></dd></dl>
+ <dl><dt><a name="-expand_query_to_parameters"><strong>expand_query_to_parameters</strong></a>(query=None)</dt><dd><tt>Convert&nbsp;a&nbsp;dictionary&nbsp;to&nbsp;URL&nbsp;parameters</tt></dd></dl>
+ <dl><dt><a name="-get_local_ip"><strong>get_local_ip</strong></a>()</dt><dd><tt>Rewrite&nbsp;this&nbsp;stub,&nbsp;it&nbsp;is&nbsp;used&nbsp;in&nbsp;code&nbsp;not&nbsp;checked&nbsp;in&nbsp;yet</tt></dd></dl>
+ <dl><dt><a name="-post"><strong>post</strong></a>(url, body, accept=None, headers=None)</dt><dd><tt>Make&nbsp;a&nbsp;basic&nbsp;HTTP&nbsp;call&nbsp;to&nbsp;CMR&nbsp;using&nbsp;the&nbsp;POST&nbsp;action<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;url&nbsp;(string):&nbsp;resource&nbsp;to&nbsp;get<br>
+&nbsp;&nbsp;&nbsp;&nbsp;body&nbsp;(dictionary):&nbsp;parameters&nbsp;to&nbsp;send,&nbsp;or&nbsp;string&nbsp;if&nbsp;raw&nbsp;text&nbsp;to&nbsp;be&nbsp;sent<br>
+&nbsp;&nbsp;&nbsp;&nbsp;accept&nbsp;(string):&nbsp;encoding&nbsp;of&nbsp;the&nbsp;returned&nbsp;data,&nbsp;some&nbsp;form&nbsp;of&nbsp;json&nbsp;is&nbsp;expected<br>
+&nbsp;&nbsp;&nbsp;&nbsp;client_id&nbsp;(string):&nbsp;name&nbsp;of&nbsp;the&nbsp;client&nbsp;making&nbsp;the&nbsp;(not&nbsp;python&nbsp;or&nbsp;curl)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;headers&nbsp;(dictionary):&nbsp;HTTP&nbsp;headers&nbsp;to&nbsp;apply</tt></dd></dl>
+ <dl><dt><a name="-transform_results"><strong>transform_results</strong></a>(results, keys_of_interest)</dt><dd><tt>Take&nbsp;a&nbsp;list&nbsp;of&nbsp;results&nbsp;and&nbsp;convert&nbsp;them&nbsp;to&nbsp;a&nbsp;multi&nbsp;valued&nbsp;dictionary.&nbsp;The<br>
+real&nbsp;world&nbsp;use&nbsp;case&nbsp;is&nbsp;to&nbsp;take&nbsp;values&nbsp;from&nbsp;a&nbsp;list&nbsp;of&nbsp;collections&nbsp;and&nbsp;pass<br>
+them&nbsp;to&nbsp;a&nbsp;granule&nbsp;search.<br>
+&nbsp;<br>
+[{key1:value1},{key1:value2},...]&nbsp;-&gt;&nbsp;{"key1":&nbsp;[value1,value2]}&nbsp;-&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&amp;key1=value1&amp;key1=value2&nbsp;(&nbsp;via&nbsp;<a href="#-expand_query_to_parameters">expand_query_to_parameters</a>()&nbsp;)</tt></dd></dl>
+ <dl><dt><a name="-value_to_param"><strong>value_to_param</strong></a>(key, value)</dt><dd><tt>Convert&nbsp;a&nbsp;key&nbsp;value&nbsp;pair&nbsp;into&nbsp;a&nbsp;URL&nbsp;parameter&nbsp;pair</tt></dd></dl>
+</td></tr></table>
+</body></html>

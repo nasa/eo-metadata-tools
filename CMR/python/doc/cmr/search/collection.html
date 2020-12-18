@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module collection</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>collection</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br></font></td></tr></table>
+    <p><tt>A&nbsp;Library&nbsp;for&nbsp;building&nbsp;and&nbsp;requesting&nbsp;CMR&nbsp;collection&nbsp;searches<br>
+date:&nbsp;2020-11-23<br>
+since:&nbsp;0.0<br>
+&nbsp;<br>
+A&nbsp;simple&nbsp;search&nbsp;interface&nbsp;for&nbsp;CMR.&nbsp;Use&nbsp;the&nbsp;<a href="#-search">search</a>()&nbsp;function&nbsp;to&nbsp;perform&nbsp;searches.<br>
+This&nbsp;function&nbsp;can&nbsp;handle&nbsp;any&nbsp;query&nbsp;parameter&nbsp;which&nbsp;is&nbsp;supported&nbsp;by&nbsp;the&nbsp;CMR.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-search">search</a>()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;query&nbsp;-&nbsp;a&nbsp;dictionary&nbsp;of&nbsp;CMR&nbsp;parameters<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filters&nbsp;-&nbsp;a&nbsp;list&nbsp;of&nbsp;result&nbsp;filter&nbsp;lambdas<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;limit&nbsp;-&nbsp;int,&nbsp;limiting&nbsp;the&nbsp;number&nbsp;of&nbsp;records&nbsp;returned<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;config&nbsp;-&nbsp;configurations<br>
+&nbsp;<br>
+More&nbsp;information&nbsp;can&nbsp;be&nbsp;found&nbsp;at:<br>
+https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="cmr.search.common.html">cmr.search.common</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-all_fields"><strong>all_fields</strong></a>(item)</dt><dd><tt>Makes&nbsp;no&nbsp;change&nbsp;to&nbsp;the&nbsp;item,&nbsp;passes&nbsp;through.&nbsp;Used&nbsp;primarily&nbsp;as&nbsp;an&nbsp;example<br>
+and&nbsp;for&nbsp;testing&nbsp;the&nbsp;filter&nbsp;workflow</tt></dd></dl>
+ <dl><dt><a name="-apply_filters"><strong>apply_filters</strong></a>(filters, items)</dt><dd><tt>Apply&nbsp;all&nbsp;the&nbsp;filters&nbsp;on&nbsp;the&nbsp;downloaded&nbsp;data<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;filters(list):&nbsp;a&nbsp;list&nbsp;of&nbsp;filter&nbsp;lambdas&nbsp;which&nbsp;taken&nbsp;in&nbsp;a&nbsp;row&nbsp;and&nbsp;return&nbsp;and&nbsp;row<br>
+&nbsp;&nbsp;&nbsp;&nbsp;items(list):&nbsp;list&nbsp;of&nbsp;records&nbsp;from&nbsp;CMR<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Filtered&nbsp;data</tt></dd></dl>
+ <dl><dt><a name="-collection_core_fields"><strong>collection_core_fields</strong></a>(item)</dt><dd><tt>Extract&nbsp;only&nbsp;fields&nbsp;that&nbsp;are&nbsp;used&nbsp;to&nbsp;identify&nbsp;a&nbsp;record</tt></dd></dl>
+ <dl><dt><a name="-collection_ids_for_granules_fields"><strong>collection_ids_for_granules_fields</strong></a>(item: object)</dt><dd><tt>Extract&nbsp;only&nbsp;the&nbsp;fields&nbsp;that&nbsp;are&nbsp;of&nbsp;interest&nbsp;to&nbsp;doing&nbsp;a&nbsp;granule&nbsp;search</tt></dd></dl>
+ <dl><dt><a name="-concept_id_fields"><strong>concept_id_fields</strong></a>(item)</dt><dd><tt>Extract&nbsp;only&nbsp;fields&nbsp;that&nbsp;are&nbsp;used&nbsp;to&nbsp;identify&nbsp;a&nbsp;record</tt></dd></dl>
+ <dl><dt><a name="-drop_fields"><strong>drop_fields</strong></a>(key)</dt><dd><tt>Drop&nbsp;a&nbsp;key&nbsp;from&nbsp;a&nbsp;dictionary</tt></dd></dl>
+ <dl><dt><a name="-meta_fields"><strong>meta_fields</strong></a>(item)</dt><dd><tt>Return&nbsp;only&nbsp;the&nbsp;the&nbsp;meta&nbsp;objects</tt></dd></dl>
+ <dl><dt><a name="-open_api"><strong>open_api</strong></a>(section='#collection-search-by-parameters')</dt><dd><tt>Ask&nbsp;python&nbsp;to&nbsp;open&nbsp;up&nbsp;the&nbsp;API&nbsp;in&nbsp;a&nbsp;new&nbsp;browser&nbsp;window</tt></dd></dl>
+ <dl><dt><a name="-print_help"><strong>print_help</strong></a>(contains='')</dt><dd><tt>Built&nbsp;in&nbsp;help&nbsp;-&nbsp;prints&nbsp;out&nbsp;the&nbsp;public&nbsp;function&nbsp;names&nbsp;for&nbsp;the&nbsp;collection&nbsp;object&nbsp;for&nbsp;the&nbsp;token&nbsp;API<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;filter(string):&nbsp;filters&nbsp;out&nbsp;functions&nbsp;beginning&nbsp;with&nbsp;this&nbsp;text,&nbsp;defaults&nbsp;to&nbsp;all</tt></dd></dl>
+ <dl><dt><a name="-search"><strong>search</strong></a>(query=None, filters=None, limit=None, config: dict = None)</dt><dd><tt>Search&nbsp;and&nbsp;return&nbsp;all&nbsp;records</tt></dd></dl>
+ <dl><dt><a name="-set_logging_to"><strong>set_logging_to</strong></a>(level)</dt><dd><tt>Set&nbsp;the&nbsp;logging&nbsp;level&nbsp;to&nbsp;the&nbsp;stated&nbsp;value.&nbsp;Any&nbsp;of&nbsp;the&nbsp;standard&nbsp;logging&nbsp;level<br>
+as&nbsp;stated&nbsp;in&nbsp;https://docs.python.org/3/howto/logging.html#when-to-use-logging<br>
+can&nbsp;be&nbsp;used&nbsp;here.&nbsp;These&nbsp;include:&nbsp;DEBUG,&nbsp;INFO,&nbsp;WARNING,&nbsp;ERROR,&nbsp;and&nbsp;CRITICAL<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;level:&nbsp;a&nbsp;value&nbsp;like&nbsp;logging.INFO</tt></dd></dl>
+ <dl><dt><a name="-umm_fields"><strong>umm_fields</strong></a>(item)</dt><dd><tt>Return&nbsp;only&nbsp;the&nbsp;UMM&nbsp;part&nbsp;of&nbsp;the&nbsp;data</tt></dd></dl>
+</td></tr></table>
+</body></html>

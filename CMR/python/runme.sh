@@ -7,7 +7,7 @@
 # Print out a usage manual
 help()
 {
-    echo 'Run all the code stages: lint, test, package, install, uninstall, and clean'
+    echo 'Run all the code stages: lint, test, document, package, install, uninstall, and clean'
     echo
     echo 'Usage:'
     echo '    ./runme.sh -[cfhlpt] -[i | u]'
@@ -20,6 +20,7 @@ help()
     printf "${format}" Flag Name Description
     printf "${format}" ---- ---------- ------------------------------
     printf "${format}" '-c' 'clean' 'Clean up all generated files and directories'
+    printf "${format}" '-d' 'document' 'Generate documentation files'
     printf "${format}" '-f' 'find' 'Find the package in pip3'
     printf "${format}" '-h' 'help' 'Print out this help message and then exit'
     printf "${format}" '-i' 'install' 'Install latest wheel file'
@@ -35,7 +36,7 @@ lint()
     printf '*****************************************************************\n'
     printf 'Run pylint to check for common code convention warnings\n'
     pylint * \
-        --ignore-patterns=".*\.md,.*\.sh,pylintrc,LICENSE,build,dist,eo_metadata_tools_cmr.egg-info"
+        --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,eo_metadata_tools_cmr.egg-info"
 }
 
 # Run all the Unit Tests
@@ -94,11 +95,70 @@ clean()
     rm -rf eo_metadata_tools_cmr.egg-info
 }
 
+# Create documentation for one code Directory
+# param 1 subdirectory in doc to document
+doc_one()
+{
+    echo $1
+    mkdir -p doc/${1}
+    pydoc3 -w $(find ${1} -depth 1 -name '*.py')
+    #mv -f *.html doc/${1}
+
+    for item in $(find . -depth 1 -name '*.html')
+    do
+        # remove local file paths
+        cat $item | sed 's|<a href=\"file:/.*</a>||' > doc/$1/$item
+        rm $item
+    done
+
+    index_it $1 >> doc/${1}/index.html
+}
+
+# Create documentation for all code directories
+doc_all()
+{
+    printf '*****************************************************************\n'
+    printf 'Create all the documentation files\n'
+    rm -rf doc
+    doc_one 'cmr/auth'
+    doc_one 'cmr/search'
+    doc_one 'cmr/util'
+    doc_one 'cmr'
+}
+
+# create an HTML index page from a directory listing
+index_it()
+{
+    line="%s\n"
+    br="%s<br>\n"
+    printf $line "<!DOCTYPE html>\n<html><head>"
+    printf "\t<title>$1</title>\n"
+    printf $line "<head>\n<body>"
+    printf "<h1>Directory %s</h1>\n"
+    
+    printf "<ul>\n"
+    list=$(find ${1} -d 1 | \
+        grep -v __pycache__ | \
+        grep -v .pyc | \
+        grep -v .DS_Store | \
+        grep -v index.html | \
+        sed "s|$1\/||" | \
+        sed "s|\.py|\.html|")
+    for item in ${list}
+    do
+        printf "\t<li><a href=\"${item}\">${item}</a></li>\n"
+    done
+    printf $line "</ul>"
+
+    printf $file "</body>\n</html>"
+}
+
 # Process the command line arguments
-while getopts "cfhilptu" opt
+while getopts "cdfhilptu" opt
 do
     case ${opt} in
         c) clean ;;
+        d) doc_all ;;
         f) find_package ;;
         h) help ;;
         i) install_package ;;
@@ -114,4 +174,5 @@ done
 if [[ $# -eq 0 ]] ; then
     lint
     unit_test
+    doc_all
 fi
