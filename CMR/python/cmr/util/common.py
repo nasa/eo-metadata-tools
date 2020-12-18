@@ -69,26 +69,6 @@ def drop_key_safely(dictionary, key):
         del dictionary[key]
     return dictionary
 
-def dict_or_default(dictionary, key, default):
-    """
-    Return the contents of a dictionary pointed to with a key, or a default
-    value. The default can either be a raw value or a pointer to a function
-    that will return the default
-    dictionary(dictionary)= thing to check
-    key(string)= index in dictionary to look for
-    default(string/lambda)= text or function that gets text to use if value does not exist
-    """
-    if dictionary is None:
-        dictionary = {}
-    if key in dictionary:
-        ret = dictionary[key]
-    else:
-        if hasattr(default, '__call__'):
-            # Python > 3.2 way of doing things
-            ret = default()
-        else:
-            ret = default
-    return ret
 
 def read_file(path):
     """

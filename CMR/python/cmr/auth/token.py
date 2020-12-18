@@ -55,16 +55,19 @@ def token_literal(token_text):
     """
     return lambda _ : token_text
 
-def token_config(options=None):
+
+def token_config(options: dict = None):
     """
     Pull a token from the configuration dictionary
     Parameters:
         options (dictionary): Responds to:
             "cmr.token.value": value of token, defaults to 'None'
     """
-    return common.dict_or_default(options, "cmr.token.value", None)
+    options = options if isinstance(options, dict) else {}
+    return options.get("cmr.token.value", None)
 
-def token_file(options=None):
+
+def token_file(options: dict = None):
     """
     Load a token from a local user file assumed to be ~/.cmr_token
     Parameters:
@@ -73,12 +76,13 @@ def token_file(options=None):
     Returns
         token from file
     """
-    path_to_use = common.dict_or_default(options, "cmr.token.file", "~/.cmr_token")
+    path_to_use = dict(options).get("cmr.token.file", "~/.cmr_token")
     path = os.path.expanduser(path_to_use)
     clear_text = common.read_file(path)
     return clear_text
 
-def token_manager(options=None):
+
+def token_manager(options: dict = None):
     """
     Use a system like the MacOS X Keychain app. Any os which also has the
     security app would also work.
@@ -91,9 +95,9 @@ def token_manager(options=None):
         token from Keychain
     """
     try:
-        account = common.dict_or_default(options, "token.manager.account", "user")
-        service = common.dict_or_default(options, "token.manager.service", "cmr-lib-token")
-        app = common.dict_or_default(options, "token.manager.app", "/usr/bin/security")
+        account = dict(options).get("token.manager.account", "user")
+        service = dict(options).get("token.manager.service", "cmr-lib-token")
+        app = dict(options).get("token.manager.app", "/usr/bin/security")
         result = common.call_security(account, service, app)
     except subprocess.CalledProcessError:
         result = None
