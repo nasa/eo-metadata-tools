@@ -108,8 +108,7 @@ def config_to_header(config, source_key, headers, destination_key=None, default=
         destination_key(string): name of key to save to in headers
         default(string): value to use if value can not be found in config
     """
-    if config is None:
-        config = {}
+    config = config if isinstance(config, dict) else {}
     if destination_key is None:
         destination_key = source_key
     value = config.get(source_key, default)

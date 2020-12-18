@@ -146,6 +146,7 @@ def _cmr_basic_url(base, query, config:dict = None):
     if query is not None and len(query)>0:
         expanded = "?" + net.expand_query_to_parameters(query)
 
+    config = config if isinstance(config, dict) else {}
     env = config.get('env', '').lower().strip()
     if len(env)>0 and not env.endswith("."):
         env += "."
@@ -308,10 +309,9 @@ def search_by_page(base, query=None, filters=None, page_state=None, config:dict 
             * max-time - total processing time allowed for all calls
     return collected items
     """
+    config = config if isinstance(config, dict) else {}
     if page_state is None:
         page_state = create_page_state()  # must be the first page
-    if config is None:
-        config = {}
 
     obj_json = _make_search_request(base, query, page_state, config)
 
