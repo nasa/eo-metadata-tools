@@ -27,6 +27,7 @@ More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
 """
+import os
 import re
 import subprocess
 from datetime import datetime as dt
@@ -44,12 +45,13 @@ BUILD = {'BUILD_REF': '{BUILD_REF}',
 #pylint: disable=W0703
 try:
     if BUILD['BUILD_REF'].find('BUILD_REF'):
-        # Ask git for the current version
-        BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
-            stdout=subprocess.PIPE, check=True).stdout.decode("utf-8").strip()
+        if os.path.exists('.git'):
+            # Ask git for the current version
+            BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+                stdout=subprocess.PIPE, check=True).stdout.decode("utf-8").strip()
     if BUILD['BUILD_DATE'].find('BUILD_DATE'):
         BUILD['BUILD_DATE'] = dt.now().isoformat()
         del dt
 except Exception as exc:
     # catch any error and just move on
-    print ("Could not create build info: " + exc)
+    print ("Could not create build info: " + str(exc))
