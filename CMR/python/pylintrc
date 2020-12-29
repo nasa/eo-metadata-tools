@@ -1,7 +1,7 @@
 [SIMILARITIES]
 
 # Minimum lines number of a similarity.
-min-similarity-lines=15
+min-similarity-lines=22
 
 # Ignore comments when computing similarities.
 #ignore-comments=yes

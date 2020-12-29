@@ -35,7 +35,7 @@ lint()
 {
     printf '*****************************************************************\n'
     printf 'Run pylint to check for common code convention warnings\n'
-    pylint * \
+    pylint cmr test demos \
         --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,tags,eo_metadata_tools_cmr.egg-info"
 }
 

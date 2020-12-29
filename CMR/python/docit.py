@@ -83,6 +83,7 @@ FORMAT_HEADER = "# Document-it report"
 FORMAT_DOCIT_TEXT = "All the code 'document-it' tags are listed here by package"
 FORMAT_FULL_NAME = "## `{}`\n"
 FORMAT_FUNC = "### `{}()`\n"
+FORMAT_LINE = "{}\n"
 FORMAT_DOCIT_LINE2 = "`{}` (defaults to `{}`)."
 FORMAT_DOCIT_LINE3 = "`{}` (defaults to `{}`). Notes: {}"
 FORMAT_ALSO = "{}* also from `{}`"
@@ -173,7 +174,11 @@ def handle_function(func_db, module, out, obj_info, config):
     Most of the work from tree is here, print out the documentation for a
     function
     Parameters:
-        func_db, module, func_name, out, obj, config
+        func_db: function database, all the functions and their doc-it strings
+        module: module currently working on
+        out: list of markdown strings to be sent as output
+        obj_info: (object type, object)
+        config: Configuration dictionary
     """
     func_name = obj_info[0]
     obj = obj_info[1]
@@ -204,6 +209,21 @@ def handle_function(func_db, module, out, obj_info, config):
                 first = False
     if not first:
         out.append('')
+
+def handle_builtins(out, obj_info, config:dict):
+    """
+    Handle the built-in use case
+    Parameters:
+        out: list of strings to be sent through print() as the markdown content
+        obj_info: (object type, object)
+        config: configuration dictionary, look for 'verbose'
+    """
+    obj_type = obj_info[0]
+    obj = obj_info[1]
+    if config.get('verbose', False) and obj.__doc__ is not None:
+        out.append("* Global Dictionary - {}".format(obj_type))
+        out.append (obj.__doc__)
+
 
 # ##############################################################################
 #mark - Public Functions
@@ -265,6 +285,9 @@ def tree(report, func_db, module, config=None, cache=None):
         if inspect.ismodule(obj) and obj.__package__.startswith(module.__package__.split('.')[0]):
             # recursively call these latter
             post.append(obj)
+        elif obj_type == '__version__':
+            out.append(FORMAT_FULL_NAME.format("API Version"))
+            out.append(FORMAT_LINE.format(obj))
         elif inspect.ismodule(obj) or inspect.isbuiltin(obj):
             continue
         elif inspect.isfunction(obj):
@@ -273,9 +296,7 @@ def tree(report, func_db, module, config=None, cache=None):
                 continue
             handle_function(func_db, module, out, obj_info, config)
         elif isinstance(obj, dict) and obj_type != '__builtins__':
-            if config.get('verbose', False) and obj.__doc__ is not None:
-                out.append("* Global Dictionary - {}".format(obj_type))
-                out.append (obj.__doc__)
+            handle_builtins(out, obj_info, config)
         elif not obj_type in ['__builtins__',
             '__cached__',
             '__doc__',
@@ -311,7 +332,13 @@ def show_help():
     print (fmt.format('-v', '--verbose', 'none', '', 'Include more details'))
     print (fmt.format('-q', '--quiet', 'none', 'yes', 'Show less details'))
 
-def dump(func_db, config):
+def dump(func_db:dict, config:dict):
+    """
+    Dump out the function database for debugging if config has an active setting
+    Parameters:
+        func_db: function database to dump out
+        config: check the dump setting to test if option is active
+    """
     if config.get('dump', False):
         print (json.dumps(func_db, indent=4))
 
