@@ -1,4 +1,4 @@
-name: CI
+name: Master Build
 
 on:
   push:
@@ -20,6 +20,12 @@ jobs:
           python-version: 3.4
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Update Version Info
+        run:  |
+          ver=$(grep version setup.py | sed -e 's/version=\"\(.*\)\",/\1/g')
+          sed -i'' -e "s/\"{BUILD_VERSION}\"/\"${ver}\"/g' cmr/__init__.py
+          sed -i'' -e 's/"{BUILD_REF}"/"${{ github.ref }}"/g' cmr/__init__.py
+          sed -i'' -e "s/\"{BUILD_DATE}\"/\"$(date)\"/g" cmr/__init__.py
       - name: Run Unit Tests
         run: python3 -m unittest discover
         working-directory: ./CMR/python
