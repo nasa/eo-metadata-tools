@@ -22,16 +22,16 @@ date: 2020-10-26
 since: 0.0
 
 Overview:
-    The function token(lambda_list, options) will iterate over a list of token
+    The function token(lambda_list, config) will iterate over a list of token
     managers and return the value from the first manager that finds a token.
 
-    Token Managers are lambda functions that take in an 'options' dictionary for
+    Token Managers are lambda functions that take in a 'config' dictionary for
     use as a source for configurations, and returns a token as a string.
-
 """
 
 import os
 import subprocess
+from typing import Callable
 import cmr.util.common as common
 
 # ##############################################################################
@@ -39,12 +39,12 @@ import cmr.util.common as common
 
 # All password lambda functions accept two parameters and return a string
 # Parameters:
-#   user_id(string): Earth Data Login user name
-#   options(dictionary): configuration object which may be used by the lambda
+#   user_id:string - Earth Data Login user name
+#   config:dictionary - configuration object which may be used by the lambda
 # Returns:
-#   password
+#   password:string
 
-def token_literal(token_text):
+def token_literal(token_text: str) -> Callable:
     """
     Generates an token lambda file which always returns the same value, this is
     used for testing, and also as an example of how to write token managers
@@ -56,38 +56,45 @@ def token_literal(token_text):
     return lambda _ : token_text
 
 
-def token_config(options: dict = None):
+# document-it: {"key":"cmr.token.value", "default":"None"}
+def token_config(config: dict = None) -> str:
     """
     Pull a token from the configuration dictionary
     Parameters:
-        options (dictionary): Responds to:
+        config: Responds to:
             "cmr.token.value": value of token, defaults to 'None'
     """
-    options = options if isinstance(options, dict) else {}
-    return options.get("cmr.token.value", None)
+    config = config if isinstance(config, dict) else {}
+    value = config.get('cmr.token.value', None)
+    return value
 
 
-def token_file(options: dict = None):
+# document-it: {"key":"cmr.token.file", "default":"~/.cmr_token"}
+def token_file(config: dict = None) -> str:
     """
     Load a token from a local user file assumed to be ~/.cmr_token
     Parameters:
-        options (dictionary): Responds to:
+        config: Responds to:
             "cmr.token.file": location of token file, defaults to ~/.cmr_token
     Returns
         token from file
     """
-    path_to_use = dict(options).get("cmr.token.file", "~/.cmr_token")
+    config = config if isinstance(config, dict) else {}
+    path_to_use = config.get('cmr.token.file', '~/.cmr_token')
     path = os.path.expanduser(path_to_use)
     clear_text = common.read_file(path)
     return clear_text
 
 
-def token_manager(options: dict = None):
+# document-it: {"key":"token.manager.account", "default":"user"}
+# document-it: {"key":"token.manager.service", "default":"cmr-lib-token"}
+# document-it: {"key":"token.manager.app", "default":"/usr/bin/security"}
+def token_manager(config: dict = None) -> str:
     """
     Use a system like the MacOS X Keychain app. Any os which also has the
     security app would also work.
     Parameters:
-        options (dictionary): Responds to the following:
+        config: Responds to the following:
             'token.manager.account': account field in Keychain
             'token.manager.app': Keychain command - defaults to /usr/bin/security
             'token.manager.service' defaults to 'cmr-lib-token'
@@ -95,9 +102,10 @@ def token_manager(options: dict = None):
         token from Keychain
     """
     try:
-        account = dict(options).get("token.manager.account", "user")
-        service = dict(options).get("token.manager.service", "cmr-lib-token")
-        app = dict(options).get("token.manager.app", "/usr/bin/security")
+        config = config if isinstance(config, dict) else {}
+        account = config.get('token.manager.account', 'user')
+        service = config.get('token.manager.service', 'cmr-lib-token')
+        app = config.get('token.manager.app', '/usr/bin/security')
         result = common.call_security(account, service, app)
     except subprocess.CalledProcessError:
         result = None
@@ -106,42 +114,43 @@ def token_manager(options: dict = None):
 # ##############################################################################
 # functions
 
-def token(token_lambdas=None, options=None):
+def token(token_lambdas=None, config:dict = None) -> str:
     """
     Recursively calls lambdas till a token is found
     Parameters:
         token_lambda: a token lambda or a list of functions
-        options (dictionary): Responds to no options
+        config: Responds to no values
     Returns:
         the EDL Token from the token lambda
     """
-
     if token_lambdas is None:
         token_lambdas = [token_file,token_config]
     if not isinstance(token_lambdas, list):
         token_lambdas = [token_lambdas]
 
     handler = token_lambdas.pop()
-    edl_token = handler(options)
+    edl_token = handler(config)
     if edl_token is None and len(token_lambdas)>0:
-        edl_token = token(token_lambdas, options)
+        edl_token = token(token_lambdas, config)
     return edl_token
 
-def print_help(prefix=""):
+def help_text(prefix:str = '') -> str:
     """
     Built in help - prints out the public function names for the token API
     Parameters:
-        filter(string): filters out functions beginning with this text, defaults to all
+        filter: filters out functions beginning with this text, defaults to all
+    Returns:
+        text ready to be passed to print()
     """
     formater = common.help_format_lambda(prefix)
 
     out = __doc__
 
-    out += ("\n**** Functions:\n")
-    for item in [print_help, token]:
-        out += formater(item.__name__ + "()", item)
+    out += ('\n**** Functions:\n')
+    for item in [help_text, token]:
+        out += formater(item.__name__ + '()', item)
 
-    out += "\n**** Token Lambdas:\n"
+    out += '\n**** Token Lambdas:\n'
     for item in [token_literal, token_config, token_file, token_manager]:
         out += formater(item.__name__, item)
     return out
