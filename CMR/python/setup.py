@@ -13,8 +13,8 @@ setuptools.setup(
     author="Thomas Cherry",
     author_email="thomas.a.cherry@nasa.gov",
     description="A python wrapper to the CMR interface",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
+    #long_description=long_description,
+    #long_description_content_type="text/markdown",
     url="https://github.com/nasa/eo-metadata-tools/",
     packages=setuptools.find_packages(exclude=['test']),
     classifiers=[
