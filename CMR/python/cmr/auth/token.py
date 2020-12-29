@@ -31,7 +31,6 @@ Overview:
 
 import os
 import subprocess
-from typing import Callable
 import cmr.util.common as common
 
 # ##############################################################################
@@ -44,7 +43,7 @@ import cmr.util.common as common
 # Returns:
 #   password:string
 
-def token_literal(token_text: str) -> Callable:
+def token_literal(token_text: str):
     """
     Generates an token lambda file which always returns the same value, this is
     used for testing, and also as an example of how to write token managers
