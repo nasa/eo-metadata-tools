@@ -14,10 +14,10 @@ date:&nbsp;2020-10-26<br>
 since:&nbsp;0.0<br>
 &nbsp;<br>
 Overview:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;function&nbsp;<a href="#-token">token</a>(lambda_list,&nbsp;options)&nbsp;will&nbsp;iterate&nbsp;over&nbsp;a&nbsp;list&nbsp;of&nbsp;token<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;function&nbsp;<a href="#-token">token</a>(lambda_list,&nbsp;config)&nbsp;will&nbsp;iterate&nbsp;over&nbsp;a&nbsp;list&nbsp;of&nbsp;token<br>
 &nbsp;&nbsp;&nbsp;&nbsp;managers&nbsp;and&nbsp;return&nbsp;the&nbsp;value&nbsp;from&nbsp;the&nbsp;first&nbsp;manager&nbsp;that&nbsp;finds&nbsp;a&nbsp;token.<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Token&nbsp;Managers&nbsp;are&nbsp;lambda&nbsp;functions&nbsp;that&nbsp;take&nbsp;in&nbsp;an&nbsp;'options'&nbsp;dictionary&nbsp;for<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Token&nbsp;Managers&nbsp;are&nbsp;lambda&nbsp;functions&nbsp;that&nbsp;take&nbsp;in&nbsp;a&nbsp;'config'&nbsp;dictionary&nbsp;for<br>
 &nbsp;&nbsp;&nbsp;&nbsp;use&nbsp;as&nbsp;a&nbsp;source&nbsp;for&nbsp;configurations,&nbsp;and&nbsp;returns&nbsp;a&nbsp;token&nbsp;as&nbsp;a&nbsp;string.</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -36,39 +36,48 @@ Overview:<br>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-print_help"><strong>print_help</strong></a>(prefix='')</dt><dd><tt>Built&nbsp;in&nbsp;help&nbsp;-&nbsp;prints&nbsp;out&nbsp;the&nbsp;public&nbsp;function&nbsp;names&nbsp;for&nbsp;the&nbsp;token&nbsp;API<br>
+<td width="100%"><dl><dt><a name="-help_text"><strong>help_text</strong></a>(prefix: str = '') -&gt; str</dt><dd><tt>Built&nbsp;in&nbsp;help&nbsp;-&nbsp;prints&nbsp;out&nbsp;the&nbsp;public&nbsp;function&nbsp;names&nbsp;for&nbsp;the&nbsp;token&nbsp;API<br>
 Parameters:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;filter(string):&nbsp;filters&nbsp;out&nbsp;functions&nbsp;beginning&nbsp;with&nbsp;this&nbsp;text,&nbsp;defaults&nbsp;to&nbsp;all</tt></dd></dl>
- <dl><dt><a name="-token"><strong>token</strong></a>(token_lambdas=None, options=None)</dt><dd><tt>Recursively&nbsp;calls&nbsp;lambdas&nbsp;till&nbsp;a&nbsp;token&nbsp;is&nbsp;found<br>
+&nbsp;&nbsp;&nbsp;&nbsp;filter:&nbsp;filters&nbsp;out&nbsp;functions&nbsp;beginning&nbsp;with&nbsp;this&nbsp;text,&nbsp;defaults&nbsp;to&nbsp;all<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;ready&nbsp;to&nbsp;be&nbsp;passed&nbsp;to&nbsp;print()</tt></dd></dl>
+ <dl><dt><a name="-token"><strong>token</strong></a>(token_lambdas=None, config: dict = None) -&gt; str</dt><dd><tt>Recursively&nbsp;calls&nbsp;lambdas&nbsp;till&nbsp;a&nbsp;token&nbsp;is&nbsp;found<br>
 Parameters:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;token_lambda:&nbsp;a&nbsp;token&nbsp;lambda&nbsp;or&nbsp;a&nbsp;list&nbsp;of&nbsp;functions<br>
-&nbsp;&nbsp;&nbsp;&nbsp;options&nbsp;(dictionary):&nbsp;Responds&nbsp;to&nbsp;no&nbsp;options<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config:&nbsp;Responds&nbsp;to&nbsp;no&nbsp;values<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;EDL&nbsp;Token&nbsp;from&nbsp;the&nbsp;token&nbsp;lambda</tt></dd></dl>
- <dl><dt><a name="-token_config"><strong>token_config</strong></a>(options=None)</dt><dd><tt>Pull&nbsp;a&nbsp;token&nbsp;from&nbsp;the&nbsp;configuration&nbsp;dictionary<br>
+ <dl><dt><a name="-token_config"><strong>token_config</strong></a>(config: dict = None) -&gt; str</dt><dd><tt>Pull&nbsp;a&nbsp;token&nbsp;from&nbsp;the&nbsp;configuration&nbsp;dictionary<br>
 Parameters:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;options&nbsp;(dictionary):&nbsp;Responds&nbsp;to:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config:&nbsp;Responds&nbsp;to:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cmr.token.value":&nbsp;value&nbsp;of&nbsp;token,&nbsp;defaults&nbsp;to&nbsp;'None'</tt></dd></dl>
- <dl><dt><a name="-token_file"><strong>token_file</strong></a>(options=None)</dt><dd><tt>Load&nbsp;a&nbsp;token&nbsp;from&nbsp;a&nbsp;local&nbsp;user&nbsp;file&nbsp;assumed&nbsp;to&nbsp;be&nbsp;~/.cmr_token<br>
+ <dl><dt><a name="-token_file"><strong>token_file</strong></a>(config: dict = None) -&gt; str</dt><dd><tt>Load&nbsp;a&nbsp;token&nbsp;from&nbsp;a&nbsp;local&nbsp;user&nbsp;file&nbsp;assumed&nbsp;to&nbsp;be&nbsp;~/.cmr_token<br>
 Parameters:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;options&nbsp;(dictionary):&nbsp;Responds&nbsp;to:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config:&nbsp;Responds&nbsp;to:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"cmr.token.file":&nbsp;location&nbsp;of&nbsp;token&nbsp;file,&nbsp;defaults&nbsp;to&nbsp;~/.cmr_token<br>
 Returns<br>
 &nbsp;&nbsp;&nbsp;&nbsp;token&nbsp;from&nbsp;file</tt></dd></dl>
- <dl><dt><a name="-token_literal"><strong>token_literal</strong></a>(token_text)</dt><dd><tt>Generates&nbsp;an&nbsp;token&nbsp;lambda&nbsp;file&nbsp;which&nbsp;always&nbsp;returns&nbsp;the&nbsp;same&nbsp;value,&nbsp;this&nbsp;is<br>
+ <dl><dt><a name="-token_literal"><strong>token_literal</strong></a>(token_text: str) -&gt; Callable</dt><dd><tt>Generates&nbsp;an&nbsp;token&nbsp;lambda&nbsp;file&nbsp;which&nbsp;always&nbsp;returns&nbsp;the&nbsp;same&nbsp;value,&nbsp;this&nbsp;is<br>
 used&nbsp;for&nbsp;testing,&nbsp;and&nbsp;also&nbsp;as&nbsp;an&nbsp;example&nbsp;of&nbsp;how&nbsp;to&nbsp;write&nbsp;token&nbsp;managers<br>
 Parameters:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;token_text(string):&nbsp;the&nbsp;token&nbsp;which&nbsp;should&nbsp;always&nbsp;be&nbsp;returned&nbsp;by&nbsp;the&nbsp;lambda<br>
 Return:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;lambda&nbsp;function&nbsp;which&nbsp;takes&nbsp;a&nbsp;dictionary&nbsp;and&nbsp;returns&nbsp;a&nbsp;token</tt></dd></dl>
- <dl><dt><a name="-token_manager"><strong>token_manager</strong></a>(options=None)</dt><dd><tt>Use&nbsp;a&nbsp;system&nbsp;like&nbsp;the&nbsp;MacOS&nbsp;X&nbsp;Keychain&nbsp;app.&nbsp;Any&nbsp;os&nbsp;which&nbsp;also&nbsp;has&nbsp;the<br>
+ <dl><dt><a name="-token_manager"><strong>token_manager</strong></a>(config: dict = None) -&gt; str</dt><dd><tt>Use&nbsp;a&nbsp;system&nbsp;like&nbsp;the&nbsp;MacOS&nbsp;X&nbsp;Keychain&nbsp;app.&nbsp;Any&nbsp;os&nbsp;which&nbsp;also&nbsp;has&nbsp;the<br>
 security&nbsp;app&nbsp;would&nbsp;also&nbsp;work.<br>
 Parameters:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;options&nbsp;(dictionary):&nbsp;Responds&nbsp;to&nbsp;the&nbsp;following:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;config:&nbsp;Responds&nbsp;to&nbsp;the&nbsp;following:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'token.manager.account':&nbsp;account&nbsp;field&nbsp;in&nbsp;Keychain<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'token.manager.app':&nbsp;Keychain&nbsp;command&nbsp;-&nbsp;defaults&nbsp;to&nbsp;/usr/bin/security<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'token.manager.service'&nbsp;defaults&nbsp;to&nbsp;'cmr-lib-token'<br>
 Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;token&nbsp;from&nbsp;Keychain</tt></dd></dl>
-</td></tr></table>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>Callable</strong> = typing.Callable</td></tr></table>
 </body></html>
