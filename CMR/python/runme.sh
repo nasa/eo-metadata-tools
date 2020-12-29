@@ -36,7 +36,7 @@ lint()
     printf '*****************************************************************\n'
     printf 'Run pylint to check for common code convention warnings\n'
     pylint * \
-        --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,eo_metadata_tools_cmr.egg-info"
+        --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,tags,eo_metadata_tools_cmr.egg-info"
 }
 
 # Run all the Unit Tests
@@ -89,10 +89,11 @@ install_package()
 clean()
 {
     printf '*****************************************************************\n'
-    printf 'Remove all generated files and directories\n'
+    printf 'Remove generated files and directories\n'
     rm -rf build
     rm -rf dist
     rm -rf eo_metadata_tools_cmr.egg-info
+    find cmr -type d -name '__pycache__' | xargs rm -rf
 }
 
 # Create documentation for one code Directory
@@ -153,8 +154,14 @@ index_it()
     printf $file "</body>\n</html>"
 }
 
+config_report()
+{
+    #grep -ri 'Document-it' cmr | sed -e 's/.*Document-it \({.*}\)/\1/g' | jq -c
+    python3 docit.py > doc/config_properties.md
+}
+
 # Process the command line arguments
-while getopts "cdfhilptu" opt
+while getopts "cdfhilprtu" opt
 do
     case ${opt} in
         c) clean ;;
@@ -164,6 +171,7 @@ do
         i) install_package ;;
         l) lint ;;
         p) package_project ;;
+        r) config_report ;;
         t) unit_test ;;
         u) uninstall_package ;;
         *) help ; exit ;;
@@ -174,5 +182,4 @@ done
 if [[ $# -eq 0 ]] ; then
     lint
     unit_test
-    doc_all
 fi
