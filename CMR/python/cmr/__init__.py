@@ -31,9 +31,14 @@ import re
 import subprocess
 from datetime import datetime as dt
 
+# NOTE: This value is the definitive value for version, it is used by setup.py,
+# not the other way around. Update this value to change the package version
+# number and the version number in the wheel file
+__version__ = '0.0.1'
+
 BUILD = {'BUILD_REF': '{BUILD_REF}',
     'BUILD_DATE': '{BUILD_DATE}',
-    'BUILD_VERSION': '{BUILD_VERSION}'}
+    'BUILD_VERSION': __version__}
 
 """ Clean up the dictionary for the case where the code is run locally """
 #pylint: disable=W0703
@@ -45,20 +50,6 @@ try:
     if BUILD['BUILD_DATE'].find('BUILD_DATE'):
         BUILD['BUILD_DATE'] = dt.now().isoformat()
         del dt
-    if BUILD['BUILD_VERSION'].find('BUILD_VERSION'):
-        # look for version in the setup.py file, example line: version="0.0.1",
-        with open ('setup.py') as file_obj:
-            LINE = None
-            for LINE in file_obj:
-                if LINE.find("version=") > 0:
-                    PATTERN = r'.*version=[\'\"]?([0-9.]+)[\'\"]?,.*'
-                    ver = re.sub(PATTERN, '\\1', LINE).strip()
-                    BUILD['BUILD_VERSION'] = ver
-                    del ver
-                    del PATTERN
-                    break
-            del LINE
-        del file_obj
 except Exception as exc:
     # catch any error and just move on
     print ("Could not create build info: " + exc)
