@@ -3,6 +3,15 @@
 """A simple test of the API as a library"""
 
 #import cmr.search.collection as coll
+try:
+    # Try loading the code from the python environment
+    import cmr as cmr_imp
+except ModuleNotFoundError:
+    # Try to load the local system
+    import os
+    import sys
+    sys.path.append(os.path.expanduser('.'))
+    import cmr as cmr_imp
 import cmr.search.granule as gran
 
 # Terminal colors
@@ -26,6 +35,7 @@ def blue(msg='{}'):
 # Get to work
 def main():
     """The main function"""
+    print (cmr_imp.BUILD)
     params = {'provider': 'ORNL_DAAC',
         'polygon': '10,10,30,10,30,20,10,20,10,10'}
     print ('Searching for {}'.format(params))

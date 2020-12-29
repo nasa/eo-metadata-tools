@@ -3,8 +3,17 @@
 """A simple test of the API from a command line script"""
 
 import time
+
+try:
+    # Try loading the code from the python environment
+    import cmr as cmr_imp
+except ModuleNotFoundError:
+    # Try to load the local system
+    import os
+    import sys
+    sys.path.append(os.path.expanduser('.'))
+    import cmr as cmr_imp
 import cmr.search.collection as coll
-#import cmr.search.granule as gran
 
 # Terminal colors
 def text_color(message='{}', color_code='\033[0;37m'):
@@ -30,6 +39,7 @@ def blue_text(msg='{}'):
 # Get to work
 def main():
     """The commands main method"""
+    print ("running version: {}".format(str(cmr_imp.BUILD)))
     print (blue_text("Enter in a free text search:"))
     ask = input(">")
     params = {}
