@@ -140,6 +140,7 @@ cython_debug/
 .idea/
 
 # Other things
+tags
 .swp
 .off
 .backup
