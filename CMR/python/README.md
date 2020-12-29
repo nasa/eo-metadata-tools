@@ -4,7 +4,7 @@ A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 
 ## Assumptions
 
-1. Python 3.4 or better.
+1. Python 3.6 or better.
 2. Can access [cmr.earthdata.nasa.gov][cmr]
 3. Optional: an account on [urs.earthdata.nasa.gov][edl]
 4. Third party libraries are not to be used unless absolutely necessary (none as of now)
