@@ -1,0 +1,37 @@
+name: CI Tests and Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+#defaults:
+#  run:
+#    # Having a global working directory will not work when more projects are added
+#    working-directory: ./CMR/python
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2.1.4
+        with:
+          python-version: 3.4
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Unit Tests
+        run: python3 -m unittest discover
+        working-directory: ./CMR/python
+      - name: Lint
+        run: ./runme.sh -l
+        working-directory: ./CMR/python
+      - name: Package
+        run: python3 setup.py sdist bdist_wheel
+        working-directory: ./CMR/python
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wheel
+          path: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl
