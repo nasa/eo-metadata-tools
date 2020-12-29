@@ -15,9 +15,9 @@ jobs:
 
     steps:
       - name: Setup Python
-        uses: actions/setup-python@v2.1.4
+        uses: actions/setup-python@v2
         with:
-          python-version: 3.4
+          python-version: 3.6
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Update Version Info
@@ -27,13 +27,15 @@ jobs:
           sed -i'' -e 's/"{BUILD_REF}"/"${{ github.ref }}"/g' cmr/__init__.py
           sed -i'' -e "s/\"{BUILD_DATE}\"/\"$(date)\"/g" cmr/__init__.py
       - name: Run Unit Tests
-        run: python3 -m unittest discover
+        run: ./runme.sh -t
         working-directory: ./CMR/python
       - name: Lint
         run: ./runme.sh -l
         working-directory: ./CMR/python
       - name: Package
-        run: python3 setup.py sdist bdist_wheel
+        run: |
+          pip3 install wheel
+          python3 setup.py sdist bdist_wheel
         working-directory: ./CMR/python
       - uses: actions/upload-artifact@v2
         with:

@@ -34,7 +34,8 @@ from datetime import datetime as dt
 
 # NOTE: This value is the definitive value for version, it is used by setup.py,
 # not the other way around. Update this value to change the package version
-# number and the version number in the wheel file
+# number and the version number in the wheel file.
+# NOTE: this process requires python 3.6 on GitHub
 __version__ = '0.0.1'
 
 BUILD = {'BUILD_REF': '{BUILD_REF}',
