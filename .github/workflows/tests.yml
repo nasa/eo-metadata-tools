@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Setup Python
-        uses: actions/setup-python@v2.1.4
+        uses: actions/setup-python@v2
         with:
           python-version: 3.5
       - name: Checkout code
@@ -29,7 +29,9 @@ jobs:
         run: ./runme.sh -l
         working-directory: ./CMR/python
       - name: Package
-        run: python3 setup.py sdist bdist_wheel
+        run: |
+          pip3 install wheel
+          python3 setup.py sdist bdist_wheel
         working-directory: ./CMR/python
       - uses: actions/upload-artifact@v2
         with:
