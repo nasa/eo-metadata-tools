@@ -53,6 +53,8 @@ import inspect
 import json
 from datetime import datetime
 
+import cmr.util.common as common
+
 # ##############################################################################
 # Where to find the packages that are to be documented
 
@@ -234,8 +236,8 @@ def pre_tree(func_db, module, config=None, cache=None):
     future use. Must be called before tree(). This database of functions will
     then be called by tree() to query and walk the 'froms'
     """
-    config = config if isinstance(config, dict) else {}
-    cache = cache if isinstance(cache, dict) else {}
+    config = common.always(config)
+    cache = common.always(cache)
     if module.__name__ in cache:
         # Been here before, nothing to do
         return

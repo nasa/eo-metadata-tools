@@ -27,6 +27,7 @@ help()
     printf "${format}" '-u' 'uninstall' 'Uninstall the wheel file'
     printf "${format}" '-l' 'lint' 'Print out this help message'
     printf "${format}" '-p' 'package' 'Package project into a whl file'
+    printf "${format}" '-r' 'report' 'Doc-It tag report'
     printf "${format}" '-t' 'unit test' 'Run the unit tests'
 }
 
@@ -36,6 +37,7 @@ lint()
     printf '*****************************************************************\n'
     printf 'Run pylint to check for common code convention warnings\n'
     pylint cmr test demos \
+        --disable=duplicate-code \
         --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,tags,eo_metadata_tools_cmr.egg-info"
 }
 

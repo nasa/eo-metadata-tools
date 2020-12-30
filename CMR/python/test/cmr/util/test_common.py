@@ -27,10 +27,6 @@ Created: 2020-10-15
 import unittest
 
 #import test.cmr as tutil
-
-#import cmr.auth.token as token
-#import cmr.auth.login as login
-#import cmr.util.common as common
 import cmr.util.common as com
 
 # ******************************************************************************
@@ -46,7 +42,25 @@ class TestSearch(unittest.TestCase):
 
     def test_conj(self):
         """Test the conj function"""
-        self.assertEqual([3, 4], com.conj(None, [3, 4]))
-        self.assertEqual([1, 2, 3, 4], com.conj([1, 2], [3, 4]))
-        self.assertEqual((4, 3, 1, 2), com.conj((1, 2), (3, 4)))
-        self.assertEqual({'a': 'A', 'b': 'B'}, com.conj({'a':'A'}, {'b':'B'}))
+        self.assertEqual([3, 4], com.conj(None, [3, 4]), 'src was None')
+        self.assertEqual([1, 2, 3, 4], com.conj([1, 2], [3, 4]), 'good src, lists')
+        self.assertEqual((4, 3, 1, 2), com.conj((1, 2), (3, 4)), 'good src, tuples')
+        self.assertEqual({'a': 'A', 'b': 'B'}, com.conj({'a':'A'}, {'b':'B'}), 'good src, dict')
+
+    def test_always(self):
+        """Test the always function"""
+        self.assertEqual({}, com.always("wrong type"), 'wrong thing')
+        self.assertEqual({}, com.always([]), 'wrong type')
+        self.assertEqual({}, com.always({}), 'same type')
+        self.assertEqual({'a':'b'}, com.always({'a':'b'}), 'populated dict, assumed')
+        self.assertEqual({'a':'b'}, com.always({'a':'b'}, otype=dict), 'populated dict')
+        self.assertEqual(['a', 'b'], com.always(['a','b'], otype=list), 'populated list')
+        self.assertEqual((1,2,3), com.always((1,2,3), otype=tuple), 'populated tuple')
+        self.assertEqual((1,2,3), com.always((1,2,3), tuple), 'populated tuple, positional')
+
+        # None use cases
+        self.assertEqual({}, com.always(None), 'assumed, none, dict')
+        self.assertEqual({}, com.always(None, otype=dict), 'None, dict')
+        self.assertEqual([], com.always(None, otype=list), 'None, list')
+        self.assertEqual((), com.always(None, otype=tuple), 'None, tuple')
+        self.assertEqual((), com.always(None, tuple), 'None, tuple, positional')

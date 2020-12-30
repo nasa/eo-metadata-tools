@@ -33,19 +33,19 @@ This function can handle any query parameter which is supported by the CMR.
 
 More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
-
 """
 
 import logging
 import math
 import webbrowser as web
+
 import cmr.util.common as common
 import cmr.util.network as net
 
 # ******************************************************************************
 # filter function lambdas
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level = logging.ERROR)
 logger = logging.getLogger('cmr.search.common')
 
 def all_fields(item):
@@ -109,7 +109,7 @@ def _continue_download(page_state):
 # document-it: {"key":"X-Request-id", "default":"None"}
 # document-it: {"key":"Client-Id", "default":"python_cmr_lib"}
 # document-it: {"key":"User-Agent", "default":"python_cmr_lib"}
-def _standard_headers_from_config(config:dict):
+def _standard_headers_from_config(config: dict):
     """
     Create a dictionary with the CMR specific headers meant to be passed to urllib
     Parameters:
@@ -128,7 +128,7 @@ def _standard_headers_from_config(config:dict):
     return headers
 
 # document-it: {"from":"._cmr_basic_url"}
-def _cmr_query_url(base:str, query:dict, page_state:dict, config:dict = None):
+def _cmr_query_url(base: str, query: dict, page_state: dict, config: dict = None):
     """
     build a collection or granule search URL to CMR
     Parameters:
@@ -145,7 +145,7 @@ def _cmr_query_url(base:str, query:dict, page_state:dict, config:dict = None):
     return _cmr_basic_url(base, query, config)
 
 # document-it: {"key":"env", "default":"", "msg":"uat, ops, prod, production, or blank for ops"}
-def _cmr_basic_url(base:str, query:dict, config:dict = None):
+def _cmr_basic_url(base: str, query: dict, config: dict = None):
     """
     Create a url for calling any CMR search end point, should not make any
     assumption, beyond the search directory. Will auto set the envirnment based
@@ -160,7 +160,7 @@ def _cmr_basic_url(base:str, query:dict, config:dict = None):
     if query is not None and len(query)>0:
         expanded = "?" + net.expand_query_to_parameters(query)
 
-    config = config if isinstance(config, dict) else {}
+    config = common.always(config)
     env = config.get('env', '').lower().strip()
     if len(env)>0 and not env.endswith("."):
         env += "."
@@ -173,7 +173,7 @@ def _cmr_basic_url(base:str, query:dict, config:dict = None):
 # document-it: {"key":"accept", "default":"application/vnd.nasa.cmr.umm_results+json"}
 # document-it: {"from":"._standard_headers_from_config"}
 # document-it: {"from":"._cmr_query_url"}
-def _make_search_request(base:str, query:dict, page_state:dict, config:dict):
+def _make_search_request(base: str, query: dict, page_state: dict, config: dict):
     """
     Do the first half of the "search_by_page" function, by making the call to CMR.
     Build a request and issue it, returning a json object
@@ -195,7 +195,7 @@ def _make_search_request(base:str, query:dict, page_state:dict, config:dict):
     headers = common.conj(headers, {'Accept': accept})
 
     # Build URL and make POST
-    url = _cmr_query_url(base, None, page_state, config=config)
+    url = _cmr_query_url(base, None, page_state, config = config)
     logger.info(' - %s: %s', 'POST', url)
     obj_json = net.post(url, query, headers=headers)
 
@@ -215,7 +215,7 @@ def _error_object(code, message):
 # ******************************************************************************
 # public search functions
 
-def create_page_state(page_size=10, page_num=1, took=0, limit=10):
+def create_page_state(page_size = 10, page_num = 1, took = 0, limit = 10):
     """
     Dictionary to hold page state for the recursive call
     Parameters:
@@ -256,7 +256,7 @@ def create_page_state(page_size=10, page_num=1, took=0, limit=10):
 
 # document-it: {"from": "._standard_headers_from_config"}
 # document-it: {"from":"._cmr_basic_url"}
-def clear_scroll(scroll_id, config:dict = None):
+def clear_scroll(scroll_id, config: dict = None):
     """
     This action is called to clear a scroll ID from CMR allowing CMR to free up
     memory associated with the current search.
@@ -274,7 +274,7 @@ def clear_scroll(scroll_id, config:dict = None):
     Returns:
         error dictionary if there was a problem, otherwise a JSON object of response headers
     """
-    config = config if isinstance(config, dict) else {}
+    config = common.always(config)
 
     # Build headers
     headers = _standard_headers_from_config(config)
@@ -316,7 +316,7 @@ def apply_filters(filters, items):
 
 # document-it: {"key":"max-time", "default": "300000"}
 # document-it: {"from":"._make_search_request"}
-def search_by_page(base, query=None, filters=None, page_state=None, config:dict = None):
+def search_by_page(base, query = None, filters = None, page_state = None, config: dict = None):
     """
     Recursive function to download all the pages of data. Note, this function
     will only run for 5 minutes and then will refuse to pull more pages
@@ -330,7 +330,7 @@ def search_by_page(base, query=None, filters=None, page_state=None, config:dict 
             * max-time - total processing time allowed for all calls
     return collected items
     """
-    config = config if isinstance(config, dict) else {}
+    config = common.always(config)
     if page_state is None:
         page_state = create_page_state()  # must be the first page
 
@@ -377,8 +377,8 @@ def search_by_page(base, query=None, filters=None, page_state=None, config:dict 
     return items[:page_state['limit']]
 
 # document-it: {"from":"._make_search_request"}
-def experimental_search_by_page_generator(base, query=None, filters=None,
-        page_state=None, config:dict = None):
+def experimental_search_by_page_generator(base, query = None, filters = None,
+        page_state = None, config: dict = None):
     """
     WARNING: This is an experimental function, do not use in an operational
     system, this function will go away.

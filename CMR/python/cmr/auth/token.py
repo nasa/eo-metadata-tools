@@ -31,6 +31,7 @@ Overview:
 
 import os
 import subprocess
+
 import cmr.util.common as common
 
 # ##############################################################################
@@ -38,10 +39,10 @@ import cmr.util.common as common
 
 # All password lambda functions accept two parameters and return a string
 # Parameters:
-#   user_id:string - Earth Data Login user name
-#   config:dictionary - configuration object which may be used by the lambda
+#   user_id: string - Earth Data Login user name
+#   config: dictionary - configuration object which may be used by the lambda
 # Returns:
-#   password:string
+#   password: string
 
 def token_literal(token_text: str):
     """
@@ -56,20 +57,20 @@ def token_literal(token_text: str):
 
 
 # document-it: {"key":"cmr.token.value", "default":"None"}
-def token_config(config: dict = None) -> str:
+def token_config(config: dict = None):
     """
     Pull a token from the configuration dictionary
     Parameters:
         config: Responds to:
             "cmr.token.value": value of token, defaults to 'None'
     """
-    config = config if isinstance(config, dict) else {}
+    config = common.always(config)
     value = config.get('cmr.token.value', None)
     return value
 
 
 # document-it: {"key":"cmr.token.file", "default":"~/.cmr_token"}
-def token_file(config: dict = None) -> str:
+def token_file(config: dict = None):
     """
     Load a token from a local user file assumed to be ~/.cmr_token
     Parameters:
@@ -78,17 +79,16 @@ def token_file(config: dict = None) -> str:
     Returns
         token from file
     """
-    config = config if isinstance(config, dict) else {}
+    config = common.always(config)
     path_to_use = config.get('cmr.token.file', '~/.cmr_token')
     path = os.path.expanduser(path_to_use)
     clear_text = common.read_file(path)
     return clear_text
 
-
 # document-it: {"key":"token.manager.account", "default":"user"}
 # document-it: {"key":"token.manager.service", "default":"cmr-lib-token"}
 # document-it: {"key":"token.manager.app", "default":"/usr/bin/security"}
-def token_manager(config: dict = None) -> str:
+def token_manager(config: dict = None):
     """
     Use a system like the MacOS X Keychain app. Any os which also has the
     security app would also work.
@@ -101,7 +101,7 @@ def token_manager(config: dict = None) -> str:
         token from Keychain
     """
     try:
-        config = config if isinstance(config, dict) else {}
+        config = common.always(config)
         account = config.get('token.manager.account', 'user')
         service = config.get('token.manager.service', 'cmr-lib-token')
         app = config.get('token.manager.app', '/usr/bin/security')
@@ -113,7 +113,7 @@ def token_manager(config: dict = None) -> str:
 # ##############################################################################
 # functions
 
-def token(token_lambdas=None, config:dict = None) -> str:
+def token(token_lambdas = None, config: dict = None):
     """
     Recursively calls lambdas till a token is found
     Parameters:
@@ -133,7 +133,7 @@ def token(token_lambdas=None, config:dict = None) -> str:
         edl_token = token(token_lambdas, config)
     return edl_token
 
-def help_text(prefix:str = '') -> str:
+def help_text(prefix: str = '') -> str:
     """
     Built in help - prints out the public function names for the token API
     Parameters:
