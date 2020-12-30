@@ -48,11 +48,10 @@ BUILD = {'BUILD_REF': '{BUILD_REF}',
 # Clean up the dictionary for the case where the code is run locally
 #pylint: disable=W0703
 try:
-    if BUILD['BUILD_REF'].find('BUILD_REF'):
-        if os.path.exists('.git'):
-            # Ask git for the current version
-            BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
-                stdout=subprocess.PIPE, check=True).stdout.decode("utf-8").strip()
+    if BUILD['BUILD_REF'].find('BUILD_REF') and os.path.exists('.git'):
+        # Ask git for the current version
+        BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+            stdout=subprocess.PIPE, check=True).stdout.decode("utf-8").strip()
     if BUILD['BUILD_DATE'].find('BUILD_DATE'):
         BUILD['BUILD_DATE'] = dt.now().isoformat()
         del dt
