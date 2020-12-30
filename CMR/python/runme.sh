@@ -96,62 +96,17 @@ clean()
     find cmr -type d -name '__pycache__' | xargs rm -rf
 }
 
-# Create documentation for one code Directory
-# param 1 subdirectory in doc to document
-doc_one()
-{
-    echo $1
-    mkdir -p doc/${1}
-    pydoc3 -w $(find ${1} -depth 1 -name '*.py')
-    #mv -f *.html doc/${1}
-
-    for item in $(find . -depth 1 -name '*.html')
-    do
-        # remove local file paths
-        cat $item | sed 's|<a href=\"file:/.*</a>||' > doc/$1/$item
-        rm $item
-    done
-
-    index_it $1 >> doc/${1}/index.html
-}
-
-# Create documentation for all code directories
-doc_all()
+document_markdown()
 {
     printf '*****************************************************************\n'
-    printf 'Create all the documentation files\n'
-    rm -rf doc
-    doc_one 'cmr/auth'
-    doc_one 'cmr/search'
-    doc_one 'cmr/util'
-    doc_one 'cmr'
-}
+    printf 'Generate the markdown documentation\n'
 
-# create an HTML index page from a directory listing
-index_it()
-{
-    line="%s\n"
-    br="%s<br>\n"
-    printf $line "<!DOCTYPE html>\n<html><head>"
-    printf "\t<title>$1</title>\n"
-    printf $line "<head>\n<body>"
-    printf "<h1>Directory %s</h1>\n"
+    module=cmr
     
-    printf "<ul>\n"
-    list=$(find ${1} -d 1 | \
-        grep -v __pycache__ | \
-        grep -v .pyc | \
-        grep -v .DS_Store | \
-        grep -v index.html | \
-        sed "s|$1\/||" | \
-        sed "s|\.py|\.html|")
-    for item in ${list}
-    do
-        printf "\t<li><a href=\"${item}\">${item}</a></li>\n"
-    done
-    printf $line "</ul>"
-
-    printf $file "</body>\n</html>"
+    if [ -z "$(which pydoc-markdown)" ] ; then
+        pip3 install pydoc-markdown
+    fi
+    pydoc-markdown
 }
 
 config_report()
@@ -165,7 +120,7 @@ while getopts "cdfhilprtu" opt
 do
     case ${opt} in
         c) clean ;;
-        d) doc_all ;;
+        d) document_markdown ;;
         f) find_package ;;
         h) help ;;
         i) install_package ;;

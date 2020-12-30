@@ -18,8 +18,9 @@
 
 """
 A Library interfacing with the CMR API
-date: 2020-11-23
-since: 0.0
+
+* date: 2020-11-23
+* since: 0.0
 
 Create version info Query the BUILD constant for information on the package version
 
@@ -37,12 +38,14 @@ from datetime import datetime as dt
 # number and the version number in the wheel file.
 # NOTE: this process requires python 3.6 on GitHub
 __version__ = '0.0.1'
+""" Package Version number """
 
 BUILD = {'BUILD_REF': '{BUILD_REF}',
     'BUILD_DATE': '{BUILD_DATE}',
     'BUILD_VERSION': __version__}
+""" Build and version information for the entire package """
 
-""" Clean up the dictionary for the case where the code is run locally """
+# Clean up the dictionary for the case where the code is run locally
 #pylint: disable=W0703
 try:
     if BUILD['BUILD_REF'].find('BUILD_REF'):
