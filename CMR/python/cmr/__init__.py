@@ -48,7 +48,7 @@ BUILD = {'BUILD_REF': '{BUILD-REF}',
 # Clean up the dictionary for the case where the code is run locally
 #pylint: disable=W0703
 try:
-    if BUILD['BUILD_REF'] == '{BUILD-REF}' and (os.path.exists('./git') or
+    if BUILD['BUILD_REF'] == '{BUILD-REF}' and (os.path.exists('./.git') or
         os.path.exists('../.git') or os.path.exists('../../.git')):
         # Ask git for the current version
         BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
