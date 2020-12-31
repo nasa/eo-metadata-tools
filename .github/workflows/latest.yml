@@ -23,8 +23,8 @@ jobs:
       - name: Update Version Info
         run:  |
           pushd CMR/python
-          sed -i'' -e 's%{BUILD_REF}%${{ github.ref }}%g' cmr/__init__.py
-          sed -i'' -e "s%{BUILD_DATE}%$(date)%g" cmr/__init__.py
+          sed -i'' -e 's%{BUILD-REF}%${{ github.ref }}%g' cmr/__init__.py
+          sed -i'' -e "s%{BUILD-DATE}%$(date)%g" cmr/__init__.py
           popd
       - name: Run Unit Tests
         run: ./runme.sh -t
