@@ -4,16 +4,18 @@ A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 
 ## Assumptions
 
-1. Python 3.4 or better.
+1. Python 3.6 or better.
 2. Can access [cmr.earthdata.nasa.gov][cmr]
 3. Optional: an account on [urs.earthdata.nasa.gov][edl]
 4. Third party libraries are not to be used unless absolutely necessary (none as of now)
+    * some tools like pylint and pydoc_markdown are used however for the development envirnment
 
 ## Styles
 
 1. Coding Styles are defined as [PEP 8][pep8].
 2. This project uses the [editorconfig.org][econfig] file .editorconfig 
 3. Use: `pylint *` or `runme.sh -l` to check code
+4. Local rules can be found in [doc/style_rules.md](doc/style_rules.md)
 
 ## Building and Installing
 
@@ -77,12 +79,14 @@ find, uninstall, find, package, install, find
 | Flag | Name      | Description |
 | ---- | --------- | -------------------------------------------- |
 | -c   | clean     | Clean up all generated files and directories
+| -d   | document  | Generate documentation files
 | -f   | find      | Find the package in pip3
 | -h   | help      | Print out this help message and then exits
 | -i   | install   | Install latest wheel file
 | -u   | uninstall | Uninstall the wheel file
 | -l   | lint      | Print out this help message
 | -p   | package   | Package project into a whl file
+| -r   | report    | Doc-It tag report
 | -t   | unit test | Run the unit tests
 
 If no flags are given, then `-l -u` is assumed.

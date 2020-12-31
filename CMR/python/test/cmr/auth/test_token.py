@@ -123,13 +123,13 @@ class TestToken(unittest.TestCase):
 
     def test_help_full(self):
         """Test the built in help"""
-        result_full = token.print_help()
+        result_full = token.help_text()
         self.assertTrue (-1<result_full.find("token_file"))
         self.assertTrue (-1<result_full.find("token("))
 
     def test_help_less(self):
         """Test the built in help for filtering"""
-        result_less = token.print_help("token_")
+        result_less = token.help_text("token_")
         self.assertTrue (-1<result_less.find("token_file"))
         self.assertFalse (-1<result_less.find("token()"))
 

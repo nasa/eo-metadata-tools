@@ -1,0 +1,13 @@
+loaders:
+  - type: python
+    packages: [cmr]
+    search_path: [.]
+processors:
+  - type: filter
+  - type: smart
+  - type: crossref
+renderer:
+  type: markdown
+  filename: doc/cmr.md
+  render_toc: true
+  toc_maxdepth: 0

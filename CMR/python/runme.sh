@@ -7,7 +7,7 @@
 # Print out a usage manual
 help()
 {
-    echo 'Run all the code stages: lint, test, package, install, uninstall, and clean'
+    echo 'Run all the code stages: lint, test, document, package, install, uninstall, and clean'
     echo
     echo 'Usage:'
     echo '    ./runme.sh -[cfhlpt] -[i | u]'
@@ -20,12 +20,14 @@ help()
     printf "${format}" Flag Name Description
     printf "${format}" ---- ---------- ------------------------------
     printf "${format}" '-c' 'clean' 'Clean up all generated files and directories'
+    printf "${format}" '-d' 'document' 'Generate documentation files'
     printf "${format}" '-f' 'find' 'Find the package in pip3'
     printf "${format}" '-h' 'help' 'Print out this help message and then exit'
     printf "${format}" '-i' 'install' 'Install latest wheel file'
     printf "${format}" '-u' 'uninstall' 'Uninstall the wheel file'
     printf "${format}" '-l' 'lint' 'Print out this help message'
     printf "${format}" '-p' 'package' 'Package project into a whl file'
+    printf "${format}" '-r' 'report' 'Doc-It tag report'
     printf "${format}" '-t' 'unit test' 'Run the unit tests'
 }
 
@@ -34,8 +36,9 @@ lint()
 {
     printf '*****************************************************************\n'
     printf 'Run pylint to check for common code convention warnings\n'
-    pylint * \
-        --ignore-patterns=".*\.md,.*\.sh,pylintrc,LICENSE,build,dist,eo_metadata_tools_cmr.egg-info"
+    pylint cmr test demos \
+        --disable=duplicate-code \
+        --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,tags,eo_metadata_tools_cmr.egg-info"
 }
 
 # Run all the Unit Tests
@@ -88,22 +91,44 @@ install_package()
 clean()
 {
     printf '*****************************************************************\n'
-    printf 'Remove all generated files and directories\n'
+    printf 'Remove generated files and directories\n'
     rm -rf build
     rm -rf dist
     rm -rf eo_metadata_tools_cmr.egg-info
+    find cmr -type d -name '__pycache__' | xargs rm -rf
+}
+
+document_markdown()
+{
+    printf '*****************************************************************\n'
+    printf 'Generate the markdown documentation\n'
+
+    module=cmr
+    
+    if [ -z "$(which pydoc-markdown)" ] ; then
+        pip3 install pydoc-markdown
+    fi
+    pydoc-markdown
+}
+
+config_report()
+{
+    #grep -ri 'Document-it' cmr | sed -e 's/.*Document-it \({.*}\)/\1/g' | jq -c
+    python3 docit.py > doc/config_properties.md
 }
 
 # Process the command line arguments
-while getopts "cfhilptu" opt
+while getopts "cdfhilprtu" opt
 do
     case ${opt} in
         c) clean ;;
+        d) document_markdown ;;
         f) find_package ;;
         h) help ;;
         i) install_package ;;
         l) lint ;;
         p) package_project ;;
+        r) config_report ;;
         t) unit_test ;;
         u) uninstall_package ;;
         *) help ; exit ;;

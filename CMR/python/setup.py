@@ -1,14 +1,15 @@
 """
 Setup file for producing a PIP package
 """
+
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+with open("README.md", "r") as file_handle:
+    long_description = file_handle.read()
 
 setuptools.setup(
     name="eo-metadata-tools-cmr",
-    version="0.0.1",
+    #version="0.0.1", # set version in cmr/__init__.py
     author="Thomas Cherry",
     author_email="thomas.a.cherry@nasa.gov",
     description="A python wrapper to the CMR interface",

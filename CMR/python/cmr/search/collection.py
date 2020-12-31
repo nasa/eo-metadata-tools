@@ -34,6 +34,7 @@ More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
 """
+# pylint: disable=duplicate-code
 
 import cmr.search.common as scom
 
@@ -100,7 +101,8 @@ def apply_filters(filters, items):
     """
     return scom.apply_filters(filters, items)
 
-def search(query=None, filters=None, limit=None, config:dict = None):
+# document-it: {"from":"cmr.search.common.search_by_page"}
+def search(query = None, filters = None, limit = None, config: dict = None):
     """
     Search and return all records
     """
@@ -122,11 +124,11 @@ def set_logging_to(level):
     """
     scom.set_logging_to(level)
 
-def open_api(section='#collection-search-by-parameters'):
+def open_api(section = '#collection-search-by-parameters'):
     """Ask python to open up the API in a new browser window"""
     scom.open_api(section)
 
-def print_help(contains=""):
+def help_text(contains: str = ""):
     """
     Built in help - prints out the public function names for the collection object for the token API
     Parameters:
@@ -134,7 +136,7 @@ def print_help(contains=""):
     """
     functions = [apply_filters,
         open_api,
-        print_help,
+        help_text,
         search,
         set_logging_to]
     filters = [all_fields,
@@ -144,4 +146,4 @@ def print_help(contains=""):
         drop_fields,
         meta_fields,
         umm_fields]
-    return scom.print_help(contains, functions, filters)
+    return scom.help_text(contains, functions, filters)

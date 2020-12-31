@@ -200,13 +200,13 @@ class TestSearch(unittest.TestCase):
 
     def test_help_full(self):
         """Test the built in help"""
-        result_full = coll.print_help()
+        result_full = coll.help_text()
         self.assertTrue (-1<result_full.find("collection_ids_for_granules_fields"))
         self.assertTrue (-1<result_full.find("search():"))
 
     def test_help_less(self):
         """Test the built in help for filtering"""
-        result_less = coll.print_help("_fields")
+        result_less = coll.help_text("_fields")
         self.assertTrue (-1<result_less.find("collection_ids_for_granules_fields"))
         self.assertFalse (-1<result_less.find("search():"))
 

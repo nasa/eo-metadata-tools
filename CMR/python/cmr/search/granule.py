@@ -34,6 +34,8 @@ More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 """
 
+# pylint: disable=duplicate-code
+
 import cmr.search.common as scom
 
 # ******************************************************************************
@@ -84,7 +86,8 @@ def apply_filters(filters, items):
     """
     return scom.apply_filters(filters, items)
 
-def search(query, filters=None, limit=None, config:dict=None):
+# document-it: {"from":"cmr.search.common.search_by_page"}
+def search(query, filters = None, limit = None, config: dict = None):
     """
     Search and return all records
     Parameters:
@@ -103,7 +106,8 @@ def search(query, filters=None, limit=None, config:dict=None):
         config=config)
     return found_items
 
-def experimental_search_generator(query, filters=None, limit=None, config:dict = None):
+# document-it: {"from":"cmr.search.common.experimental_search_by_page_generator"}
+def experimental_search_generator(query, filters = None, limit = None, config: dict = None):
     """
     WARNING: This is an experimental function, do not use in an operational
     system, this function will go away.
@@ -127,7 +131,7 @@ def experimental_search_generator(query, filters=None, limit=None, config:dict =
         config=config)
     yield from found_items
 
-def open_api(section='#granule-search-by-parameters'):
+def open_api(section = '#granule-search-by-parameters'):
     """
     Ask python to open up the API in a new browser window
     Parameters:
@@ -145,11 +149,11 @@ def set_logging_to(level):
     """
     scom.set_logging_to(level)
 
-def print_help(contains=""):
+def help_text(contains: str = ""):
     """Return help for the public functions in the Granule api"""
     functions = [apply_filters,
         open_api,
-        print_help,
+        help_text,
         search,
         set_logging_to]
     filters = [all_fields,
@@ -158,4 +162,4 @@ def print_help(contains=""):
         granule_core_fields,
         meta_fields,
         umm_fields]
-    return scom.print_help(contains, functions, filters)
+    return scom.help_text(contains, functions, filters)

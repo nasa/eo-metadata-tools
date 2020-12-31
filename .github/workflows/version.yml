@@ -1,7 +1,9 @@
-name: Master Build
+name: CI Tests and Build Version
 
 on:
   push:
+    branches: [ master ]
+  pull_request:
     branches: [ master ]
 
 #defaults:
@@ -20,12 +22,6 @@ jobs:
           python-version: 3.6
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Update Version Info
-        run:  |
-          ver=$(grep version setup.py | sed -e 's/version=\"\(.*\)\",/\1/g')
-          sed -i'' -e "s/\"{BUILD_VERSION}\"/\"${ver}\"/g' cmr/__init__.py
-          sed -i'' -e 's/"{BUILD_REF}"/"${{ github.ref }}"/g' cmr/__init__.py
-          sed -i'' -e "s/\"{BUILD_DATE}\"/\"$(date)\"/g" cmr/__init__.py
       - name: Run Unit Tests
         run: ./runme.sh -t
         working-directory: ./CMR/python
@@ -41,10 +37,3 @@ jobs:
         with:
           name: wheel
           path: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest-master"
-          prerelease: true
-          title: "Master Build"
-          files: CMR/python/dist/eo_metadata_tools_cmr-*-py3-none-any.whl

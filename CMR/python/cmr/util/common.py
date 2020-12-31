@@ -63,6 +63,24 @@ def conj(coll, to_add):
                 ret[key] = to_add[key]
     return ret
 
+def always(obj: dict, otype = dict):
+    """
+    Ensure that something is always returned. Assumes dictionary, but list or
+    tuple can be specified, because source may be none, it can not be derived
+    Parameters:
+        obj: a dictionary, list, or tuple
+        otype: object type, the actual type `dict` (default), `list`, or `tuple`
+    Returns:
+        {}, [], or () as needed, or the object that was passed in if it already exists
+    """
+    if otype == dict:
+        obj = obj if isinstance(obj, dict) else {}
+    elif otype == list:
+        obj = obj if isinstance(obj, list) else []
+    elif otype == tuple:
+        obj = obj if isinstance(obj, tuple) else ()
+    return obj
+
 def drop_key_safely(dictionary, key):
     """Drop a key from a dict if it exists and return that change"""
     if key in dictionary:

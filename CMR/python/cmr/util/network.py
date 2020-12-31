@@ -25,6 +25,8 @@ import json
 import urllib.parse
 import urllib.request
 
+import cmr.util.common as common
+
 def get_local_ip():
     """Rewrite this stub, it is used in code not checked in yet """
     return '127.0.0.1'
@@ -108,7 +110,7 @@ def config_to_header(config, source_key, headers, destination_key=None, default=
         destination_key(string): name of key to save to in headers
         default(string): value to use if value can not be found in config
     """
-    config = config if isinstance(config, dict) else {}
+    config = common.always(config)
     if destination_key is None:
         destination_key = source_key
     value = config.get(source_key, default)

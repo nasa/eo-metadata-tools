@@ -152,12 +152,12 @@ class TestSearch(unittest.TestCase):
 
     def test_help_full(self):
         """Test the built in help"""
-        result_full = gran.print_help()
+        result_full = gran.help_text()
         self.assertTrue (-1<result_full.find("granule_core_fields"))
         self.assertTrue (-1<result_full.find("search():"))
 
     def test_help_less(self):
         """Test the built in help for filtering"""
-        result_less = gran.print_help("_fields")
+        result_less = gran.help_text("_fields")
         self.assertTrue (-1<result_less.find("granule_core_fields"))
         self.assertFalse (-1<result_less.find("search():"))
