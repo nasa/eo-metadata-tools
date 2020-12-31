@@ -40,19 +40,21 @@ from datetime import datetime as dt
 __version__ = '0.0.1'
 """ Package Version number """
 
-BUILD = {'BUILD_REF': '{BUILD_REF}',
-    'BUILD_DATE': '{BUILD_DATE}',
+BUILD = {'BUILD_REF': '{BUILD-REF}',
+    'BUILD_DATE': '{BUILD-DATE}',
     'BUILD_VERSION': __version__}
 """ Build and version information for the entire package """
 
 # Clean up the dictionary for the case where the code is run locally
 #pylint: disable=W0703
 try:
-    if BUILD['BUILD_REF'].find('BUILD_REF') and os.path.exists('.git'):
+    if BUILD['BUILD_REF'].find('{BUILD-REF}')>-1 and (os.path.exists('./git') or
+        os.path.exists('../.git') or os.path.exists('../../.git')):
         # Ask git for the current version
         BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
             stdout=subprocess.PIPE, check=True).stdout.decode("utf-8").strip()
-    if BUILD['BUILD_DATE'].find('BUILD_DATE'):
+        BUILD['BUILD_LOCATION'] = 'local'
+    if BUILD['BUILD_DATE'].find('{BUILD-DATE}')>-1:
         BUILD['BUILD_DATE'] = dt.now().isoformat()
         del dt
 except Exception as exc:
