@@ -22,8 +22,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Update Version Info
         run:  |
-          ver=$(grep version setup.py | sed -e 's/version=\"\(.*\)\",/\1/g')
-          sed -i'' -e "s/\"{BUILD_VERSION}\"/\"${ver}\"/g' cmr/__init__.py
           sed -i'' -e 's/"{BUILD_REF}"/"${{ github.ref }}"/g' cmr/__init__.py
           sed -i'' -e "s/\"{BUILD_DATE}\"/\"$(date)\"/g" cmr/__init__.py
       - name: Run Unit Tests
