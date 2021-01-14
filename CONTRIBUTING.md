@@ -8,10 +8,19 @@ To allow us to incorporate your changes, please use the following process:
 
 1. Fork this repository to your personal account.
 2. Create a [github ticket][new]
-2. Create a branch and make your changes, including tests to verify your change
-3. Test the changes locally/in your personal fork.
-4. Submit a pull request to open a discussion about your proposed changes.
-5. The maintainers will talk with you about it and decide to merge or request additional changes.
+3. Create a branch and make your changes, including tests to verify your change
+4. If applicable, test the changes locally/in your personal fork. See section below.
+5. Submit a pull request to open a discussion about your proposed changes.
+6. The maintainers will talk with you about it and decide to merge or request additional changes.
+
+### Tests
+Not all code requires tests. Code meant as example, documentation, or experimental in nature do not need to have matching tests. Code meant to be authoritative or operational however must. Examples types of code that require tests are:
+
+* Code meant to be linked against and used in other peoples projects (library code),
+* applications that run operationally,
+* code that uses data to generates a product or result that others will then use and trust.
+
+In short, all code which is to be trusted must be tested.
 
 ## Commits
 
