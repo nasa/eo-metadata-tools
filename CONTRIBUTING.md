@@ -14,7 +14,7 @@ To allow us to incorporate your changes, please use the following process:
 6. The maintainers will talk with you about it and decide to merge or request additional changes.
 
 ### Tests
-Not all code requires tests. Code meant as example, documentation, or experimental in nature do not need to have matching tests. Code meant to be authoritative or operational however must. Examples types of code that require tests are:
+Not all code requires tests. Code meant as example, documentation, or experimental in nature does not need to have matching tests. Code meant to be authoritative or operational however must. Examples types of code that require tests are:
 
 * Code meant to be linked against and used in other peoples projects (library code),
 * applications that run operationally,
@@ -49,4 +49,5 @@ on GitHub.
 [new]: "https://github.com/nasa/eo-metadata-tools/issues/new/choose" "Create Ticket"
 [pep8]: https://www.python.org/dev/peps/pep-0008/ "Python coding standard"
 [pnames]: https://visualgit.readthedocs.io/en/latest/pages/naming_convention.html "Python Naming Convention"
-[contrib]: https://guides.github.com/activities/contributing-to-open-source/ "Contributhing to open source" 
+[contrib]: https://guides.github.com/activities/contributing-to-open-source/ "Contributhing to open source"
+
