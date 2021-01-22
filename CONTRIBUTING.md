@@ -14,13 +14,7 @@ To allow us to incorporate your changes, please use the following process:
 6. The maintainers will talk with you about it and decide to merge or request additional changes.
 
 ### Tests
-Not all code requires tests. Code meant as example, documentation, or experimental in nature does not need to have matching tests. Code meant to be authoritative or operational, however, must. Examples types of code that require tests are:
-
-* Code meant to be linked against and used in other peoples projects (library code),
-* applications that run operationally,
-* code that uses data to generates a product or result that others will then use and trust.
-
-In short, all code which is to be trusted must be tested.
+Not all code requires tests. Code meant as example, documentation, or experimental in nature do not need to have matching tests. Code meant to be authoritative or operational however must. Code meant to be linked against and used in other peoples projects (modules, not notebooks).
 
 ## Commits
 
