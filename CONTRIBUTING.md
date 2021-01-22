@@ -43,4 +43,5 @@ on GitHub.
 [new]: "https://github.com/nasa/eo-metadata-tools/issues/new/choose" "Create Ticket"
 [pep8]: https://www.python.org/dev/peps/pep-0008/ "Python coding standard"
 [pnames]: https://visualgit.readthedocs.io/en/latest/pages/naming_convention.html "Python Naming Convention"
-[contrib]: https://guides.github.com/activities/contributing-to-open-source/ "Contributhing to open source" 
+[contrib]: https://guides.github.com/activities/contributing-to-open-source/ "Contributhing to open source"
+
