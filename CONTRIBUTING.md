@@ -14,7 +14,7 @@ To allow us to incorporate your changes, please use the following process:
 6. The maintainers will talk with you about it and decide to merge or request additional changes.
 
 ### Tests
-Not all code requires tests. Code meant as example, documentation, or experimental in nature do not need to have matching tests. Code meant to be authoritative or operational however must. Code meant to be linked against and used in other peoples projects (modules, not notebooks).
+Not all code requires tests. Code meant as example, documentation, or experimental in nature do not need to have matching tests. Code meant to be authoritative or operational however must. Code meant to be linked against and used in other peoples projects (modules, not notebooks) does not.
 
 ## Commits
 
