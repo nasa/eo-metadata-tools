@@ -1,0 +1,2 @@
+fixes:
+  - "::CMR/python/" # move the root ;; cmr/<file.py> => CMR/python/cmr/<file.py>
