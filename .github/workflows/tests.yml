@@ -31,6 +31,8 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           fail_ci_if_error: true
+          files: .coverage
+          directory: ./CMR/python/
       - name: Lint
         run: ./runme.sh -l
         working-directory: ./CMR/python
