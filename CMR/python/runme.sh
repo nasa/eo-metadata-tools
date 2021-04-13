@@ -45,8 +45,10 @@ lint()
 unit_test()
 {
     printf '*****************************************************************\n'
-    printf 'Run the unit test for all subdirectories\n'
-    python3 -m unittest discover
+    printf 'Run the unit tests for all subdirectories\n'
+    pip3 install coverage
+    coverage run -m unittest discover
+    coverage html
 }
 
 # assume that the following has been called:
@@ -94,6 +96,7 @@ clean()
     printf 'Remove generated files and directories\n'
     rm -rf build
     rm -rf dist
+    rm -rf htmlcov
     rm -rf eo_metadata_tools_cmr.egg-info
     find cmr -type d -name '__pycache__' | xargs rm -rf
 }
