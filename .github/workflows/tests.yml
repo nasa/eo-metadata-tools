@@ -27,8 +27,8 @@ jobs:
         working-directory: ./CMR/python
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v1
-        working-directory: ./CMR/python
         with:
+          directory: CMR/python
           fail_ci_if_error: true
       - name: Lint
         run: ./runme.sh -l
