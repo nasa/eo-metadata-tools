@@ -1,3 +1,2 @@
 fixes:
-  - "cmr/::CMR/python/cmr/" # move the root cmr/<file.py> => CMR/python/cmr/<file.py>
-  - "test/::CMR/python/test/"
+  - "::CMR/python/" # move the root cmr/<file.py> => CMR/python/cmr/<file.py>
