@@ -1,5 +1,6 @@
 fixes:
   - "::CMR/python/cmr"
+  - "cmr/::CMR/python/"
 
 ignore:
   - "*/test/*"
