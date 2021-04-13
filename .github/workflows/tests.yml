@@ -23,9 +23,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Unit Tests
-        run: |
-          pip3 install coverage
-          coverage run -m unittest discover
+        run: ./runme.sh -t
         working-directory: ./CMR/python
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v1
