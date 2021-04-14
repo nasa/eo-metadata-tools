@@ -1,8 +1,2 @@
-codecov:
-  disable_default_path_fixes: false
-  
-fixes:
-  - "::CMR/python/"
-
 ignore:
   - "**/test/*"
