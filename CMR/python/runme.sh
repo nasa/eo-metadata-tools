@@ -47,7 +47,7 @@ unit_test()
     printf '*****************************************************************\n'
     printf 'Run the unit tests for all subdirectories\n'
     pip3 install coverage
-    coverage run -m unittest discover
+    coverage run --source=cmr -m unittest discover
     coverage html
 }
 
