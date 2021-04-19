@@ -1,2 +1,4 @@
 ignore:
-  - "**/test/*"
+  - "**/test/**/*"
+  - "CMR/python/docit.py"
+  - "CMR/python/setup.py"
