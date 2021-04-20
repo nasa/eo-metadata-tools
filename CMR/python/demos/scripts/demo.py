@@ -9,6 +9,7 @@ try:
     import cmr as cmr_imp
 except ModuleNotFoundError:
     # Try to load the local system
+    print ('using local version')
     import os
     import sys
     sys.path.append(os.path.expanduser('.'))
@@ -40,6 +41,7 @@ def style_input(msg='{}'):
 def main():
     """The commands main method"""
     print ("running version: {}".format(str(cmr_imp.BUILD)))
+    sys.exit()
     print (style_input("Enter in a free text search:"))
     ask = input(">")
     params = {}

@@ -67,6 +67,19 @@ For testing and general exploration it is advised that the User Acceptance Testi
 
     results = coll.search(params, config={'env':'uat'})
 
+### Tokens
+If you need to use tokens, use the [EDL Token Generator](https://urs.earthdata.nasa.gov/user_tokens) to create a token. Then if your on a Macintosh, store the token in the `Keychain Access.app` application (found in the Utilities folder) by creating a password. Do this by selecting either `File->New Password Item...` or pressing `command-n`. In the resulting window make the following settings:
+
+* **Name**: `cmr-lib-token`
+* **Account**: `user`
+* **Where**: `cmr lib token`
+* **Comments**: put a note here that this is for the cmr python library and which envirnment the token is foro
+* **Show Password**: put your token here
+
+Save. When you request a token in code, a popup will display asking for your keychain password.
+
+A less secure way to store your token is to save it to a text file at `~/.cmr_token`. The code will use the first line which does not start with `#`.
+
 ### Testing
 Use either `runme.sh -t` or `python3 -m unittest discover`
 
@@ -76,18 +89,19 @@ The runme.sh script documents how to run all the software stages for the project
 Usage example: `./runme.sh -f -u -f -p -i -f` which means:
 find, uninstall, find, package, install, find
 
-| Flag | Name      | Description |
-| ---- | --------- | -------------------------------------------- |
-| -c   | clean     | Clean up all generated files and directories
-| -d   | document  | Generate documentation files
-| -f   | find      | Find the package in pip3
-| -h   | help      | Print out this help message and then exits
-| -i   | install   | Install latest wheel file
-| -u   | uninstall | Uninstall the wheel file
-| -l   | lint      | Print out this help message
-| -p   | package   | Package project into a whl file
-| -r   | report    | Doc-It tag report
-| -t   | unit test | Run the unit tests
+| Flag | Option   | Name      | Description |
+| ---- | -------- | --------- | -------------------------------------------- |
+| -c   |          | clean     | Clean up all generated files and directories
+| -d   |          | document  | Generate documentation files
+| -f   |          | find      | Find the package in pip3
+| -h   |          | help      | Print out this help message and then exits
+| -i   |          | install   | Install latest wheel file
+| -u   |          | uninstall | Uninstall the wheel file
+| -l   |          | lint      | Print out this help message
+| -p   |          | package   | Package project into a whl file
+| -r   |          | report    | Doc-It tag report
+| -t   |          | unit test | Run the unit tests
+| -v   | \<value> | version   | Appends a version number to python and pip commands
 
 If no flags are given, then `-l -u` is assumed.
 
