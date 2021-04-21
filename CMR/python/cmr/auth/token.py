@@ -121,7 +121,7 @@ def token_manager(config: dict = None):
 
 def token(token_lambdas = None, config: dict = None):
     """
-    Recursively calls lambdas till a token is found. These lamdba functions
+    Loops through the list of lambdas till a token is found. These lamdba functions
     return an EDL token which can be passed to Earthdata software to authenticate
     the user. To get a token, go to https://sit.urs.earthdata.nasa.gov/user_tokens
 
