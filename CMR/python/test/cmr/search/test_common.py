@@ -21,7 +21,7 @@ Test cases for the cmr.auth package
 Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-11-30
 """
-
+import os
 from unittest.mock import patch
 import unittest
 import test.cmr as tutil
@@ -185,12 +185,14 @@ class TestSearch(unittest.TestCase):
     @patch('urllib.request.urlopen')
     def test_scroll(self, urlopen_mock):
         """ Test the scroll clear function to see if it returns an error or not"""
-        recorded_data_file = 'test/data/cmr/common/scroll_good.json'
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/common/scroll_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 204)
         result = scom.clear_scroll('-1')
         self.assertFalse('errors' in result)
 
-        recorded_data_file = 'test/data/cmr/common/scroll_bad.json'
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/common/scroll_bad.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 404)
         result = scom.clear_scroll('0')
         self.assertTrue('errors' in result)

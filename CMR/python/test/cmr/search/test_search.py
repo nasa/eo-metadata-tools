@@ -21,7 +21,7 @@ Test cases for the cmr.search.search module
 Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-10-15
 """
-
+import os
 from unittest.mock import patch
 import unittest
 
@@ -55,7 +55,8 @@ class TestSearch(unittest.TestCase):
         fewer to the caller
         """
         # Setup
-        recorded_data_file = 'test/data/cmr/search/ten_results_from_ghrc.json'
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/search/ten_results_from_ghrc.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
 
         # tests
@@ -69,7 +70,8 @@ class TestSearch(unittest.TestCase):
         def search(query=None, filters=None, limit=None, config=None):
         """
         # Setup
-        recorded_data_file = 'test/data/cmr/search/one_cmr_result.json'
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/search/one_cmr_result.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
 
         full_result = coll.search({'provider':'SEDAC'}, limit=1)

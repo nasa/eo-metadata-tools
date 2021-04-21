@@ -23,6 +23,7 @@ Created: 2020-12-01
 """
 
 #from unittest.mock import Mock
+import os
 from unittest.mock import patch
 import unittest
 
@@ -54,7 +55,8 @@ class TestSearch(unittest.TestCase):
         """
         # Setup
         urlopen_mock.return_value = valid_cmr_response(
-            'test/data/cmr/search/one_granule_cmr_result.json')
+            os.path.join (os.path.dirname (__file__), '../../data/cmr/search/one_granule_cmr_result.json')
+        )
 
         # Basic
         full_result = gran.search({'provider':'SEDAC'}, limit=1)
