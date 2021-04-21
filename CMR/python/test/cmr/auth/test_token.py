@@ -102,12 +102,12 @@ class TestToken(unittest.TestCase):
         token_file = "/tmp/__test_token_file__.txt"
         util.delete_file(token_file)
         expected_token = "file-token"
-        token_content = "#ignore this line\n" + expected_token
-        common.write_file(token_file, token_content)
+        token_file_content = "#ignore this line\n" + expected_token
+        common.write_file(token_file, token_file_content)
 
         #tests
         actual_token = common.read_file(token_file)
-        self.assertEqual(token_content, actual_token)
+        self.assertEqual(token_file_content, actual_token)
 
         options = {'cmr.token.file': token_file}
         self.assertEqual (expected_token, token.token_file(options))
