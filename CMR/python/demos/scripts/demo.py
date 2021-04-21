@@ -9,7 +9,6 @@ try:
     import cmr as cmr_imp
 except ModuleNotFoundError:
     # Try to load the local system
-    print ('using local version')
     import os
     import sys
     sys.path.append(os.path.expanduser('.'))
