@@ -41,7 +41,6 @@ def style_input(msg='{}'):
 def main():
     """The commands main method"""
     print ("running version: {}".format(str(cmr_imp.BUILD)))
-    sys.exit()
     print (style_input("Enter in a free text search:"))
     ask = input(">")
     params = {}
