@@ -92,6 +92,32 @@ class TestToken(unittest.TestCase):
         #cleanup
         util.delete_file(token_file)
 
+    def test_token_file_ignoring_comments(self):
+        """
+        Test a valid login using the password file lambda. The file itself will
+        contain comments to be ignored. This test will require that the test be
+        able to write to a temp directory
+        """
+        #setup
+        token_file = "/tmp/__test_token_file__.txt"
+        util.delete_file(token_file)
+        expected_token = "file-token"
+        token_file_content = "#ignore this line\n" + expected_token
+        common.write_file(token_file, token_file_content)
+
+        #tests
+        actual_token = common.read_file(token_file)
+        self.assertEqual(token_file_content, actual_token)
+
+        options = {'cmr.token.file': token_file}
+        self.assertEqual (expected_token, token.token_file(options))
+
+        actual = str(token.token(token.token_file, options))
+        self.assertEqual (expected_token, actual)
+
+        #cleanup
+        util.delete_file(token_file)
+
     @patch('cmr.util.common.execute_command')
     def test_password_manager(self, cmd_mock):
         """ Test a valid login using the password manager """

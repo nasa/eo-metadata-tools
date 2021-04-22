@@ -82,7 +82,13 @@ def token_file(config: dict = None):
     config = common.always(config)
     path_to_use = config.get('cmr.token.file', '~/.cmr_token')
     path = os.path.expanduser(path_to_use)
-    clear_text = common.read_file(path)
+    clear_text = None
+    raw_clear_text = common.read_file(path)
+    if raw_clear_text is not None:
+        for line in raw_clear_text.splitlines():
+            if not line.startswith("#"):
+                clear_text = line
+                break # we only need the first one
     return clear_text
 
 # document-it: {"key":"token.manager.account", "default":"user"}
@@ -115,7 +121,10 @@ def token_manager(config: dict = None):
 
 def token(token_lambdas = None, config: dict = None):
     """
-    Recursively calls lambdas till a token is found
+    Loops through the list of lambdas till a token is found. These lamdba functions
+    return an EDL token which can be passed to Earthdata software to authenticate
+    the user. To get a token, go to https://sit.urs.earthdata.nasa.gov/user_tokens
+
     Parameters:
         token_lambda: a token lambda or a list of functions
         config: Responds to no values
