@@ -23,14 +23,13 @@ This tool is not presently hosted on [pypy.org][pypi]. There are several ways to
 
 ### Stable from github:
 
-***NOTE***: Not yet implemented, as there is not a current stable build yet. When the first version is created, this section will be updated.
+***NOTE***: Not yet implemented, as there is not a current stable build yet. When the first official version is created, this section will be updated.
 
 ### Latest from git hub:
 
-***WARNING***: This will install the latest build and may not be the most stable code!
+***WARNING***: This will install the latest build which may not be the most stable code!
 
-To install the latest build directly from github, the following command can be.
-used. But be warned, 
+To install the latest build directly from github, the following command can be used. 
 
     pip3 install https://github.com/nasa/eo-metadata-tools/releases/download/latest-master/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl
 
