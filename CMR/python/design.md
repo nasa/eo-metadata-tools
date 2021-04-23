@@ -30,10 +30,10 @@ Borrow from Clojure when possible.
 
 ### Documentation as Code
 
-Since the library is to be run in notebooks, provide a way to communicate to the user API calls available. Do this using python's "reflection" abilities to dynamically discover functions and docstrings. All functions should assume that the associated docstring will be accessed through the `__doc__` parameter.
+As the library is to be run in notebooks, provide a way to communicate to the user API calls available. Do this using python's "reflection" abilities to dynamically discover functions and docstrings. All functions should assume that the associated docstring will be accessed through the `__doc__` parameter.
 
 ### Libraries
 
 Use as few libraries as maintainers. All libraries become a support nightmare for not only the maintainers of code but also for users who may not be able to meet the ever expanding requirements of third party libraries which in turn require their own libraries. Do not require running code to link to any library, Python has everything one would need. To assist with this principle, do not be afraid to use the newer version of Python. When moving the version up, document which exact feature is needed to justify moving the version number up.
 
-Exceptions to this principle are made for the build infrastructure as it makes no since to implement our own linter.
+Exceptions to this principle are made for the build infrastructure as it makes no sense to implement a linter.
