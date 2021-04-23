@@ -16,7 +16,7 @@ When ever there is a choice on how to process some data or which "method" should
 		limit = None,
 		config: dict = None):
 		
-For the search function in cmr/search/collection.py, the second parameter is actually a list. For filter it is a list of lambda functions which reduced the number of fields returned. These filters can then be applied in any order and can be swapped out as needed by the user in a notebook. These filters should be short and very specific, handling only one item at a time. In this way the calling code can figure out how best to loop through the set of items, especially in the case where function generators are to be used and data is not processed till it is needed, at which time lambda functions can be executed on demand using the smallest chuck of data available. Data is feed from one lamdba to the next, like how unix pipes send output from one command as input to the next.
+For the search function in cmr/search/collection.py, the second parameter is actually a list. For filters it is a list of lambda functions which reduce the number of fields returned. These filters can then be applied in any order and can be swapped out as needed by the user in a notebook. These filters should be short and very specific, handling only one item at a time. In this way the calling code can figure out how best to loop through the set of items, especially in the case where function generators are to be used and data is not processed till it is needed, at which time lambda functions can be executed on demand using the smallest chuck of data available. Data is feed from one lamdba to the next, like how unix pipes send output from one command as input to the next.
 
 ### Configurations
 
