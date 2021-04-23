@@ -16,6 +16,7 @@ A wrapper for [github.com/nasa/Common-Metadata-Repository][git_cmr] in python
 2. This project uses the [editorconfig.org][econfig] file .editorconfig 
 3. Use: `pylint *` or `runme.sh -l` to check code
 4. Local rules can be found in [doc/style_rules.md](doc/style_rules.md)
+5. [Architectural Design](design.md)
 
 ## Building and Installing
 
@@ -23,14 +24,13 @@ This tool is not presently hosted on [pypy.org][pypi]. There are several ways to
 
 ### Stable from github:
 
-***NOTE***: Not yet implemented, as there is not a current stable build yet. When the first version is created, this section will be updated.
+***NOTE***: Not yet implemented, as there is not a current stable build yet. When the first official version is created, this section will be updated.
 
-### Latest from git hub:
+### Latest from github:
 
-***WARNING***: This will install the latest build and may not be the most stable code!
+***WARNING***: This will install the latest build which may not be the most stable code!
 
-To install the latest build directly from github, the following command can be.
-used. But be warned, 
+To install the latest build directly from github, the following command can be used. 
 
     pip3 install https://github.com/nasa/eo-metadata-tools/releases/download/latest-master/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl
 
