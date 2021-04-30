@@ -38,6 +38,8 @@ To install the latest build directly from github, the following command can be u
 
 ***NOTE***: Preferred method.
 
+    pip3 install wheel
+
 To install the library from a local [wheel][wheel] file it will first need to be generated using the 'runme.sh' script. On a command line, run the following from the `python/CMR` directory:
 
     ./runme.sh -p -i

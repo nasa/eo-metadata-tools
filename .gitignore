@@ -10,7 +10,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+CMR/python/dist/eo*
 downloads/
 eggs/
 .eggs/
@@ -145,3 +145,4 @@ cython_debug/
 **/*.off
 **/off.*
 **/*.backup
+*.code-workspace
