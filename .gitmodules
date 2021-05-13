@@ -1,0 +1,4 @@
+[submodule "pyQuARC"]
+	path = pyQuARC
+	url = git@github.com:nasa-impact/pyQuARC.git
+	branch = master
