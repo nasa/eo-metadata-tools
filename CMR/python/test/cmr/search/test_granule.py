@@ -55,7 +55,8 @@ class TestSearch(unittest.TestCase):
         """
         # Setup
         urlopen_mock.return_value = valid_cmr_response(
-            os.path.join (os.path.dirname (__file__), '../../data/cmr/search/one_granule_cmr_result.json')
+            os.path.join (os.path.dirname (__file__),
+                '../../data/cmr/search/one_granule_cmr_result.json')
         )
 
         # Basic

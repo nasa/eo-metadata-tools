@@ -64,3 +64,30 @@ class TestSearch(unittest.TestCase):
         self.assertEqual([], com.always(None, otype=list), 'None, list')
         self.assertEqual((), com.always(None, otype=tuple), 'None, tuple')
         self.assertEqual((), com.always(None, tuple), 'None, tuple, positional')
+
+    def test_mask_dictionary(self):
+        """Test that the mask_diictionary function will clean out sensitive info"""
+        data = {'ignore': 'this',
+            'token': '012345687', 'cmr-token': 'EDL-U12345678901234567890'}
+        expected1 = {'ignore': 'this',
+            'token': '012345687', 'cmr-token': 'EDL-U123********34567890'}
+        expected2 = {'ignore': 'this',
+            'token': '012***687', 'cmr-token': 'EDL-U12345678901234567890'}
+        expected3 = {'ignore': 'this',
+            'token': '012345687', 'cmr-token': 'EDL-U12345678901234567890'}
+        expected4 = {'ignore': 'this',
+            'token': '012***687', 'cmr-token': 'EDL-U123********34567890'}
+
+        self.assertEqual(expected1, com.mask_dictionary(data, 'cmr-token'))
+        self.assertEqual(expected1, com.mask_dictionary(data, ['cmr-token']))
+
+        self.assertEqual(expected2, com.mask_dictionary(data, 'token'))
+        self.assertEqual(expected2, com.mask_dictionary(data, ['token']))
+
+        self.assertEqual(expected3, com.mask_dictionary(data, 'cmr'))
+        self.assertEqual(expected3, com.mask_dictionary(data, ['cmr']))
+
+        self.assertEqual(expected4, com.mask_dictionary(data, ['token', 'cmr-token']))
+
+        self.assertEqual(data, com.mask_dictionary(data, ''))
+        self.assertEqual(data, com.mask_dictionary(data, []))

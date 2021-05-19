@@ -98,9 +98,9 @@ def read_file(path):
     """
     text = None
     if os.path.isfile(path):
-        file = open(path, "r")
-        text = file.read().strip()
-        file.close()
+        with open(path, "r") as file:
+            text = file.read().strip()
+            file.close()
     return text
 
 def write_file(path, text):
@@ -111,9 +111,9 @@ def write_file(path, text):
         text (string): content for file
     """
     path = os.path.expanduser(path)
-    cache = open(path, "w+")
-    cache.write(text)
-    cache.close()
+    with open(path, "w+") as cache:
+        cache.write(text)
+        cache.close()
 
 def execute_command(cmd):
     """
@@ -144,3 +144,19 @@ def help_format_lambda(contains=""):
     # n=name, c=content ; made short to keep line length down and pylint happy
     out = lambda n, c : (layout.format(n, c.__doc__.strip())) if contains in n else ""
     return out
+
+def mask_dictionary(data, keys):
+    """
+    Prevent sensitive information from being printed by masking part of a
+    dictionaries content
+    Return a copy of the
+    """
+    if isinstance(keys, str):
+        keys = [keys]
+    safe_data = data.copy()
+    for key in keys:
+        if key in data:
+            unsafe_value = data[key]
+            mask = int(len(unsafe_value)/3)
+            safe_data[key] = unsafe_value[:mask] + ("*"*mask) + unsafe_value[-1*mask:]
+    return safe_data
