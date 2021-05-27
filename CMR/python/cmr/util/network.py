@@ -22,10 +22,14 @@ since 0.0
 """
 
 import json
+import logging
 import urllib.parse
 import urllib.request
 
 import cmr.util.common as common
+
+logging.basicConfig(level = logging.ERROR)
+logger = logging.getLogger('cmr.util.network')
 
 def get_local_ip():
     """Rewrite this stub, it is used in code not checked in yet """
@@ -140,11 +144,14 @@ def post(url, body, accept=None, headers=None):
         # `entry_title=2&entry_title=3` not `entry_title=[2, 3]`
         data = expand_query_to_parameters(body)
     data = data.encode('utf-8')
+    logger.debug(" Headers->CMR= %s", headers)
+    logger.debug(" POST Data= %s", data)
     req = urllib.request.Request(url, data)
     if accept is not None:
         apply_headers_to_request(req, {'Accept': accept})
     apply_headers_to_request(req, headers)
     try:
+        #pylint: disable=R1732 # the mock code does not support this in tests
         resp = urllib.request.urlopen(req)
         response = resp.read()
         raw_response = response.decode('utf-8')
@@ -153,6 +160,9 @@ def post(url, body, accept=None, headers=None):
             head_list = {}
             for head in resp.getheaders():
                 head_list[head[0]] = head[1]
+            if logger.getEffectiveLevel() == logging.DEBUG:
+                stringified = str(common.mask_dictionary(head_list, "cmr-token"))
+                logger.debug(" CMR->Headers = %s", stringified)
             obj_json['http-headers'] = head_list
         elif resp.status == 204:
             obj_json = {}
@@ -167,7 +177,11 @@ def post(url, body, accept=None, headers=None):
         return obj_json
     except urllib.error.HTTPError as exception:
         raw_response = exception.read()
-        obj_json = json.loads(raw_response)
-        obj_json['code'] = exception.code
-        obj_json['reason'] = exception.reason
-        return obj_json
+        try:
+            obj_json = json.loads(raw_response)
+            obj_json['code'] = exception.code
+            obj_json['reason'] = exception.reason
+            return obj_json
+        except json.decoder.JSONDecodeError as err:
+            return err
+        return raw_response
