@@ -147,9 +147,10 @@ def help_format_lambda(contains=""):
 
 def mask_dictionary(data, keys):
     """
-    Prevent sensitive information from being printed by masking part of a
-    dictionaries content
-    Return a copy of the
+    Prevent sensitive information from being printed by masking values of listed
+    keys in a dictionaries. The middle third of the values will be replaced with
+    '*'. Uses Dictionaries copy() function.
+    Return a shallow copy of the data dictionary that has been updated
     """
     if isinstance(keys, str):
         keys = [keys]
