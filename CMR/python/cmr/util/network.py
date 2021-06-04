@@ -161,7 +161,7 @@ def post(url, body, accept=None, headers=None):
             for head in resp.getheaders():
                 head_list[head[0]] = head[1]
             if logger.getEffectiveLevel() == logging.DEBUG:
-                stringified = str(common.mask_dictionary(head_list, "cmr-token"))
+                stringified = str(common.mask_dictionary(head_list, ["cmr-token", "authorization"]))
                 logger.debug(" CMR->Headers = %s", stringified)
             obj_json['http-headers'] = head_list
         elif resp.status == 204:

@@ -145,6 +145,13 @@ def help_format_lambda(contains=""):
     out = lambda n, c : (layout.format(n, c.__doc__.strip())) if contains in n else ""
     return out
 
+def mask_string(unsafe_value):
+    """Prevent sensitive information from being printed by masking values """
+    if unsafe_value is None:
+        return ""
+    mask = int(len(unsafe_value)/3)
+    return unsafe_value[:mask] + ("*"*mask) + unsafe_value[-1*mask:]
+
 def mask_dictionary(data, keys):
     """
     Prevent sensitive information from being printed by masking values of listed
@@ -157,7 +164,7 @@ def mask_dictionary(data, keys):
     safe_data = data.copy()
     for key in keys:
         if key in data:
-            unsafe_value = data[key]
+            unsafe_value = data.get(key, "")
             mask = int(len(unsafe_value)/3)
             safe_data[key] = unsafe_value[:mask] + ("*"*mask) + unsafe_value[-1*mask:]
     return safe_data

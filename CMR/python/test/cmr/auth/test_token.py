@@ -92,6 +92,56 @@ class TestToken(unittest.TestCase):
         #cleanup
         util.delete_file(token_file)
 
+    def test_bearer(self):
+        """Test a that a token can be returned as a Bearer token"""
+        #setup
+        token_file = "/tmp/__test_token_file__.txt"
+        util.delete_file(token_file)
+        expected_token = "file-token"
+        expected_bearer = "Bearer " + expected_token
+        common.write_file(token_file, expected_token)
+
+        #tests
+        options = {'cmr.token.file': token_file}
+        actual = str(token.bearer(token.token_file, options))
+        self.assertEqual (expected_bearer, actual, "Token formated as Bearer")
+
+        #cleanup
+        util.delete_file(token_file)
+
+    # pylint: disable=W0212 ; test a private function
+    def test__env_to_extention(self):
+        """Check that the environment->extensions work as expected"""
+        # pylint: disable=C0301 # lambdas must be on one line
+        test = lambda expected, given, msg : self.assertEqual(expected, token._env_to_extention(given), msg)
+
+        test("", None, "No dictionary given")
+        test("", {}, "Empty dictionary")
+        test("", {"env":None}, "Emtpy value")
+        test("", {"env":""}, "Blank value")
+        test("", {"env":"ops"}, "Ops specified")
+        test("", {"env":"prod"}, "Production specified")
+        test("", {"env":"production"}, "Production specified")
+        test(".uat", {"env":"uat"}, "UAT specified")
+        test(".sit", {"env":"sit"}, "SIT specified")
+        test(".future", {"env":"future"}, "Future envirnment")
+
+    # pylint: disable=W0212 ; test a private function
+    def test_token_file_env(self):
+        """Test the function that returns the token file path"""
+        # pylint: disable=C0301 # lambdas must be on one line
+        test = lambda expected, config, msg: self.assertEqual(expected, token._token_file_path(config), msg)
+
+        test("~/.cmr_token", None, "Not specified")
+        test("~/.cmr_token", {"env" : None}, "None value")
+        test("~/.cmr_token", {"env" : ""}, "Empty value")
+        test("~/.cmr_token", {"env" : "OPS"}, "OPS specified")
+        test("~/.cmr_token.uat", {"env" : "uat"}, "UAT specified")
+        test("~/.cmr_token.uat", {"env" : "Uat"}, "UAT, mixed case, specified")
+        test("~/.cmr_token.sit", {"env" : "sit"}, "SIT specified")
+
+        test("/tmp/token", {"env": "sit", "cmr.token.file": "/tmp/token"}, "File specified")
+
     def test_token_file_ignoring_comments(self):
         """
         Test a valid login using the password file lambda. The file itself will

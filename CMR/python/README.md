@@ -80,8 +80,15 @@ If you need to use tokens, use the [EDL Token Generator](https://urs.earthdata.n
 
 Save. When you request a token in code, a popup will display asking for your keychain password.
 
-A less secure way to store your token is to save it to a text file at `~/.cmr_token`. The code will use the first line which does not start with `#`.
+A less secure way to store your token is to save it to a text file at `~/.cmr_token`. The code will use the first line which does not start with `#`. For non-production environments you can save the token to `~/.cmr-token.uat` or `~/.cmr-token.sit`. Once your token is saved, you can have it included in your queries by calling the following:
 
+    import cmr.search.collection as coll
+    import cmr.auth.token as t
+    coll.search({'keyword':'modis'},
+        config=t.use_bearer_token(config={'env': 'uat'}))
+
+This example shows how to use a token stored in `~/.cmr-token.uat` against the UAT version of CMR.
+ 
 ### Testing
 Use either `runme.sh -t` or `python3 -m unittest discover`
 

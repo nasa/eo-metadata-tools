@@ -65,6 +65,12 @@ class TestSearch(unittest.TestCase):
         self.assertEqual((), com.always(None, otype=tuple), 'None, tuple')
         self.assertEqual((), com.always(None, tuple), 'None, tuple, positional')
 
+    def test_mask_string(self):
+        """Test that the mask_diictionary function will clean out sensitive info"""
+        data = 'EDL-U12345678901234567890'
+        expected1 = 'EDL-U123********34567890'
+        self.assertEqual(expected1, com.mask_string(data))
+
     def test_mask_dictionary(self):
         """Test that the mask_diictionary function will clean out sensitive info"""
         data = {'ignore': 'this',
