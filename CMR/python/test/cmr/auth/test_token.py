@@ -109,6 +109,21 @@ class TestToken(unittest.TestCase):
         #cleanup
         util.delete_file(token_file)
 
+    def test_use_bearer_token(self):
+        """Test the function that handles all the work of tokens"""
+        tokener = token.token_literal("test") #this always returns test as token
+        # pylint: disable=C0301 # lambdas must be on one line
+        tester = lambda expected, given, msg : self.assertEqual(expected, token.use_bearer_token(token_lambdas=tokener, config=given), msg)
+
+        tester({"authorization":"Bearer test"}, None, "found from none")
+        tester({"authorization":"Bearer test"}, {}, "found from nothing")
+        tester({"authorization":"Bearer test"},
+            {"authorization":"old value"},
+            "replace")
+        tester({"authorization":"Bearer test", "unrelated":"value"},
+            {"authorization":"old value", "unrelated":"value"},
+            "replace, ignoring others")
+
     # pylint: disable=W0212 ; test a private function
     def test__env_to_extention(self):
         """Check that the environment->extensions work as expected"""
@@ -120,10 +135,12 @@ class TestToken(unittest.TestCase):
         test("", {"env":None}, "Emtpy value")
         test("", {"env":""}, "Blank value")
         test("", {"env":"ops"}, "Ops specified")
+        test("", {"env":"ops."}, "Ops with a dot specified")
         test("", {"env":"prod"}, "Production specified")
         test("", {"env":"production"}, "Production specified")
         test(".uat", {"env":"uat"}, "UAT specified")
         test(".sit", {"env":"sit"}, "SIT specified")
+        test(".sit", {"env":"sit."}, "SIT with a dot specified")
         test(".future", {"env":"future"}, "Future envirnment")
 
     # pylint: disable=W0212 ; test a private function

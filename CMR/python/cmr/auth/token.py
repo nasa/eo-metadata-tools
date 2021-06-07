@@ -85,7 +85,7 @@ def _env_to_extention(config: dict = None):
         env = ''
     env = env.lower().strip()
     if len(env)>0 and env.endswith("."):
-        env += env[:-1]
+        env = env[:-1]
     if env in ['', 'ops', 'prod', 'production']:
         env = "" # no extension
     else:

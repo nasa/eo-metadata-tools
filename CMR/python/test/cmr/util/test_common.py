@@ -115,9 +115,15 @@ class TestSearch(unittest.TestCase):
 
     def test_mask_string(self):
         """Test that the mask_diictionary function will clean out sensitive info"""
-        data = 'EDL-U12345678901234567890'
-        expected1 = 'EDL-U123********34567890'
-        self.assertEqual(expected1, com.mask_string(data))
+        # pylint: disable=C0301 # lambdas must be on one line
+        tester = lambda expected, given, msg : self.assertEqual(expected, com.mask_string(given), msg)
+
+        tester("", None, "None sent")
+        tester("", "", "No Letters")
+        tester("0", "0", "One letter")
+        tester("01", "01", "Two Letters")
+        tester("0*2", "012", "Three Letters")
+        tester('EDL-U123********34567890', 'EDL-U12345678901234567890', "Real example")
 
     def test_mask_dictionary(self):
         """Test that the mask_diictionary function will clean out sensitive info"""
