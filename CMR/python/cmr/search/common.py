@@ -122,6 +122,7 @@ def _standard_headers_from_config(config: dict):
     """
     headers = None
     headers = net.config_to_header(config, 'cmr-token', headers, 'Echo-Token')
+    headers = net.config_to_header(config, 'authorization', headers, 'Authorization')
     headers = net.config_to_header(config, 'X-Request-Id', headers)
     headers = net.config_to_header(config, 'Client-Id', headers, default='python_cmr_lib')
     headers = net.config_to_header(config, 'User-Agent', headers, default='python_cmr_lib')
@@ -148,7 +149,7 @@ def _cmr_query_url(base: str, query: dict, page_state: dict, config: dict = None
 def _cmr_basic_url(base: str, query: dict, config: dict = None):
     """
     Create a url for calling any CMR search end point, should not make any
-    assumption, beyond the search directory. Will auto set the envirnment based
+    assumption, beyond the search directory. Will auto set the environment based
     on how config is set
     Parameters:
         base: CMR endpoint
@@ -188,6 +189,12 @@ def _make_search_request(base: str, query: dict, page_state: dict, config: dict)
     """
     # Build headers
     headers = _standard_headers_from_config(config)
+
+    if 'Echo-Token' in headers:
+        logger.info('Using a CMR-Token')
+    if 'Authorization' in headers:
+        logger.info('Using an Authorization token')
+
     if 'CMR-Scroll-Id' in page_state:
         logger.debug('Setting scroll id to %s.', page_state['CMR-Scroll-Id'])
         headers = common.conj(headers, {'CMR-Scroll-Id': page_state['CMR-Scroll-Id']})

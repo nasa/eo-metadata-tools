@@ -87,7 +87,6 @@ class TestSearch(unittest.TestCase):
         expected = {'key1': ['v1', 'v2'], 'key2': ['v3']}
         self.assertEqual(expected, result)
 
-
     def test_config_to_header(self):
         """
         Test the helper function which converts values in the config dictionary

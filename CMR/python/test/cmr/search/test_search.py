@@ -236,3 +236,46 @@ class TestSearch(unittest.TestCase):
             config=config)
         for i in results:
             print (i)
+
+    @patch('urllib.request.urlopen')
+    def test_logged_search(self, urlopen_mock):
+        """
+        Test that search still runs as expected when logging is turned on
+        """
+        # Setup
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+
+        # Test
+        with self.assertLogs(coll.scom.logger, level='DEBUG') as log_collector:
+            coll.set_logging_to("DEBUG")
+            expected = ['INFO:cmr.search.common: - POST: https://cmr.earthdata.'
+                            'nasa.gov/search/collections?page_size=1',
+                        'INFO:cmr.search.common:Total records downloaded was 10'
+                            ' of 2038 which took 10ms.']
+            coll.search({'provider':'GHRC_CLOUD'}, limit=1)
+            self.assertEqual(expected, log_collector.output)
+
+    @patch('urllib.request.urlopen')
+    def test_logged_search_with_config(self, urlopen_mock):
+        """
+        Test that search still runs as expected when logging is turned on
+        """
+        # Setup
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+
+        # Test
+        with self.assertLogs(coll.scom.logger, level='DEBUG') as log_collector:
+            coll.set_logging_to("DEBUG")
+            expected = ['INFO:cmr.search.common:Using a CMR-Token',
+                        'INFO:cmr.search.common:Using an Authorization token',
+                        'INFO:cmr.search.common: - POST: https://cmr.earthdata.'
+                            'nasa.gov/search/collections?page_size=1',
+                        'INFO:cmr.search.common:Total records downloaded was 10'
+                            ' of 2038 which took 10ms.']
+            config = {"cmr-token": "fake-token", "authorization": "fake-token"}
+            coll.search({'provider':'GHRC_CLOUD'}, config=config, limit=1)
+            self.assertEqual(expected, log_collector.output)

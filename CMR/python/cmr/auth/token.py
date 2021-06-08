@@ -68,19 +68,59 @@ def token_config(config: dict = None):
     value = config.get('cmr.token.value', None)
     return value
 
+# document-it: {"key":"env", "default":"", "msg":"uat, ops, prod, production, or blank for ops"}
+def _env_to_extention(config: dict = None):
+    """
+    Allow different files to be loaded for each environment, make an env
+    extension which will be appended to the token file path
+    Parameters:
+        config dictionary containing an env value
+    Return:
+        empty string or a dot followed by the environment.
+    """
+    config = common.always(config)
+
+    env = config.get('env', '')
+    if env is None:
+        env = ''
+    env = env.lower().strip()
+    if len(env)>0 and env.endswith("."):
+        env = env[:-1]
+    if env in ['', 'ops', 'prod', 'production']:
+        env = "" # no extension
+    else:
+        env = "." + env
+    return env
 
 # document-it: {"key":"cmr.token.file", "default":"~/.cmr_token"}
+# document-it: {"from":"._env_to_extention"}
+def _token_file_path(config: dict = None):
+    """
+    Return the path to the file which stores a CMR token. This path can be different
+    for each environment if specified with the env config.
+    Returns
+        ~/.cmr_token<.env>, no env if production
+    """
+    config = common.always(config)
+    env_extention = _env_to_extention(config)
+    path_to_use = config.get('cmr.token.file', '~/.cmr_token' + env_extention)
+    return path_to_use
+
+# document-it: {"from":".token_file_path"}
 def token_file(config: dict = None):
     """
     Load a token from a local user file assumed to be ~/.cmr_token
     Parameters:
         config: Responds to:
             "cmr.token.file": location of token file, defaults to ~/.cmr_token
+                for production, followed by a dot and the environment name if
+                specified.
+            "env": if not production, appended to the end of ~/.cmr_token with a dot
     Returns
         token from file
     """
-    config = common.always(config)
-    path_to_use = config.get('cmr.token.file', '~/.cmr_token')
+    path_to_use = _token_file_path(config)
+
     path = os.path.expanduser(path_to_use)
     clear_text = None
     raw_clear_text = common.read_file(path)
@@ -118,6 +158,42 @@ def token_manager(config: dict = None):
 
 # ##############################################################################
 # functions
+
+def use_bearer_token(token_lambdas = None, config:dict = None):
+    """
+    Create a new config dictionary, optionally based on a supplied one, and add
+    the bearer token to the config object abstracting away as many details as
+    possible.
+    Parameters:
+        token_lambda: a token lambda or a list of functions
+        config: config dictionary to base new dictionary off of
+    Returns:
+        new config dictionary with Bearer token assigned as an 'authorization'
+    """
+    if config is None:
+        config = {}
+    augmented_config = config.copy()
+    bearer_token = bearer(token_lambdas, config)
+    augmented_config["authorization"] = bearer_token
+    return augmented_config
+
+def bearer(token_lambdas = None, config: dict = None):
+    """
+    Loops through the list of lambdas till a token is found. These lamdba functions
+    return an EDL token which can be passed to Earthdata software to authenticate
+    the user. To get a token, go to https://sit.urs.earthdata.nasa.gov/user_tokens
+    Token is returned as a Bearer String
+
+    Parameters:
+        token_lambda: a token lambda or a list of functions
+        config: Responds to no values
+    Returns:
+        the EDL Bearer Token from the token lambda
+    """
+    token_value = token(token_lambdas, config)
+    if token_value is not None and len(token_value)>0:
+        token_value = "Bearer " + token_value
+    return token_value
 
 def token(token_lambdas = None, config: dict = None):
     """

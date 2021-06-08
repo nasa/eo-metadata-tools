@@ -23,10 +23,12 @@ Created: 2020-10-15
 """
 
 #from unittest.mock import Mock
-#from unittest.mock import patch
+from unittest.mock import patch
 import unittest
 
-#import test.cmr as tutil
+import os
+import uuid
+
 import cmr.util.common as com
 
 # ******************************************************************************
@@ -64,6 +66,64 @@ class TestSearch(unittest.TestCase):
         self.assertEqual([], com.always(None, otype=list), 'None, list')
         self.assertEqual((), com.always(None, otype=tuple), 'None, tuple')
         self.assertEqual((), com.always(None, tuple), 'None, tuple, positional')
+
+    def test_drop_key_safely(self):
+        """Test that values can be dropped safely"""
+        # pylint: disable=C0301 # lambdas must be on one line
+        tester = lambda expected, src, key, msg : self.assertEqual(expected, com.drop_key_safely(src, key), msg)
+        tester({}, {}, "Not existing", "Empty dictionary")
+        tester({"key":"value"}, {"key": "value"}, "not found", "wrong key, no drop")
+        tester({}, {"key":"value"}, "key", "drop found key")
+
+    def test_write_read_round_trip(self):
+        """
+        Test the read and write functions by doing a full round trip test. Save
+        some text to a temp file, then read it back, testing both functions at once
+        """
+        path = "/tmp/" + str(uuid.uuid4())
+        expected = str(uuid.uuid4())
+        com.write_file(path, expected)
+        actual = com.read_file(path)
+        os.remove(path) # cleanup now
+        self.assertEqual(expected, actual, "Write-Read round trip")
+
+    def test_execute_command(self):
+        """Execute will run any command, test that it behaves as expected"""
+        # pylint: disable=C0301 # lambdas must be on one line
+        tester = lambda expected, given, msg : self.assertEqual(expected, com.execute_command(given), msg)
+        tester("", "true", "Test a single command response")
+        tester("_result_", ["printf", '_%s_', 'result'], "Test a command with properties")
+
+    @patch('cmr.util.common.execute_command')
+    def test_security_call(self, execute_command_mock):
+        """
+        test that the code will call an external command and respond as expected
+        """
+        execute_command_mock.return_value = " response info "
+        self.assertEqual("response info", com.call_security("account", "service"), "Good response")
+
+        execute_command_mock.return_value = None
+        try:
+            com.call_security("account", "service")
+        except TypeError as err:
+            self.assertEqual('account not found in keychain', str(err), "Bad response")
+
+    def test_help_format_lambda(self):
+        """Test that the lambda function performs as expected"""
+        cmd = com.help_format_lambda()
+        self.assertTrue("str(object='') -> str" in cmd("str", ""))
+
+    def test_mask_string(self):
+        """Test that the mask_diictionary function will clean out sensitive info"""
+        # pylint: disable=C0301 # lambdas must be on one line
+        tester = lambda expected, given, msg : self.assertEqual(expected, com.mask_string(given), msg)
+
+        tester("", None, "None sent")
+        tester("", "", "No Letters")
+        tester("0", "0", "One letter")
+        tester("01", "01", "Two Letters")
+        tester("0*2", "012", "Three Letters")
+        tester('EDL-U123********34567890', 'EDL-U12345678901234567890', "Real example")
 
     def test_mask_dictionary(self):
         """Test that the mask_diictionary function will clean out sensitive info"""
