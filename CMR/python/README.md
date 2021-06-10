@@ -50,7 +50,7 @@ This will create a file like `dist/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl`
     pip3 install dist/eo_metadata_tools_cmr-0.0.1-py3-none-any.whl
 
 ### Uninstalling
-To uninstall the library, use `runme.sh -u`
+To uninstall the library, use `runme.sh -u`. Uninstalling is done when testing specific versions of the library or when it is no longer of need.
 
 ### Using Library without pip3
 
@@ -89,8 +89,14 @@ A less secure way to store your token is to save it to a text file at `~/.cmr_to
 
 This example shows how to use a token stored in `~/.cmr-token.uat` against the UAT version of CMR.
  
-### Testing
-Use either `runme.sh -t` or `python3 -m unittest discover`
+### Running Tests
+Use either `runme.sh -t` or `coverage run --source=cmr -m unittest discover`
+
+Also, when testing in notebooks, care should be taken to make sure the correct
+version of this library is being used. If the wheel version from the internet 
+was installed with pip3, then it will need to be uninstalled if tests of a 
+specific branch are to be run. Use the runme.sh script to uninstall any existing 
+version of this library and then package and install the version to test.
 
 ## Using the runme.sh script
 The runme.sh script documents how to run all the software stages for the project like testing, building, and installing. The script takes many flags. Below is a table of these flags.
@@ -112,8 +118,8 @@ find, uninstall, find, package, install, find
 | -t   |          | unit test | Run the unit tests
 | -v   | \<value> | version   | Appends a version number to python and pip commands
 
-If no flags are given, then `-l -u` is assumed.
-
+* Note: If no flags are given, then `-l -t` (linter and test) is assumed.
+* Note: -v is useful if multiple versions of python are installed.
 
 [pep8]: https://www.python.org/dev/peps/pep-0008/ "Python coding standard"
 [cmr]: https://cmr.earthdata.nasa.gov/ "CMR API"
