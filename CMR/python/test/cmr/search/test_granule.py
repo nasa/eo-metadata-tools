@@ -26,6 +26,7 @@ Created: 2020-12-01
 import os
 from unittest.mock import patch
 import unittest
+from functools import partial
 
 import test.cmr as tutil
 
@@ -33,6 +34,8 @@ import cmr.util.common as common
 import cmr.search.granule as gran
 
 # ******************************************************************************
+
+# pylint: disable=W0212 # there is nothing wrong with testing private functions
 
 def valid_cmr_response(file):
     """Return a valid login response"""
@@ -119,7 +122,6 @@ class TestSearch(unittest.TestCase):
             'GranuleUR': 'urbanspatial-hist-urban-pop-3700bc-ad2000-xlsx.xlsx'}]
         self.assertEqual(expected, ids_results)
 
-
     def test_granule_core_fields(self):
         """
         Test that the function conforms to expectations by only returning the
@@ -164,3 +166,150 @@ class TestSearch(unittest.TestCase):
         result_less = gran.help_text("_fields")
         self.assertTrue (-1<result_less.find("granule_core_fields"))
         self.assertFalse (-1<result_less.find("search():"))
+
+    # ##################################
+    # Granule sample Tests
+
+    def coll_sam_lim_helper(self, expected, inputs, msg):
+        """
+        Helper method to do the actual testing of one use case of _collection_sample()
+        """
+
+        lim, ccol, cgran = gran._collection_sample_limits(inputs[0], inputs[1], inputs[2])
+        actual = [lim, ccol, cgran]
+        self.assertEqual(expected, actual, msg)
+
+    def test_collection_sample_limits(self):
+        """
+        Test the internal limit function to make sure it returns the correct
+        values for global limits, collection limits, and granule limits depending
+        on what is passed in.
+        """
+        self.coll_sam_lim_helper([100, 10, 10], [None, None, None], "None")
+        self.coll_sam_lim_helper([100, 10, 10], [None, None, 10], "Granule Limit Specified")
+        self.coll_sam_lim_helper([100, 10, 10], [None, 10, None], "Collection Limit Specified")
+        self.coll_sam_lim_helper([100, 10, 10], [None, 10, 10], "Coll & Granule Limit Specified")
+        self.coll_sam_lim_helper([10, 1, 10], [10, None, None], "Limit Specified")
+        self.coll_sam_lim_helper([10, 1, 10], [10, None, 10], "Limit and Gran specified")
+        self.coll_sam_lim_helper([10, 10, 1], [10, 10, None], "Limit and Coll specified")
+        self.coll_sam_lim_helper([1, 2, 1], [1, 2, 3], "All specified")
+
+        self.coll_sam_lim_helper([1, 1, 1], [None, -10, -10], "Bad coll and gran")
+        self.coll_sam_lim_helper([10, 1, 10], [None, -10, 10], "Bad col")
+        self.coll_sam_lim_helper([10, 10, 1], [None, 10, -10], "Bad gran")
+
+    @patch('urllib.request.urlopen')
+    def test_compound_search_collection(self, urlopen_mock):
+        """
+        Test the compound test works
+        """
+        # Setup
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+
+        # tests
+        for limit in [1,2,5,10]:
+            result = gran._collection_samples({'provider':'GHRC_CLOUD'}, limit, {})
+            self.assertEqual(limit, len(result), "limit check")
+        # last call was the full 10, use that going forward
+        self.assertEqual(['C179003030-ORNL_DAAC',
+            'C179002914-ORNL_DAAC',
+            'C1000000000-ORNL_DAAC',
+            'C1536961538-ORNL_DAAC',
+            'C179126725-ORNL_DAAC',
+            'C179003380-ORNL_DAAC',
+            'C179130805-ORNL_DAAC',
+            'C179003657-ORNL_DAAC',
+            'C1227811476-ORNL_DAAC',
+            'C179130785-ORNL_DAAC'], result, "list matches")
+
+    @patch('urllib.request.urlopen')
+    def test_compound_search_gran(self, urlopen_mock):
+        """
+        Assuming that _collection_samples works and CMR work, test _granule_samples.
+        Do this By hard coding the granule search and making sure that the remaining
+        code correctly returns the granule information.
+        """
+        # Setup
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/search/combo_gran_result.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+
+        # Inputs
+        found_collections = ['C179003030-ORNL_DAAC',
+            'C179002914-ORNL_DAAC',
+            'C1000000000-ORNL_DAAC',
+            'C1536961538-ORNL_DAAC',
+            'C179126725-ORNL_DAAC',
+            'C179003380-ORNL_DAAC',
+            'C179130805-ORNL_DAAC',
+            'C179003657-ORNL_DAAC',
+            'C1227811476-ORNL_DAAC',
+            'C179130785-ORNL_DAAC']
+        filters=[gran.granule_core_fields, gran.drop_fields('GranuleUR'),
+                gran.drop_fields('revision-id'),
+                gran.drop_fields('native-id')]
+        g_limit = 2
+        limit = 5
+        config = {}
+
+        # Run test
+        found_granules = gran._granule_samples(found_collections, filters, limit, g_limit, config)
+        expected = [{'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'}]
+
+        self.assertEqual(expected, found_granules)
+
+    @patch('cmr.search.granule._collection_samples')
+    @patch('urllib.request.urlopen')
+    def test_compound_search(self, urlopen_mock, coll_mock):
+        """
+        Do a full test of the compound search, assuming that the component pieces
+        work. Assume the response of the collection samples and hard code the CMR
+        response for the granule search.
+        """
+        coll_mock.return_value = ['C179003030-ORNL_DAAC',
+            'C179002914-ORNL_DAAC',
+            'C1000000000-ORNL_DAAC',
+            'C1536961538-ORNL_DAAC',
+            'C179126725-ORNL_DAAC',
+            'C179003380-ORNL_DAAC',
+            'C179130805-ORNL_DAAC',
+            'C179003657-ORNL_DAAC',
+            'C1227811476-ORNL_DAAC',
+            'C179130785-ORNL_DAAC']
+        # Setup
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/cmr/search/combo_gran_result.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+
+        collection_query = {'provider':'GHRC_CLOUD'}
+        filters=[gran.granule_core_fields, gran.drop_fields('GranuleUR'),
+                gran.drop_fields('revision-id'),
+                gran.drop_fields('native-id')]
+
+        # cut down the function parameters to assume all the parts that will not change
+        runner = partial(gran.sample_by_collections, collection_query, filters=filters)
+
+        # pylint: disable=C0301 # lambda must be on one line
+        tester = lambda expected, limit, msg : self.assertEqual(expected, runner(limits=limit), msg)
+
+        expected = [{'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'}]
+
+        tester(expected, 10, "at most 10")
+        tester(expected[:5], 5, "at most five")
+        tester(expected, [10,None,None], "base, list")
+        tester(expected[:5], [None,5,1], "one from each")
