@@ -175,8 +175,8 @@ class TestSearch(unittest.TestCase):
         Helper method to do the actual testing of one use case of _collection_sample()
         """
 
-        lim, ccol, cgran = gran._collection_sample_limits(inputs[0], inputs[1], inputs[2])
-        actual = [lim, ccol, cgran]
+        limits = gran._collection_sample_limits([inputs[0], inputs[1]])
+        actual = [limits["granule"], limits["collection"]]
         self.assertEqual(expected, actual, msg)
 
     def test_collection_sample_limits(self):
@@ -185,18 +185,14 @@ class TestSearch(unittest.TestCase):
         values for global limits, collection limits, and granule limits depending
         on what is passed in.
         """
-        self.coll_sam_lim_helper([100, 10, 10], [None, None, None], "None")
-        self.coll_sam_lim_helper([100, 10, 10], [None, None, 10], "Granule Limit Specified")
-        self.coll_sam_lim_helper([100, 10, 10], [None, 10, None], "Collection Limit Specified")
-        self.coll_sam_lim_helper([100, 10, 10], [None, 10, 10], "Coll & Granule Limit Specified")
-        self.coll_sam_lim_helper([10, 1, 10], [10, None, None], "Limit Specified")
-        self.coll_sam_lim_helper([10, 1, 10], [10, None, 10], "Limit and Gran specified")
-        self.coll_sam_lim_helper([10, 10, 1], [10, 10, None], "Limit and Coll specified")
-        self.coll_sam_lim_helper([1, 2, 1], [1, 2, 3], "All specified")
+        self.coll_sam_lim_helper([10, 20], [None, None], "None")
+        self.coll_sam_lim_helper([10, 32], [None, 32], "Collection Limit Specified")
+        self.coll_sam_lim_helper([32, 20], [32, None], "Granule Limit Specified")
+        self.coll_sam_lim_helper([32, 32], [32, 32], "Granule & Collection Limit Specified")
 
-        self.coll_sam_lim_helper([1, 1, 1], [None, -10, -10], "Bad coll and gran")
-        self.coll_sam_lim_helper([10, 1, 10], [None, -10, 10], "Bad col")
-        self.coll_sam_lim_helper([10, 10, 1], [None, 10, -10], "Bad gran")
+        self.coll_sam_lim_helper([32, 1], [32, -32], "Bad collection limit")
+        self.coll_sam_lim_helper([1, 32], [-32, 32], "Bad granule limit")
+        self.coll_sam_lim_helper([1, 1], [-32, -32], "Bad collection and granule limit")
 
     @patch('urllib.request.urlopen')
     def test_compound_search_collection(self, urlopen_mock):
@@ -250,19 +246,23 @@ class TestSearch(unittest.TestCase):
         filters=[gran.granule_core_fields, gran.drop_fields('GranuleUR'),
                 gran.drop_fields('revision-id'),
                 gran.drop_fields('native-id')]
-        g_limit = 2
-        limit = 5
+        limit = 1
         config = {}
 
         # Run test
-        found_granules = gran._granule_samples(found_collections, filters, limit, g_limit, config)
+        found_granules = gran._granule_samples(found_collections, filters, limit, config)
         expected = [{'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
+            {'concept-id': 'G1527288030-SEDAC'},
             {'concept-id': 'G1527288030-SEDAC'},
             {'concept-id': 'G1527288030-SEDAC'},
             {'concept-id': 'G1527288030-SEDAC'},
             {'concept-id': 'G1527288030-SEDAC'}]
 
-        self.assertEqual(expected, found_granules)
+        self.assertEqual(expected, found_granules, "Compound Search - Granual Compound")
 
     @patch('cmr.search.granule._collection_samples')
     @patch('urllib.request.urlopen')
@@ -309,7 +309,7 @@ class TestSearch(unittest.TestCase):
             {'concept-id': 'G1527288030-SEDAC'},
             {'concept-id': 'G1527288030-SEDAC'}]
 
-        tester(expected, 10, "at most 10")
-        tester(expected[:5], 5, "at most five")
-        tester(expected, [10,None,None], "base, list")
-        tester(expected[:5], [None,5,1], "one from each")
+        tester(expected, 10, "at most 10, default collection, using int")
+        tester(expected, [10, 1], "at most 10, one collection, array")
+        tester(expected[:5], {"granule": 5, "collection": 1}, "at most five, using dictionary")
+        tester(expected, {"granule": 1, "collection": None}, "defaulting with dictionary")

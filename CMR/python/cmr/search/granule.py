@@ -36,7 +36,6 @@ https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
 # pylint: disable=duplicate-code
 
-import math
 import cmr.search.common as scom
 
 # ******************************************************************************
@@ -73,40 +72,54 @@ def granule_core_fields(item):
     record['native-id'] = meta.get('native-id')
     return {key: value for key, value in record.items() if value}
 
-def _collection_sample_limits(limit:int, climit:int, glimit:int):
+def _collection_sample_limits(limits):
     """
-    Calculate out how many collections and granules should be used to satisfy
-    a requested sample. Allow for a simple case and a more defined case as such:
-
-    1. If a limit is provided, grab 10 granules from a set of collections
-
-    2. If no limit is given, then allow for a client and granule limit to be
-        specified and make assumptions if they are not.
-
+    Assure that the limit values are not None and have reasonable values
     """
-    if limit is None:
-        c_limit = 10 if climit is None else min(max(1, climit),100)
-        g_limit = 10 if glimit is None else min(max(1, glimit),100)
-        limit = c_limit * g_limit
-    else:
-        if glimit is None:
-            if climit is None:
-                c_limit = limit / 10
-                g_limit = 10
-            else:
-                c_limit = min(max(1, climit),100)
-                g_limit = limit / min(max(1, climit),100)
+    build = lambda gran, coll : {'granule': gran, 'collection': coll}
+    bound = lambda lower, value, upper : min(max(lower, value), upper)
+
+    default_granule_limit = 10
+    default_collection_limit = 20
+
+    if limits is None:
+        limit_obj = build(default_granule_limit, default_collection_limit)
+    elif isinstance(limits, int):
+        # assume the value is the granule sample limit
+        limit_obj = build(limits, default_collection_limit)
+    elif isinstance(limits, dict):
+        limit_obj = limits
+    elif isinstance(limits, list):
+        # user may have sent in 0 or more values, first 2 are significant
+        if len(limits)>1:
+            # at least 2 exist
+            limit_obj = build(limits[0], limits[1])
+        elif len(limits)>0:
+            # at least one exists
+            limit_obj = build(limits[0], default_collection_limit)
         else:
-            #we have a limit and a glimit
-            if climit is None:
-                c_limit = limit / min(max(1, glimit),100)
-                g_limit = min(max(1, glimit),100)
-            else:
-                c_limit = min(max(1, climit),100)
-                g_limit = limit / min(max(1, climit),100)
-    return limit, math.ceil(c_limit), math.ceil(g_limit)
+            # assume none exist
+            limit_obj = build(default_granule_limit, default_collection_limit)
+    else:
+        limit_obj = build(default_granule_limit, default_collection_limit)
+
+    if limit_obj.get("collection") is None:
+        limit_obj["collection"] = default_collection_limit
+
+    if limit_obj.get("granule") is None:
+        limit_obj["granule"] = default_granule_limit
+
+    limit_obj["collection"] = bound(1, limit_obj["collection"], 200)
+    limit_obj["granule"] = bound(1, limit_obj["granule"], 100)
+
+    return limit_obj
 
 def _collection_samples(collection_query, limit, config):
+    """
+    First step in the granule samples function is to run a collection query. Do
+    not require the loading of the search.py file, call the already loaded common
+    file.
+    """
     just_cid = lambda obj : obj.get('meta', {}).get('concept-id')
     found_collections = scom.search_by_page("collections",
         query=collection_query,
@@ -115,14 +128,17 @@ def _collection_samples(collection_query, limit, config):
         config=config)
     return found_collections[:limit]
 
-def _granule_samples(found_collections, filters, limit, g_limit, config):
+def _granule_samples(found_collections, filters, limit, config):
+    """
+    Second step in the granule samples function is to run a granule query based
+    on the results of the _collection_samples() search.
+    """
     found_granules = []
     for concept in found_collections:
-        if len(found_granules) < limit:
-            query = {"concept_id": concept}
-            granules = search(query, filters=filters, limit=g_limit, config=config)
-            found_granules.extend(granules)
-    return found_granules[:limit]
+        query = {"concept_id": concept}
+        granules = search(query, filters=filters, limit=limit, config=config)
+        found_granules.extend(granules)
+    return found_granules[:len(found_collections)*limit]
 
 # ******************************************************************************
 # public search functions
@@ -168,28 +184,22 @@ def sample_by_collections(collection_query, filters = None, limits = None, confi
     Parameters:
         collection_query(dictionary) : a collection query
         filters(list): a list of filter lambdas which taken in a row and return and row
-        limits: an int, a list of 3 int values or a dictionary, None values will be calculated out
-            int: max limit
-            list: [max, collections, granules]
-            dictionary: {'limit': None, 'collection': None, 'granule': None}
+        limits: an int, a list of 0 to 2 int values, or a dictionary, None values will be asasumed
+            list: [granule limit, collection limit]
+            dictionary: {'granule': None, 'collection': None}
         config (dictionary): configuration settings
     """
-    if limits is None:
-        limits = {'limit': None, 'collection': None, 'granule': None}
-    elif isinstance(limits, int):
-        limits = {'limit': limits, 'collection': None, 'granule': None}
-    elif isinstance(limits, list) and len(limits)==3:
-        limits = {'limit': limits[0], 'collection': limits[1], 'granule': limits[2]}
-    else:
-        limits = {'limit': None, 'collection': None, 'granule': None}
 
-    limit, c_limit, g_limit = _collection_sample_limits(limits["limit"],
-        limits["collection"],
-        limits["granule"])
-    found_collections = _collection_samples(collection_query, c_limit, config)
-    found_granules = _granule_samples(found_collections, filters, limit, g_limit, config)
+    # prep work
+    limit_obj = _collection_sample_limits(limits)
+    max_limit = limit_obj["granule"] * limit_obj["collection"]
 
-    return found_granules
+    # searches
+    found_collections = _collection_samples(collection_query, limit_obj["collection"], config)
+    found_granules = _granule_samples(found_collections, filters, limit_obj["granule"], config)
+
+    # return results
+    return found_granules[:max_limit]
 
 # document-it: {"from":"cmr.search.common.experimental_search_by_page_generator"}
 def experimental_search_generator(query, filters = None, limit = None, config: dict = None):
