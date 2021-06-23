@@ -50,9 +50,14 @@ BUILD = {'BUILD_REF': '{BUILD-REF}',
 try:
     if BUILD['BUILD_REF'] == '{BUILD-REF}':
         # Ask git for the current version
-        BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
-            stdout=subprocess.PIPE, check=True).stdout.decode("utf-8").strip()
-        BUILD['BUILD_LOCATION'] = 'local'
+        try:
+            BUILD['BUILD_REF'] = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                check=True).stdout.decode("utf-8").strip()
+        except subprocess.CalledProcessError as cpe:
+            BUILD.pop('BUILD_REF', None)
+    BUILD['BUILD_LOCATION'] = 'local'
     if BUILD['BUILD_DATE'] == '{BUILD-DATE}':
         BUILD['BUILD_DATE'] = dt.now().isoformat()
         del dt
