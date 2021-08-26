@@ -185,3 +185,58 @@ def post(url, body, accept=None, headers=None):
         except json.decoder.JSONDecodeError as err:
             return err
         return raw_response
+
+def get(url, accept=None, headers=None):
+    """
+    Make a basic HTTP call to CMR using the POST action
+    Parameters:
+        url (string): resource to get
+        body (dictionary): parameters to send, or string if raw text to be sent
+        accept (string): encoding of the returned data, some form of json is expected
+        client_id (string): name of the client making the (not python or curl)
+        headers (dictionary): HTTP headers to apply
+    """
+    logger.debug(" Headers->CMR= %s", headers)
+    req = urllib.request.Request(url)
+    if accept is not None:
+        apply_headers_to_request(req, {'Accept': accept})
+    apply_headers_to_request(req, headers)
+    try:
+        #pylint: disable=R1732 # the mock code does not support this in tests
+        resp = urllib.request.urlopen(req)
+        response = resp.read()
+        raw_response = response.decode('utf-8')
+        if resp.status == 200:
+            obj_json = json.loads(raw_response)
+            if isinstance(obj_json, list):
+                data = obj_json
+                obj_json = {"hits": len(data), "items" : data}
+            #print (obj_json)
+            head_list = {}
+            for head in resp.getheaders():
+                head_list[head[0]] = head[1]
+            if logger.getEffectiveLevel() == logging.DEBUG:
+                stringified = str(common.mask_dictionary(head_list, ["cmr-token", "authorization"]))
+                logger.debug(" CMR->Headers = %s", stringified)
+            #obj_json['http-headers'] = head_list
+        elif resp.status == 204:
+            obj_json = {}
+            head_list = {}
+            for head in resp.getheaders():
+                head_list[head[0]] = head[1]
+            obj_json['http-headers'] = head_list
+        else:
+            if raw_response.startswith("{") and raw_response.endswith("}"):
+                return json.loads(raw_response)
+            return raw_response
+        return obj_json
+    except urllib.error.HTTPError as exception:
+        raw_response = exception.read()
+        try:
+            obj_json = json.loads(raw_response)
+            obj_json['code'] = exception.code
+            obj_json['reason'] = exception.reason
+            return obj_json
+        except json.decoder.JSONDecodeError as err:
+            return err
+        return raw_response
