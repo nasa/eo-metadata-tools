@@ -9,38 +9,48 @@ Enjoy
 """
 
 # There are many colors, but these allow you to do red/green/blue or red/yellow/green
-code_red = "\033[0;31m"
-code_green ='\033[0;32m'
-code_yellow ='\033[0;33m'
-code_blue ='\033[0;34m'
 
-code_bold = '\033[1m'
-code_underline = '\033[4m'
-code_warning = '\033[93m'
-code_fail = '\033[91m'
-code_header = '\033[95m'
+from enum import Enum
 
-code_none = "\033[0m"
+class Code(Enum):
+    """ Terminal codes """
+    RED = "\033[0;31m"
+    GREEN ='\033[0;32m'
+    YELLOW ='\033[0;33m'
+    BLUE ='\033[0;34m'
+
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    HEADER = '\033[95m'
+
+    NONE = "\033[0m"
 
 def red(msg):
-    return style_text(msg, code_red)
+    "return red text"
+    return style_text(msg, Code.RED)
 
 def green(msg):
-    return style_text(msg, code_green)
+    "return green text"
+    return style_text(msg, Code.GREEN)
 
 def blue(msg):
-    return style_text(msg, code_blue)
+    "return blue text"
+    return style_text(msg, Code.BLUE)
 
 def yellow(msg):
-    return style_text(msg, code_yellow)
+    "return yellow text"
+    return style_text(msg, Code.YELLOW)
 
 def style_text(msg, color):
-    return color + msg + code_none
+    "returned text with terminal codes"
+    return color + msg + Code.NONE
 
 print ("Primary Colors: %s %s %s." % (red("Red"), green("Green"), blue("Blue")))
 print ("Traffic Lights: %s %s %s." % (red("stop"), yellow("faster"), green("go")))
-print ("Test: %s, %s, %s, %s, %s." % (style_text("bold", code_bold),
-    style_text("underline", code_underline),
-    style_text("warning", code_warning),
-    style_text("fail", code_fail),
-    style_text("header", code_header)))
+print ("Test: %s, %s, %s, %s, %s." % (style_text("bold", Code.BOLD),
+    style_text("underline", Code.UNDERLINE),
+    style_text("warning", Code.WARNING),
+    style_text("fail", Code.FAIL),
+    style_text("header", Code.HEADER)))
