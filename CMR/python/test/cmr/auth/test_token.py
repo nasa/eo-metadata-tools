@@ -224,12 +224,14 @@ class TestToken(unittest.TestCase):
         # pylint: disable=C0301 # lambdas must be on one line
         test = lambda expected, given, fallback, msg : self.assertEqual(expected, token._lamdba_list_always(given, fallback), msg)
         test([token.token_file, token.token_config], None, None, "None, with no fallback Test")
-        test([token.token_file, token.token_config], None, [], "None, with Empty fallback Test")
-        test([token.token_file, token.token_config], [], None, "Empty, with no fallback Test")
-        test([token.token_file, token.token_config], [], [], "Empty, with empty fallback Test")
+        test([], None, [], "None, with Empty fallback Test")
+        test([], [], None, "Empty, with no fallback Test")
+        test([], [], [], "Empty, with empty fallback Test")
         test([token.token_config], None, [token.token_config], "None, with fallback Test")
         test([token.token_config], [token.token_config], None, "None, with fallback Test")
         test([token.token_file], [token.token_file], [token.token_config], "TokenFile, with fallback Test")
+        test([token.token_file], [token.token_file], [token.token_config, None], "TokenFile, with fallback Test with None")
+        test([token.token_file], [token.token_file, None], [token.token_config], "TokenFile and None, with fallback Test")
 
     @patch('urllib.request.urlopen')
     def test_read_tokens(self, urlopen_mock):

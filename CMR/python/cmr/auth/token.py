@@ -208,17 +208,21 @@ def _lamdba_list_always(token_lambdas, default_list = None):
     If no default list is supplied that an internal default is used which returns
     token_file and token_config.
     Parameters:
-        token_lambdas: a list of lambdas functions
-        default_list: a list of lambdas functions
+        token_lambdas: a list of lambdas functions, or None
+        default_list: a list of lambdas functions, or None
     Return:
         A list of lambda functions
     """
-    if token_lambdas is None or len(token_lambdas)<1:
-        if default_list is None or len(default_list)<1:
+    if token_lambdas is None:
+        if default_list is None:
             default_list = [token_file,token_config]
         token_lambdas = default_list
     if not isinstance(token_lambdas, list):
         token_lambdas = [token_lambdas]
+
+    # strip out any None items
+    token_lambdas = [item for item in token_lambdas if item]
+
     return token_lambdas
 
 def _format_as_bearer_token(raw_token):
@@ -252,23 +256,22 @@ def read_tokens(edl_user, token_lambdas = None, config:dict = None):
     url = _env_to_edl_url("tokens", config)
 
     token_lambdas = _lamdba_list_always(token_lambdas, [token_manager, token_config])
+    if len(token_lambdas)<1:
+        return None
+
     tokens = {}
 
     handler = token_lambdas.pop()
-    if handler is None:
-        # someone defined a bad list with a none in it
+    pass_phrase = handler(config)
+    if pass_phrase is None or len(pass_phrase) < 1:
+        # handler did not create a valid password, try the next handler
         tokens = read_tokens(edl_user, token_lambdas, config)
     else:
-        pass_phrase = handler(config)
-        if pass_phrase is None or len(pass_phrase) < 1:
-            # handler did not create a valid token, try the next handler
-            tokens = read_tokens(edl_user, token_lambdas, config)
-        else:
-            plain_text = "{}:{}".format(edl_user, pass_phrase)
-            cipher_text = _base64_text(plain_text)
-            encoded_credentials = "Basic {}".format(cipher_text)
-            headers = {"Authorization" : encoded_credentials}
-            tokens = net.get(url, None, headers=headers)
+        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        cipher_text = _base64_text(plain_text)
+        encoded_credentials = "Basic {}".format(cipher_text)
+        headers = {"Authorization" : encoded_credentials}
+        tokens = net.get(url, None, headers=headers)
     return tokens
 
 def create_token(edl_user, token_lambdas = None, config:dict = None):
@@ -288,24 +291,23 @@ def create_token(edl_user, token_lambdas = None, config:dict = None):
          "expiration_date": "10/31/2121"}
     """
     url = _env_to_edl_url("token", config)
+
     token_lambdas = _lamdba_list_always(token_lambdas, [token_manager, token_config])
-    tokens = {}
     if len(token_lambdas)<1:
         return None
+
+    tokens = {}
+
     handler = token_lambdas.pop()
-    if  handler is None:
-        # someone defined a bad list with a none in it
+    pass_phrase = handler(config)
+    if pass_phrase is None or len(pass_phrase) < 1:
         tokens = create_token(edl_user, token_lambdas, config)
     else:
-        pass_phrase = handler(config)
-        if pass_phrase is None or len(pass_phrase) < 1:
-            tokens = create_token(edl_user, token_lambdas, config)
-        else:
-            plain_text = "{}:{}".format(edl_user, pass_phrase)
-            cipher_text = _base64_text(plain_text)
-            encoded_credentials = "Basic {}".format(cipher_text)
-            headers = {"Authorization" : encoded_credentials}
-            tokens = net.post(url, None, headers=headers)
+        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        cipher_text = _base64_text(plain_text)
+        encoded_credentials = "Basic {}".format(cipher_text)
+        headers = {"Authorization" : encoded_credentials}
+        tokens = net.post(url, None, headers=headers)
     return tokens
 
 def delete_token(access_token, edl_user, token_lambdas = None, config:dict = None):
@@ -318,23 +320,19 @@ def delete_token(access_token, edl_user, token_lambdas = None, config:dict = Non
     if len(token_lambdas)<1:
         return None
     handler = token_lambdas.pop()
-    if  handler is None:
-        # no handler so try again, remember pop() changed token_lambdas
-        tokens = delete_token(access_token, edl_user, token_lambdas, config)
+    pass_phrase = handler(config)
+    if pass_phrase is None or len(pass_phrase) < 1:
+        # no password so try again, remember pop() changed token_lambdas
+        tokens = delete_token(access_token, edl_user, token_lambdas=token_lambdas,
+            config=config)
     else:
-        pass_phrase = handler(config)
-        if pass_phrase is None or len(pass_phrase) < 1:
-            # no password so try again, remember pop() changed token_lambdas
-            tokens = delete_token(access_token, edl_user, token_lambdas=token_lambdas,
-                config=config)
-        else:
-            # Construct and issue request
-            plain_text = "{}:{}".format(edl_user, pass_phrase)
-            cipher_text = _base64_text(plain_text)
-            encoded_credentials = "Basic {}".format(cipher_text)
-            headers = {"Authorization" : encoded_credentials}
-            response = net.post(url, "token=" + access_token, headers=headers)
-            tokens = response
+        # Construct and issue request
+        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        cipher_text = _base64_text(plain_text)
+        encoded_credentials = "Basic {}".format(cipher_text)
+        headers = {"Authorization" : encoded_credentials}
+        response = net.post(url, "token=" + access_token, headers=headers)
+        tokens = response
     return tokens
 
 def fetch_token(edl_user, token_lambdas = None, config:dict = None):
