@@ -22,6 +22,8 @@ Date: 2020-10-15
 Since: 0.0
 """
 
+import os
+from datetime import datetime
 from unittest.mock import patch
 import unittest
 
@@ -30,6 +32,12 @@ import cmr.auth.token as token
 import cmr.util.common as common
 
 # ******************************************************************************
+
+def valid_cmr_response(file, status=200):
+    """return a valid login response"""
+    json_response = common.read_file(file)
+    return util.MockResponse(json_response, status=status)
+
 
 class TestToken(unittest.TestCase):
     """ Test suit for cmr.auth.token """
@@ -143,6 +151,23 @@ class TestToken(unittest.TestCase):
         test(".sit", {"env":"sit."}, "SIT with a dot specified")
         test(".future", {"env":"future"}, "Future envirnment")
 
+    def test__env_to_edl_url(self):
+        """
+        Test that an EDL URL can be generated with a given endpoint and config
+        """
+        # pylint: disable=C0301 # lambdas must be on one line
+        test = lambda expected, given, config, msg : self.assertEqual(expected, token._env_to_edl_url(given, config=config), msg)
+
+        expected_token_ops = 'https://urs.earthdata.nasa.gov/api/users/token'
+        expected_token_uat = 'https://uat.urs.earthdata.nasa.gov/api/users/token'
+        expected_token_sit = 'https://sit.urs.earthdata.nasa.gov/api/users/token'
+
+        test(expected_token_ops, 'token', None, "None test")
+        test(expected_token_ops, 'token', {}, "Empty test")
+        test(expected_token_ops, 'token', {'env':'ops'}, "OPS test")
+        test(expected_token_uat, 'token', {'env':'uat'}, "UAT test")
+        test(expected_token_sit, 'token', {'env':'sit'}, "SIT test")
+
     # pylint: disable=W0212 ; test a private function
     def test_token_file_env(self):
         """Test the function that returns the token file path"""
@@ -184,6 +209,110 @@ class TestToken(unittest.TestCase):
 
         #cleanup
         util.delete_file(token_file)
+
+    def test__base64_text(self):
+        "Test that the base64 library encodes values as the code expects"
+        # pylint: disable=C0301 # lambdas must be on one line
+        test = lambda expected, given, msg : self.assertEqual(expected, token._base64_text(given), msg)
+
+        test("", "", "Empty Test")
+        test("RW5jb2RlIHRoaXMgbWVzc2FnZQ==", "Encode this message", "Value Test")
+        test("dXNlcjpjb2Rl", "user:code", "Real World Test")
+
+    def test__lambda_list_always(self):
+        "Test the generation of a default lambda list "
+        # pylint: disable=C0301 # lambdas must be on one line
+        test = lambda expected, given, fallback, msg : self.assertEqual(expected, token._lamdba_list_always(given, fallback), msg)
+        test([token.token_file, token.token_config], None, None, "None, with no fallback Test")
+        test([], None, [], "None, with Empty fallback Test")
+        test([], [], None, "Empty, with no fallback Test")
+        test([], [], [], "Empty, with empty fallback Test")
+        test([token.token_config], None, [token.token_config], "None, with fallback Test")
+        test([token.token_config], [token.token_config], None, "None, with fallback Test")
+        test([token.token_file], [token.token_file], [token.token_config], "TokenFile, with fallback Test")
+        test([token.token_file], [token.token_file], [token.token_config, None], "TokenFile, with fallback Test with None")
+        test([token.token_file], [token.token_file, None], [token.token_config], "TokenFile and None, with fallback Test")
+
+    @patch('urllib.request.urlopen')
+    def test_read_tokens(self, urlopen_mock):
+        """
+        Test the read_tokens function, make sure that the data that comes back
+        is parsed correctly and in the correct format
+        """
+        # Setup for tests
+        user = 'tester'
+        token_lambdas = [token.token_config]
+        config = {'cmr.token.value':'pass'}
+
+        # Setup for a good test
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/edl/token_good.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+
+        result = token.read_tokens(user, token_lambdas, config)
+        self.assertEqual(1, result['hits'], "Hits test")
+
+        items = result['items']
+        self.assertEqual(1, len(items), "item count test")
+
+        access_token = items[0]['access_token']
+        self.assertEqual("EDL-UToken-Content", access_token, "Access token test")
+
+        experation = result['items'][0]['expiration_date']
+        self.assertEqual('10/31/2121', experation, "experation date test")
+
+        experation_date = datetime.strptime(experation, '%m/%d/%Y')
+        self.assertTrue(datetime.now() < experation_date, "experation date is in future")
+
+        # ##############################
+        # Now test a bad call
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/edl/token_bad.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, status=401)
+        result = token.read_tokens(user, token_lambdas, config)
+        self.assertEqual('invalid_credentials', result['error'], "check bad response")
+
+    @patch('urllib.request.urlopen')
+    def test_create_token(self, urlopen_mock):
+        """ Test that the code can send a create token request """
+        user = 'tester'
+        token_lambdas = [token.token_config]
+        config = {'cmr.token.value':'pass'}
+
+        # Setup for a good test
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/edl/create_token_good.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        tokens = token.read_tokens(user, token_lambdas, config)
+        self.assertEqual('EDL-UToken-Content', tokens['access_token'], 'access token test')
+
+        # Setup for a bad test
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/edl/create_token_bad.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        tokens = token.read_tokens(user, token_lambdas, config)
+        self.assertEqual('invalid_credentials', tokens['error'], 'Bad test')
+
+    @patch('urllib.request.urlopen')
+    def test_delete_token(self, urlopen_mock):
+        """ Test that the code can send a delete token request to EDL """
+        user = 'tester'
+        token_lambdas = [token.token_config]
+        config = {'cmr.token.value':'pass'}
+
+        # Setup for a good test
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/edl/revoke_token_good.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        tokens = token.delete_token('EDL-UToken-Content', user, token_lambdas, config)
+        self.assertEqual({'http-headers':{}}, tokens, 'access token test')
+
+        # Setup for a bad test
+        recorded_data_file = os.path.join (os.path.dirname (__file__),
+                                           '../../data/edl/create_token_bad.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        tokens = token.delete_token('EDL-UToken-Content', user, token_lambdas, config)
+        self.assertEqual('invalid_credentials', tokens['error'], 'Bad test')
 
     @patch('cmr.util.common.execute_command')
     def test_password_manager(self, cmd_mock):

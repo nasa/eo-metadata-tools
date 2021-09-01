@@ -22,6 +22,10 @@ date: 2020-10-26
 since: 0.0
 
 Overview:
+    The function fetch_bearer_token_with_password(user, password, config) will
+    handle all network calls to either get or generate a user token and place
+    this token inside a config dictionary for use in all other calls.
+
     The function token(lambda_list, config) will iterate over a list of token
     managers and return the value from the first manager that finds a token.
 
@@ -31,11 +35,14 @@ Overview:
 
 import os
 import subprocess
+import base64 as b64
+from datetime import datetime
 
 import cmr.util.common as common
+import cmr.util.network as net
 
 # ##############################################################################
-# lambdas
+#mark - lambdas
 
 # All password lambda functions accept two parameters and return a string
 # Parameters:
@@ -67,44 +74,6 @@ def token_config(config: dict = None):
     config = common.always(config)
     value = config.get('cmr.token.value', None)
     return value
-
-# document-it: {"key":"env", "default":"", "msg":"uat, ops, prod, production, or blank for ops"}
-def _env_to_extention(config: dict = None):
-    """
-    Allow different files to be loaded for each environment, make an env
-    extension which will be appended to the token file path
-    Parameters:
-        config dictionary containing an env value
-    Return:
-        empty string or a dot followed by the environment.
-    """
-    config = common.always(config)
-
-    env = config.get('env', '')
-    if env is None:
-        env = ''
-    env = env.lower().strip()
-    if len(env)>0 and env.endswith("."):
-        env = env[:-1]
-    if env in ['', 'ops', 'prod', 'production']:
-        env = "" # no extension
-    else:
-        env = "." + env
-    return env
-
-# document-it: {"key":"cmr.token.file", "default":"~/.cmr_token"}
-# document-it: {"from":"._env_to_extention"}
-def _token_file_path(config: dict = None):
-    """
-    Return the path to the file which stores a CMR token. This path can be different
-    for each environment if specified with the env config.
-    Returns
-        ~/.cmr_token<.env>, no env if production
-    """
-    config = common.always(config)
-    env_extention = _env_to_extention(config)
-    path_to_use = config.get('cmr.token.file', '~/.cmr_token' + env_extention)
-    return path_to_use
 
 # document-it: {"from":".token_file_path"}
 def token_file(config: dict = None):
@@ -157,7 +126,285 @@ def token_manager(config: dict = None):
     return result
 
 # ##############################################################################
-# functions
+#mark - internal functions
+
+# document-it: {"key":"env", "default":"", "msg":"uat, ops, prod, production, or blank for ops"}
+def _env_to_extention(config: dict = None):
+    """
+    Allow different files to be loaded for each environment, make an env
+    extension which will be appended to the token file path
+    Parameters:
+        config dictionary containing an env value
+    Return:
+        empty string or a dot followed by the environment.
+    """
+    config = common.always(config)
+
+    env = config.get('env', '')
+    if env is None:
+        env = ''
+    env = env.lower().strip()
+    if len(env)>0 and env.endswith("."):
+        env = env[:-1]
+    if env in ['', 'ops', 'prod', 'production']:
+        env = "" # no extension
+    else:
+        env = "." + env
+    return env
+
+# document-it: {"key":"env", "default":"", "msg":"uat, ops, prod, production, or blank for ops"}
+def _env_to_edl_url(endpoint, config: dict = None):
+    """
+    Pull out parameters from the config and build an EDL endpoint URL
+
+    Parameters:
+        endpoint: part of the URL after 'api/users' such as token, tokens, revoke_token
+        config: responds to 'env'
+    Return: URL
+    """
+    config = common.always(config)
+
+    env = config.get('env', '')
+    if env is None:
+        env = ''
+    env = env.lower().strip()
+    if env in ['', 'ops', 'prod', 'production']:
+        env = "" # no extension
+
+    url = 'https://{}.urs.earthdata.nasa.gov/api/users/{}'.format(env, endpoint)
+    url = url.replace("://.urs", "://urs")
+
+    return url
+
+# document-it: {"key":"cmr.token.file", "default":"~/.cmr_token"}
+# document-it: {"from":"._env_to_extention"}
+def _token_file_path(config: dict = None):
+    """
+    Return the path to the file which stores a CMR token. This path can be different
+    for each environment if specified with the env config.
+    Returns
+        ~/.cmr_token<.env>, no env if production
+    """
+    config = common.always(config)
+    env_extention = _env_to_extention(config)
+    path_to_use = config.get('cmr.token.file', '~/.cmr_token' + env_extention)
+    return path_to_use
+
+
+def _base64_text(text):
+    """ Returns a UTF-8 Base 64 encoded value of the input
+    Parameters:
+        text: raw text to encode
+    Return:
+        Base 64 encoded text in UTF-8 format
+    """
+    text_as_bytes = text.encode('utf-8')
+    return b64.b64encode(text_as_bytes).decode('utf-8')
+
+def _lamdba_list_always(token_lambdas, default_list = None):
+    """
+    Ensures that a list of lambda funtions is always returned. If the supplied
+    value is valid, it is returned, otherwise the default value list is returned.
+    If no default list is supplied that an internal default is used which returns
+    token_file and token_config.
+    Parameters:
+        token_lambdas: a list of lambdas functions, or None
+        default_list: a list of lambdas functions, or None
+    Return:
+        A list of lambda functions
+    """
+    if token_lambdas is None:
+        if default_list is None:
+            default_list = [token_file,token_config]
+        token_lambdas = default_list
+    if not isinstance(token_lambdas, list):
+        token_lambdas = [token_lambdas]
+
+    # strip out any None items
+    token_lambdas = [item for item in token_lambdas if item]
+
+    return token_lambdas
+
+def _format_as_bearer_token(raw_token):
+    """
+    Formats a token as a Bearer Token suitable for use by CMR
+    Parameters:
+        raw_token: string token value
+    Return:
+        Bearer Token ready for use with an HTTP header
+    """
+    return "Bearer {}".format(raw_token)
+# ##############################################################################
+#mark - public functions
+
+def read_tokens(edl_user, token_lambdas = None, config:dict = None):
+    """
+    Read and return the EDL tokens for a given user. Using this function makes
+    the assumption that your storing the EDL password in one of the token lambda
+    handlers and not tokens themself. This can be overwritten in the config file
+    if you plan to store both tokens and password.
+    Parameters:
+        edl_user: EDL User name
+        token_lambda: a token lambda or a list of functions
+        config: config dictionary to base new dictionary off of
+    Returns:
+        a dictionary like the following:
+    {"hits": 1,
+     "items": [{"access_token": "EDL-UToken-Content",
+                "expiration_date": "10/31/2121"}]}
+    """
+    url = _env_to_edl_url("tokens", config)
+
+    token_lambdas = _lamdba_list_always(token_lambdas, [token_manager, token_config])
+    if len(token_lambdas)<1:
+        return None
+
+    tokens = {}
+
+    handler = token_lambdas.pop()
+    pass_phrase = handler(config)
+    if pass_phrase is None or len(pass_phrase) < 1:
+        # handler did not create a valid password, try the next handler
+        tokens = read_tokens(edl_user, token_lambdas, config)
+    else:
+        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        cipher_text = _base64_text(plain_text)
+        encoded_credentials = "Basic {}".format(cipher_text)
+        headers = {"Authorization" : encoded_credentials}
+        tokens = net.get(url, None, headers=headers)
+    return tokens
+
+def create_token(edl_user, token_lambdas = None, config:dict = None):
+    """
+    Create and return a EDL token for a given user. Using this function makes
+    the assumption that your storing the EDL password in one of the token lambda
+    handlers and not tokens themself. This can be overwritten in the config file
+    if you plan to store both tokens and password.
+    Parameters:
+        edl_user: EDL User name
+        token_lambda: a token lambda or a list of functions
+        config: config dictionary to base new dictionary off of
+    Returns:
+        a dictionary like the following:
+        {"access_token": "EDL-UToken-Content",
+         "token_type":"Bearer",
+         "expiration_date": "10/31/2121"}
+    """
+    url = _env_to_edl_url("token", config)
+
+    token_lambdas = _lamdba_list_always(token_lambdas, [token_manager, token_config])
+    if len(token_lambdas)<1:
+        return None
+
+    tokens = {}
+
+    handler = token_lambdas.pop()
+    pass_phrase = handler(config)
+    if pass_phrase is None or len(pass_phrase) < 1:
+        tokens = create_token(edl_user, token_lambdas, config)
+    else:
+        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        cipher_text = _base64_text(plain_text)
+        encoded_credentials = "Basic {}".format(cipher_text)
+        headers = {"Authorization" : encoded_credentials}
+        tokens = net.post(url, None, headers=headers)
+    return tokens
+
+def delete_token(access_token, edl_user, token_lambdas = None, config:dict = None):
+    """
+    Delete a taken from EDL
+    Return None if failed, otherwise EDL response
+    """
+    url = _env_to_edl_url("revoke_token", config)
+    token_lambdas = _lamdba_list_always(token_lambdas, [token_manager, token_config])
+    if len(token_lambdas)<1:
+        return None
+    handler = token_lambdas.pop()
+    pass_phrase = handler(config)
+    if pass_phrase is None or len(pass_phrase) < 1:
+        # no password so try again, remember pop() changed token_lambdas
+        tokens = delete_token(access_token, edl_user, token_lambdas=token_lambdas,
+            config=config)
+    else:
+        # Construct and issue request
+        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        cipher_text = _base64_text(plain_text)
+        encoded_credentials = "Basic {}".format(cipher_text)
+        headers = {"Authorization" : encoded_credentials}
+        response = net.post(url, "token=" + access_token, headers=headers)
+        tokens = response
+    return tokens
+
+def fetch_token(edl_user, token_lambdas = None, config:dict = None):
+    """
+    Talk to EDL and pull out a token for use in CMR calls. To lookup tokens, an
+    EDL User name and password will be sent over the network.
+    Return: None or Access token
+    """
+    # get tokens
+    token_results = read_tokens(edl_user, token_lambdas=token_lambdas.copy(), config=config)
+    if token_results is None:
+        return None
+    if 'error' in token_results:
+        return token_results
+    if token_results['hits']<1:
+        # no token exists, so create one and package it up in a way to match read_tokens
+        created_token = create_token(edl_user, token_lambdas=token_lambdas.copy(), config=config)
+        packaged_token = {'access_token' : created_token['access_token'],
+            'expiration_date' : created_token['expiration_date']}
+        token_results = {'hits': 1, 'items': [packaged_token]}
+    token_list = token_results['items']
+    #look for a valid token from the list
+    for token_item in token_list:
+        experation_date = datetime.strptime(token_item['expiration_date'], '%m/%d/%Y')
+        if datetime.now() < experation_date:
+            access_token = token_item['access_token']
+            break
+        #token has expired, delete it and try again
+        delete_token(token_item['access_token'], edl_user, token_lambdas, config)
+        access_token = fetch_token(edl_user, token_lambdas, config)
+    return access_token
+
+def fetch_bearer_token_with_password(edl_user, edl_password, config:dict = None):
+    """
+    This function is the fastest way to use this API, this call will run all
+    other functions needed to either get or generate a token on the users behalf.
+    Parameters:
+        edl_user: user name in the Earth Data Login System
+        edl_password: password in the Earth Data Login system
+        config: configuration dictionary
+    Returns:
+        Success: config dict with 'authorization' key added
+        Error: {'error': 'invalid_credentials', 'error_description':
+            'Invalid user credentials', 'code': 401, 'reason': 'Unauthorized'}
+    """
+    return fetch_bearer_token(edl_user, token_lambdas=[token_literal(edl_password)], config=config)
+
+def fetch_bearer_token(edl_user, token_lambdas = None, config:dict = None):
+    """
+    This function is the similar to fetch_bearer_token_with_password() but takes
+    lambda lookup functions instead of a fixed password. This call will run all
+    other functions needed to either get or generate a token on the users behalf.
+    Parameters:
+        edl_user: user name in the Earth Data Login System
+        token_lambda: a token lambda or a list of functions
+        config: configuration dictionary
+    Returns:
+        Success: config dict with 'authorization' key added
+        Error: {'error': 'invalid_credentials', 'error_description':
+            'Invalid user credentials', 'code': 401, 'reason': 'Unauthorized'}
+    """
+    if config is None:
+        config = {}
+    augmented_config = config.copy()
+    token_value = fetch_token(edl_user, token_lambdas=token_lambdas, config=config)
+    if 'error' in token_value:
+        return token_value
+    if token_value is not None and len(token_value)>0:
+        bearer_token = _format_as_bearer_token(token_value)
+        augmented_config["authorization"] = bearer_token
+        return augmented_config
+    return None
 
 def use_bearer_token(token_lambdas = None, config:dict = None):
     """
@@ -192,7 +439,7 @@ def bearer(token_lambdas = None, config: dict = None):
     """
     token_value = token(token_lambdas, config)
     if token_value is not None and len(token_value)>0:
-        token_value = "Bearer " + token_value
+        token_value = _format_as_bearer_token(token_value)
     return token_value
 
 def token(token_lambdas = None, config: dict = None):
