@@ -28,6 +28,7 @@ import unittest
 
 import os
 import uuid
+from datetime import datetime
 
 import cmr.util.common as com
 
@@ -151,3 +152,15 @@ class TestSearch(unittest.TestCase):
 
         self.assertEqual(data, com.mask_dictionary(data, ''))
         self.assertEqual(data, com.mask_dictionary(data, []))
+
+    def test_now(self):
+        """
+        The now function is provided to allow tests to patch it for returning a
+        fixed time. This function should normally return the same value as
+        datetime.now(). Test that the value is within 1 second of a direct call
+        to datetime.now()
+        """
+        actual = datetime.now().timestamp()
+        managed = com.now().timestamp()
+        dif = managed - actual
+        self.assertTrue(dif < 1.0, "time returned should be close to the real thing")

@@ -176,15 +176,11 @@ def post(url, body, accept=None, headers=None):
             return raw_response
         return obj_json
     except urllib.error.HTTPError as exception:
-        raw_response = exception.read()
-        try:
-            obj_json = json.loads(raw_response)
-            obj_json['code'] = exception.code
-            obj_json['reason'] = exception.reason
-            return obj_json
-        except json.decoder.JSONDecodeError as err:
-            return err
-        return raw_response
+        obj_json = {}
+        obj_json['code'] = exception.code
+        obj_json['reason'] = exception.reason
+        obj_json['errors'] = [exception.reason]
+        return obj_json
 
 def get(url, accept=None, headers=None):
     """
@@ -211,13 +207,13 @@ def get(url, accept=None, headers=None):
             if isinstance(obj_json, list):
                 data = obj_json
                 obj_json = {"hits": len(data), "items" : data}
-            #print (obj_json)
             head_list = {}
             for head in resp.getheaders():
                 head_list[head[0]] = head[1]
             if logger.getEffectiveLevel() == logging.DEBUG:
                 stringified = str(common.mask_dictionary(head_list, ["cmr-token", "authorization"]))
                 logger.debug(" CMR->Headers = %s", stringified)
+            # this should be a future option
             #obj_json['http-headers'] = head_list
         elif resp.status == 204:
             obj_json = {}
@@ -231,12 +227,8 @@ def get(url, accept=None, headers=None):
             return raw_response
         return obj_json
     except urllib.error.HTTPError as exception:
-        raw_response = exception.read()
-        try:
-            obj_json = json.loads(raw_response)
-            obj_json['code'] = exception.code
-            obj_json['reason'] = exception.reason
-            return obj_json
-        except json.decoder.JSONDecodeError as err:
-            return err
-        return raw_response
+        obj_json = {}
+        obj_json['code'] = exception.code
+        obj_json['reason'] = exception.reason
+        obj_json['errors'] = [exception.reason]
+        return obj_json

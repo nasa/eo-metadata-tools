@@ -344,7 +344,7 @@ def search_by_page(base, query = None, filters = None, page_state = None, config
     obj_json = _make_search_request(base, query, page_state, config)
 
     if isinstance(obj_json, str):
-        return _error_object(0, "unknown response: " + str)
+        return _error_object(0, "unknown response: " + obj_json)
     if 'errors' in obj_json:
         return obj_json
 
