@@ -378,6 +378,7 @@ class TestToken(unittest.TestCase):
 
         #now_mock.return_value = datetime.strptime('12/28/2021 09:13:20 UTC', '%m/%d/%Y %H:%M:%S %Z')
         now_mock.return_value = datetime(2021, 12, 28, 9, 13, 20, 0)
+        self.assertEqual(datetime(2021, 12, 28, 9, 13, 20, 0), common.now())
         self.assertEqual(1640700800.0, common.now().timestamp(),
             'time must be frozen for this to work')
 
