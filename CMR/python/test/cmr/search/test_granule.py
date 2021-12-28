@@ -22,10 +22,9 @@ Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-12-01
 """
 
-#from unittest.mock import Mock
-import os
 from unittest.mock import patch
 import unittest
+
 from functools import partial
 
 import test.cmr as tutil
@@ -58,9 +57,7 @@ class TestSearch(unittest.TestCase):
         """
         # Setup
         urlopen_mock.return_value = valid_cmr_response(
-            os.path.join (os.path.dirname (__file__),
-                '../../data/cmr/search/one_granule_cmr_result.json')
-        )
+            tutil.resolve_full_path('../data/cmr/search/one_granule_cmr_result.json'))
 
         # Basic
         full_result = gran.search({'provider':'SEDAC'}, limit=1)
@@ -129,9 +126,7 @@ class TestSearch(unittest.TestCase):
         """
         # Setup
         urlopen_mock.return_value = valid_cmr_response(
-            os.path.join (os.path.dirname (__file__),
-                '../../data/cmr/search/one_granule_cmr_result.json')
-        )
+            tutil.resolve_full_path('../data/cmr/search/one_granule_cmr_result.json'))
 
         # Basic
         generator = gran.experimental_search_generator({'provider':'SEDAC'}, limit=1)
@@ -243,9 +238,8 @@ class TestSearch(unittest.TestCase):
         Test the compound test works
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         # tests
         for limit in [1,2,5,10]:
@@ -271,9 +265,8 @@ class TestSearch(unittest.TestCase):
         code correctly returns the granule information.
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/combo_gran_result.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/combo_gran_result.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         # Inputs
         found_collections = ['C179003030-ORNL_DAAC',
@@ -326,9 +319,8 @@ class TestSearch(unittest.TestCase):
             'C1227811476-ORNL_DAAC',
             'C179130785-ORNL_DAAC']
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/combo_gran_result.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/combo_gran_result.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         collection_query = {'provider':'GHRC_CLOUD'}
         filters=[gran.granule_core_fields, gran.drop_fields('GranuleUR'),

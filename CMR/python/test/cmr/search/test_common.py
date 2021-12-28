@@ -21,12 +21,15 @@ Test cases for the cmr.auth package
 Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-11-30
 """
-import os
+
 from unittest.mock import Mock
 from unittest.mock import patch
 import unittest
+
 import urllib.error as urlerr
+
 import test.cmr as tutil
+
 import cmr.util.common as common
 import cmr.search.common as scom
 
@@ -222,15 +225,13 @@ class TestSearch(unittest.TestCase):
     @patch('urllib.request.urlopen')
     def test_scroll(self, urlopen_mock):
         """ Test the scroll clear function to see if it returns an error or not"""
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/common/scroll_good.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 204)
+        recorded_file = tutil.resolve_full_path('../data/cmr/common/scroll_good.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 204)
         result = scom.clear_scroll('-1')
         self.assertFalse('errors' in result)
 
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/common/scroll_bad.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 404)
+        recorded_file = tutil.resolve_full_path('../data/cmr/common/scroll_bad.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 404)
         result = scom.clear_scroll('0')
         self.assertTrue('errors' in result)
 
@@ -239,9 +240,8 @@ class TestSearch(unittest.TestCase):
         """
         Test the inner function which performs the first half of a search
         """
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/common/scroll_good.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 204)
+        recorded_file = tutil.resolve_full_path('../data/cmr/common/scroll_good.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 204)
         page_state = scom.create_page_state()
         page_state['CMR-Scroll-Id'] = 'abcd'
         response = scom._make_search_request('search', {'keyword':'water'},
@@ -255,16 +255,15 @@ class TestSearch(unittest.TestCase):
         """
         Test the inner function which performs the first half of a search
         """
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 200)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 200)
         query = {'keyword':'water'}
         response = scom.search_by_page('collections', query)
         self.assertEqual(10, len(response), 'assumed page_state')
 
         # page state uses scroll
         page_state = scom.create_page_state(limit=4000)
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 200,
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 200,
             [('CMR-Scroll-Id','si-01')])
         page_state['CMR-Scroll-Id'] = 'abcd'
         response = scom.search_by_page('collections', query, page_state=page_state)
@@ -287,20 +286,18 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(expected, response, "exeption")
 
         # bad clear response is logged
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
         clr_scroll_mock.return_value = {'errors': ['bad scroll id']}
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 200)
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 200)
         urlopen_mock.side_effect = None
         response = scom.search_by_page('collections', query, page_state=page_state)
         self.assertEqual(10, len(response), "bad scroll id")
 
        # takes to long
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
         page_state['took'] = 300001
         page_state['page_size'] = 1
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 200)
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 200)
         response = scom.search_by_page('collections', query, page_state=page_state)
         self.assertEqual(10, len(response), "bad scroll id")
 
@@ -310,18 +307,17 @@ class TestSearch(unittest.TestCase):
         def search(query=None, filters=None, limit=None, options=None):
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
 
         # Basic
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 200)
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 200)
         generator = scom.experimental_search_by_page_generator('collections',
             {'provider':'SEDAC'})
         for item in generator:
             self.assertEqual("ORNL_DAAC", item['meta']['provider-id'], 'basic test')
 
         # page state uses scroll
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file, 200,
+        urlopen_mock.return_value = valid_cmr_response(recorded_file, 200,
             [('CMR-Scroll-Id','abcd')])
         page_state = scom.create_page_state(limit=4000)
         page_state['CMR-Scroll-Id'] = 'abcd'

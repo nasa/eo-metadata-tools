@@ -22,15 +22,15 @@ Date: 2020-10-15
 Since: 0.0
 """
 
-import os
-import json
-import subprocess
-from datetime import datetime
 from unittest.mock import Mock
 from unittest.mock import patch
 import unittest
 
+import subprocess
+from datetime import datetime
+
 import test.cmr as util
+
 import cmr.auth.token as token
 import cmr.util.common as common
 
@@ -270,8 +270,7 @@ class TestToken(unittest.TestCase):
             config={'cmr.token.value':''}))
 
         # Setup for a good test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
 
         result = token.read_tokens(user, token_lambdas, config)
@@ -291,8 +290,7 @@ class TestToken(unittest.TestCase):
 
         # ##############################
         # Now test a bad call
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_bad.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_bad.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file, status=401)
         result = token.read_tokens(user, token_lambdas, config)
         self.assertEqual('invalid_credentials', result['error'], "check bad response")
@@ -314,15 +312,13 @@ class TestToken(unittest.TestCase):
         config = {'cmr.token.value':'pass'}
 
         # Setup for a good test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/create_token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/create_token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.create_token(user, token_lambdas, config)
         self.assertEqual('EDL-UToken-Content', tokens['access_token'], 'access token test')
 
         # Setup for a bad test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/create_token_bad.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/create_token_bad.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.create_token(user, token_lambdas, config)
         self.assertEqual('invalid_credentials', tokens['error'], 'Bad test')
@@ -352,15 +348,13 @@ class TestToken(unittest.TestCase):
         config = {'cmr.token.value':'pass'}
 
         # Setup for a good test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/revoke_token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/revoke_token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.delete_token('EDL-UToken-Content', user, token_lambdas, config)
         self.assertEqual({'http-headers':{}}, tokens, 'access token test')
 
         # Setup for a bad test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/create_token_bad.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/create_token_bad.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.delete_token('EDL-UToken-Content', user, token_lambdas, config)
         self.assertEqual('invalid_credentials', tokens['error'], 'Bad test')
@@ -371,40 +365,26 @@ class TestToken(unittest.TestCase):
     @patch('cmr.util.common.now')
     def test_fetch_token_delete_path(self, now_mock, deltoken_mock, readtoken_mock, urlopen_mock):
         """ Test that the code can fetch expired tokens and then try to delete one """
-
-        token_lambdas = [token.token_config]
-        user = 'tester'
         config = {'cmr.token.value':'pass'}
 
-        #now_mock.return_value = datetime.strptime('12/28/2021 09:13:20 UTC', '%m/%d/%Y %H:%M:%S %Z')
-        now_mock.return_value = datetime(2021, 12, 28, 9, 13, 20, 0)
-        self.assertEqual(datetime(2021, 12, 28, 9, 13, 20, 0), common.now())
-        #self.assertEqual(1640700800.0, common.now().timestamp(),
-        #    'time must be frozen for this to work')
+        epoc = datetime(2021, 12, 28, 9, 13, 20, 0)
+        now_mock.return_value = epoc
+        self.assertEqual(epoc, common.now(), 'time must be frozen for this to work')
 
         # create old data response - expired tokens
-        recorded_data_file_old = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/tokens_old.json')
-        recorded_data_old = common.read_file(recorded_data_file_old)
-        old = json.loads(recorded_data_old)
+        old = util.load_relative_json_file('../data/edl/tokens_old.json')
 
         # create good data response - new tokens
-        recorded_data_good = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_good.json')
-        recorded_data_good = common.read_file(recorded_data_good)
-        good = json.loads(recorded_data_good)
+        good = util.load_relative_json_file('../data/edl/token_good.json')
 
         # setup responses
         readtoken_mock.side_effect = [old, good, good]
-
-        recorded_data_file_good = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/create_token_good.json')
+        recorded_data_file_good = util.resolve_full_path('../data/edl/create_token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file_good)
-
         deltoken_mock.return_value = "dummy"
 
         # run test
-        tokens = token.fetch_token(user, token_lambdas, config)
+        tokens = token.fetch_token("tester", [token.token_config], config)
         self.assertEqual('EDL-UToken-Content', tokens, 'access token test')
 
     @patch('urllib.request.urlopen')
@@ -421,15 +401,13 @@ class TestToken(unittest.TestCase):
         config = {'cmr.token.value':'pass'}
 
         # Setup for a good test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.fetch_token(user, token_lambdas, config)
         self.assertEqual('EDL-UToken-Content', tokens, 'access token test')
 
         # Setup for a bad test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_bad.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_bad.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.fetch_token(user, token_lambdas, config)
         self.assertEqual('invalid_credentials', tokens['error'], 'Bad test')
@@ -450,8 +428,7 @@ class TestToken(unittest.TestCase):
 
         # Setup for an empty test
         readtoken_mock.return_value = {'hits':0, 'items':[]}
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/create_token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/create_token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.fetch_token(user, token_lambdas, config)
         self.assertEqual('EDL-UToken-Content', tokens, 'access token test')
@@ -464,8 +441,7 @@ class TestToken(unittest.TestCase):
         config = {'cmr.token.value':'pass'}
 
         # Setup for a good test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.fetch_bearer_token(user, token_lambdas, config)
         self.assertEqual('Bearer EDL-UToken-Content', tokens['authorization'], 'access token test')
@@ -475,8 +451,7 @@ class TestToken(unittest.TestCase):
             'no token found from config when no config given')
 
         # Setup for a bad test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_bad.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_bad.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.fetch_bearer_token(user, token_lambdas, config)
         self.assertEqual('invalid_credentials', tokens['error'], 'Bad test')
@@ -486,8 +461,7 @@ class TestToken(unittest.TestCase):
         """ Test that the code can fetch a token request """
 
         # Setup for a good test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.fetch_bearer_token_with_password('tester', "pass")
         self.assertEqual('Bearer EDL-UToken-Content', tokens['authorization'], 'access token test')
@@ -498,8 +472,7 @@ class TestToken(unittest.TestCase):
         """ Follow the path in the use_bearer_token() which pulls from a url """
         # Setup for use bearer token
         config = {'cmr.token.value':'pass'}
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         expected = {'cmr.token.value': 'pass', 'authorization': 'Bearer pass'}
         self.assertEqual(expected, token.use_bearer_token(config=config))
@@ -511,8 +484,7 @@ class TestToken(unittest.TestCase):
         config = {'cmr.token.value':'EDL-UToken-Content'}
 
         # Setup for a good test
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/edl/token_good.json')
+        recorded_data_file = util.resolve_full_path('../data/edl/token_good.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         tokens = token.token(token_lambdas, config)
         self.assertEqual('EDL-UToken-Content', tokens, 'access token test')

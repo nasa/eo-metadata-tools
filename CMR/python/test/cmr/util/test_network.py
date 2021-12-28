@@ -22,13 +22,13 @@ Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-10-15
 """
 
-import os
 from unittest.mock import Mock
 from unittest.mock import patch
-
 import unittest
-import test.cmr as tutil
+
 import urllib.error as urlerr
+
+import test.cmr as tutil
 
 import cmr.util.common as common
 import cmr.util.network as net
@@ -161,8 +161,7 @@ class TestSearch(unittest.TestCase):
     def test_post(self, urlopen_mock):
         """ Test the post method, POST a network resource """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/one_cmr_result.json')
+        recorded_data_file = tutil.resolve_full_path('../data/cmr/search/one_cmr_result.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
 
         data = net.post("http://cmr.earthdata.nasa.gov/search", {})
@@ -212,8 +211,7 @@ class TestSearch(unittest.TestCase):
     def test_get(self, urlopen_mock):
         """ Test the get method, get a network resource """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/one_cmr_result.json')
+        recorded_data_file = tutil.resolve_full_path('../data/cmr/search/one_cmr_result.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
 
         data = net.get("http://cmr.earthdata.nasa.gov/search")
@@ -266,8 +264,7 @@ class TestSearch(unittest.TestCase):
         urlopen_mock.side_effect = None
 
         # test list response such as the provider list from ingest
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/ingest/providers.json')
+        recorded_data_file = tutil.resolve_full_path('../data/cmr/ingest/providers.json')
         urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
         data = net.get("http://cmr.earthdata.nasa.gov/ingest/providers?pretty=true")
         self.assertEqual(110, len(data['items']))

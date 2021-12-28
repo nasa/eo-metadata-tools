@@ -22,7 +22,6 @@ Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-10-15
 """
 
-#from unittest.mock import Mock
 from unittest.mock import patch
 import unittest
 
