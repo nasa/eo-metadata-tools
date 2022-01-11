@@ -25,9 +25,11 @@ help()
     printf "${format}" Flag Value Name Description
     printf "${format}" ---- ------- --------- ----------------------------------
     printf "${format}" '-c' '' 'clean' 'Clean up all generated files and directories'
+    printf "${format}" '-C' '' 'coverage' 'Run the code coverage report'
     printf "${format}" '-d' '' 'document' 'Generate documentation files'
     printf "${format}" '-f' '' 'find' "Find the package in $pip3"
     printf "${format}" '-h' '' 'help' 'Print out this help message and then exit'
+    printf "${format}" '-H' '' 'coverage' 'Generate the HTML coverage report'
     printf "${format}" '-i' '' 'install' 'Install latest wheel file'
     printf "${format}" '-l' '' 'lint' 'Print out this help message'
     printf "${format}" '-p' '' 'package' 'Package project into a whl file'
@@ -44,6 +46,7 @@ lint()
     printf 'Run pylint to check for common code convention warnings\n'
     pylint cmr test demos \
         --disable=duplicate-code \
+        --extension-pkg-allow-list=math \
         --ignore-patterns=".*\.md,.*\.sh,.*\.html,pylintrc,LICENSE,build,dist,tags,eo_metadata_tools_cmr.egg-info"
 }
 
@@ -126,6 +129,18 @@ config_report()
     $python3 docit.py > doc/config_properties.md
 }
 
+# call the coverage tool to report on which files need more tests
+code_coverage()
+{
+    coverage report --skip-covered --omit='test/*,run.py,setup.py,docit.py,cmr/__init__.py'
+}
+
+# call the code coverage report, html version
+code_coverage_html()
+{
+    coverage html --skip-covered --omit='test/*,run.py,setup.py,docit.py,cmr/__init__.py'
+}
+
 set_version()
 {
     python3="python$1"
@@ -134,13 +149,15 @@ set_version()
 }
 
 # Process the command line arguments
-while getopts "cdfhilprtuv:" opt
+while getopts "cCHdfhilprtuv:" opt
 do
     case ${opt} in
         c) clean ;;
+        C) code_coverage ;;
         d) document_markdown ;;
         f) find_package ;;
         h) help ;;
+        H) code_coverage_html ;;
         i) install_package ;;
         l) lint ;;
         p) package_project ;;

@@ -22,10 +22,9 @@ Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-12-01
 """
 
-#from unittest.mock import Mock
-import os
 from unittest.mock import patch
 import unittest
+
 from functools import partial
 
 import test.cmr as tutil
@@ -58,9 +57,7 @@ class TestSearch(unittest.TestCase):
         """
         # Setup
         urlopen_mock.return_value = valid_cmr_response(
-            os.path.join (os.path.dirname (__file__),
-                '../../data/cmr/search/one_granule_cmr_result.json')
-        )
+            tutil.resolve_full_path('../data/cmr/search/one_granule_cmr_result.json'))
 
         # Basic
         full_result = gran.search({'provider':'SEDAC'}, limit=1)
@@ -122,6 +119,20 @@ class TestSearch(unittest.TestCase):
             'GranuleUR': 'urbanspatial-hist-urban-pop-3700bc-ad2000-xlsx.xlsx'}]
         self.assertEqual(expected, ids_results)
 
+    @patch('urllib.request.urlopen')
+    def test_experimental_search(self, urlopen_mock):
+        """
+        def search(query=None, filters=None, limit=None, options=None):
+        """
+        # Setup
+        urlopen_mock.return_value = valid_cmr_response(
+            tutil.resolve_full_path('../data/cmr/search/one_granule_cmr_result.json'))
+
+        # Basic
+        generator = gran.experimental_search_generator({'provider':'SEDAC'}, limit=1)
+        for item in generator:
+            self.assertEqual('G1527288030-SEDAC', item['meta']['concept-id'])
+
     def test_granule_core_fields(self):
         """
         Test that the function conforms to expectations by only returning the
@@ -153,7 +164,27 @@ class TestSearch(unittest.TestCase):
         data = [{'a':'11', 'b':'21', 'c':'31'}, {'a':'12', 'b':'22', 'c':'32'}]
         result = gran.apply_filters([gran.drop_fields('a'), gran.drop_fields('b')], data)
         expected = [{'c': '31'}, {'c': '32'}]
-        self.assertEqual (expected, result)
+        self.assertEqual (expected, result, "drop fields")
+
+        data = [{'meta':{'1':'one', '2':'two'}, 'umm':{'two':'2', 'one':'1'}}]
+        result = gran.apply_filters([gran.all_fields, gran.meta_fields], data)
+        expected = [{'1':'one', '2':'two'}]
+        self.assertEqual(expected, result, "All and meta fields")
+
+        result = gran.apply_filters([gran.all_fields, gran.umm_fields], data)
+        expected = [{'two':'2', 'one':'1'}]
+        self.assertEqual(expected, result, "All and umm fields")
+
+        data = [{'meta':{'concept-id':'g1', '2':'two'}, 'umm':{'concept-id':'g2', 'one':'1'}}]
+        result = gran.apply_filters([gran.all_fields, gran.concept_id_fields], data)
+        expected = [{'concept-id':'g1'}]
+        self.assertEqual(expected, result, "find concept id from meta")
+
+        data = [{'concept-id':'g2', 'one':'1'}]
+        result = gran.apply_filters([gran.all_fields, gran.concept_id_fields], data)
+        expected = [{'concept-id':'g2'}]
+        self.assertEqual(expected, result, "find concept id from dict")
+
 
     def test_help_full(self):
         """Test the built in help"""
@@ -174,8 +205,11 @@ class TestSearch(unittest.TestCase):
         """
         Helper method to do the actual testing of one use case of _collection_sample()
         """
-
-        limits = gran._collection_sample_limits([inputs[0], inputs[1]])
+        limits = None
+        if inputs is not None and isinstance(inputs, list) and len(inputs)==2:
+            limits = gran._collection_sample_limits([inputs[0], inputs[1]])
+        else:
+            limits = gran._collection_sample_limits(inputs)
         actual = [limits["granule"], limits["collection"]]
         self.assertEqual(expected, actual, msg)
 
@@ -185,7 +219,11 @@ class TestSearch(unittest.TestCase):
         values for global limits, collection limits, and granule limits depending
         on what is passed in.
         """
-        self.coll_sam_lim_helper([10, 20], [None, None], "None")
+        self.coll_sam_lim_helper([10, 20], None, "None")
+        self.coll_sam_lim_helper([10, 20], [], "empty list")
+        self.coll_sam_lim_helper([10, 20], "wrong", "bad data type list")
+        self.coll_sam_lim_helper([11, 20], [11], "Just one, but in a list")
+        self.coll_sam_lim_helper([10, 20], [None, None], "List of None")
         self.coll_sam_lim_helper([10, 32], [None, 32], "Collection Limit Specified")
         self.coll_sam_lim_helper([32, 20], [32, None], "Granule Limit Specified")
         self.coll_sam_lim_helper([32, 32], [32, 32], "Granule & Collection Limit Specified")
@@ -200,9 +238,8 @@ class TestSearch(unittest.TestCase):
         Test the compound test works
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         # tests
         for limit in [1,2,5,10]:
@@ -228,9 +265,8 @@ class TestSearch(unittest.TestCase):
         code correctly returns the granule information.
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/combo_gran_result.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/combo_gran_result.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         # Inputs
         found_collections = ['C179003030-ORNL_DAAC',
@@ -283,9 +319,8 @@ class TestSearch(unittest.TestCase):
             'C1227811476-ORNL_DAAC',
             'C179130785-ORNL_DAAC']
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/combo_gran_result.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/combo_gran_result.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         collection_query = {'provider':'GHRC_CLOUD'}
         filters=[gran.granule_core_fields, gran.drop_fields('GranuleUR'),
@@ -313,3 +348,29 @@ class TestSearch(unittest.TestCase):
         tester(expected, [10, 1], "at most 10, one collection, array")
         tester(expected[:5], {"granule": 5, "collection": 1}, "at most five, using dictionary")
         tester(expected, {"granule": 1, "collection": None}, "defaulting with dictionary")
+
+    @patch('cmr.search.common.open_api')
+    @patch('cmr.search.common.set_logging_to')
+    def test_ignore_tests(self, log_mock, api_mock):
+        """
+        These are tests for functions which don't do much outside of the notebook
+        environment. These functions are also simple wrappers for functions in
+        the lower common level and should be tested there.
+        """
+        log_mock.return_value = "fake"
+        api_mock.return_value = "fake"
+
+        # test at least that the advertised function signature is upheld.
+        # pylint: disable=E1120 # really want to check for too many parameters
+        # pylint: disable=E1121 # really want to check for a required parameter
+        with self.assertRaises(Exception):
+            gran.open_api('#some-page-tag', "not supported")
+            gran.set_logging_to()
+
+        # most general test that could be made
+        # pylint: disable=W0703 # exception is the best way to look for the unexpected
+        try:
+            gran.open_api()
+            gran.set_logging_to(0)
+        except Exception:
+            self.fail("un expected error")

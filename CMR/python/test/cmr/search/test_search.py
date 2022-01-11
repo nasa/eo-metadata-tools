@@ -21,7 +21,7 @@ Test cases for the cmr.search.search module
 Author: thomas.a.cherry@nasa.gov - NASA
 Created: 2020-10-15
 """
-import os
+
 from unittest.mock import patch
 import unittest
 
@@ -55,9 +55,8 @@ class TestSearch(unittest.TestCase):
         fewer to the caller
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         # tests
         for index in [1,2,5,10]:
@@ -70,9 +69,8 @@ class TestSearch(unittest.TestCase):
         def search(query=None, filters=None, limit=None, config=None):
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/one_cmr_result.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/one_cmr_result.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         full_result = coll.search({'provider':'SEDAC'}, limit=1)
         self.assertEqual(1, len(full_result))
@@ -243,9 +241,8 @@ class TestSearch(unittest.TestCase):
         Test that search still runs as expected when logging is turned on
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         # Test
         with self.assertLogs(coll.scom.logger, level='DEBUG') as log_collector:
@@ -263,9 +260,8 @@ class TestSearch(unittest.TestCase):
         Test that search still runs as expected when logging is turned on
         """
         # Setup
-        recorded_data_file = os.path.join (os.path.dirname (__file__),
-                                           '../../data/cmr/search/ten_results_from_ghrc.json')
-        urlopen_mock.return_value = valid_cmr_response(recorded_data_file)
+        recorded_file = tutil.resolve_full_path('../data/cmr/search/ten_results_from_ghrc.json')
+        urlopen_mock.return_value = valid_cmr_response(recorded_file)
 
         # Test
         with self.assertLogs(coll.scom.logger, level='DEBUG') as log_collector:
@@ -279,3 +275,29 @@ class TestSearch(unittest.TestCase):
             config = {"cmr-token": "fake-token", "authorization": "fake-token"}
             coll.search({'provider':'GHRC_CLOUD'}, config=config, limit=1)
             self.assertEqual(expected, log_collector.output)
+
+    @patch('cmr.search.common.open_api')
+    @patch('cmr.search.common.set_logging_to')
+    def test_ignore_tests(self, log_mock, api_mock):
+        """
+        These are tests for functions which don't do much outside of the notebook
+        environment. These functions are also simple wrappers for functions in
+        the lower common level and should be tested there.
+        """
+        log_mock.return_value = "fake"
+        api_mock.return_value = "fake"
+
+        # test at least that the advertised function signature is upheld.
+        # pylint: disable=E1120 # really want to check for too many parameters
+        # pylint: disable=E1121 # really want to check for a required parameter
+        with self.assertRaises(Exception):
+            coll.open_api('#some-page-tag', "not supported")
+            coll.set_logging_to()
+
+        # most general test that could be made
+        # pylint: disable=W0703 # exception is the best way to look for the unexpected
+        try:
+            coll.open_api()
+            coll.set_logging_to(0)
+        except Exception:
+            self.fail("un expected error")

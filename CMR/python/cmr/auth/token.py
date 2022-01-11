@@ -347,7 +347,7 @@ def fetch_token(edl_user, token_lambdas = None, config:dict = None):
         return None
     if 'error' in token_results:
         return token_results
-    if token_results['hits']<1:
+    if int(token_results['hits'])<1:
         # no token exists, so create one and package it up in a way to match read_tokens
         created_token = create_token(edl_user, token_lambdas=token_lambdas.copy(), config=config)
         packaged_token = {'access_token' : created_token['access_token'],
@@ -355,11 +355,12 @@ def fetch_token(edl_user, token_lambdas = None, config:dict = None):
         token_results = {'hits': 1, 'items': [packaged_token]}
     token_list = token_results['items']
     #look for a valid token from the list
+    access_token = None
     for token_item in token_list:
         experation_date = datetime.strptime(token_item['expiration_date'], '%m/%d/%Y')
         if datetime.now() < experation_date:
             access_token = token_item['access_token']
-            break
+            return access_token
         #token has expired, delete it and try again
         delete_token(token_item['access_token'], edl_user, token_lambdas, config)
         access_token = fetch_token(edl_user, token_lambdas, config)
@@ -398,13 +399,13 @@ def fetch_bearer_token(edl_user, token_lambdas = None, config:dict = None):
         config = {}
     augmented_config = config.copy()
     token_value = fetch_token(edl_user, token_lambdas=token_lambdas, config=config)
+    if token_value is None:
+        return {"error":"No lambda could providede a token"}
     if 'error' in token_value:
         return token_value
-    if token_value is not None and len(token_value)>0:
-        bearer_token = _format_as_bearer_token(token_value)
-        augmented_config["authorization"] = bearer_token
-        return augmented_config
-    return None
+    bearer_token = _format_as_bearer_token(token_value)
+    augmented_config["authorization"] = bearer_token
+    return augmented_config
 
 def use_bearer_token(token_lambdas = None, config:dict = None):
     """

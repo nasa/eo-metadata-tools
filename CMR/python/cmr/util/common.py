@@ -22,6 +22,7 @@ since 0.0
 
 import os
 import subprocess
+from datetime import datetime
 
 def conj(coll, to_add):
     """
@@ -168,3 +169,9 @@ def mask_dictionary(data, keys):
             mask = int(len(unsafe_value)/3)
             safe_data[key] = unsafe_value[:mask] + ("*"*mask) + unsafe_value[-1*mask:]
     return safe_data
+
+def now():
+    """
+    return the current time in a function that can be patched away for testing
+    """
+    return datetime.now()

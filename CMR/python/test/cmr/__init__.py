@@ -22,6 +22,7 @@ since: 0.0.0
 """
 
 import os
+import json
 
 class MockResponse():
     """
@@ -54,7 +55,41 @@ class MockStream():
         """ return the internal result ; silence PEP8 R0903 """
         return self.result
 
+# note, this read_file() is from cmr.util.common, but it should not be imorted
+# because tests have not proven the file yet
+
+def read_file(path):
+    """
+    Read and return the contents of a file
+    Parameters:
+        path (string): full path to file to read
+    Returns:
+        None if file was not found, contents otherwise
+    """
+    text = None
+    if os.path.isfile(path):
+        with open(path, "r") as file:
+            text = file.read().strip()
+            file.close()
+    return text
+
 def delete_file(path):
     """ A basic delete file function for use by tests that need to clean up """
     if os.path.isfile(path):
         os.remove(path)
+
+def resolve_full_path(relative_file_path):
+    """ find a relative file and return it's json object based on the content """
+    full_file_path = os.path.join (os.path.dirname(__file__), relative_file_path)
+    return full_file_path
+
+def load_relative_file(relative_file_path):
+    """ find a relative file and return it's json object based on the content """
+    full_file_path = resolve_full_path(relative_file_path)
+    content = read_file(full_file_path)
+    return content
+
+def load_relative_json_file(relative_file_path : str):
+    """ find a relative file and return it's json object based on the content """
+    content = json.loads(load_relative_file(relative_file_path))
+    return content

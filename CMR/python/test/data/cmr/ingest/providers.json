@@ -1,0 +1,554 @@
+[ {
+  "provider-id" : "GES_DISC",
+  "short-name" : "GES_DISC",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ISRO",
+  "short-name" : "ISRO",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "EUMETSAT",
+  "short-name" : "EUMETSAT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "JAXA",
+  "short-name" : "JAXA",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NOAA_NCEI",
+  "short-name" : "NOAA_NCEI",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "SCIOPSTEST",
+  "short-name" : "SCIOPSTEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "MMT_1",
+  "short-name" : "MMT_1",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NSIDCTSTST",
+  "short-name" : "NSIDCTSTST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "OPS_CMR_PT",
+  "short-name" : "OPS_CMR_PT",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "AETD8",
+  "short-name" : "AETD8",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "ASF",
+  "short-name" : "ASF",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "CDDIS",
+  "short-name" : "CDDIS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ECHO10_PT",
+  "short-name" : "ECHO10_PT",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "USGS_EROS",
+  "short-name" : "USGS_EROS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ECHO_REST",
+  "short-name" : "ECHO_REST",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "NOAA_NOS",
+  "short-name" : "NOAA_NOS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "EDF_TS3",
+  "short-name" : "EDF_TS3",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "GCMDTEST",
+  "short-name" : "GCMDTEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "GHRC",
+  "short-name" : "GHRC",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "FTP_DIRECT",
+  "short-name" : "FTP_DIRECT",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "LARC_TS1",
+  "short-name" : "LARC_TS1",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "LPDAAC_TS1",
+  "short-name" : "LPDAAC_TS1",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "ECHOIPV6",
+  "short-name" : "ECHOIPV6",
+  "cmr-only" : false,
+  "small" : true
+}, {
+  "provider-id" : "GCMD_DATA",
+  "short-name" : "GCMD_DATA",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "EDF_DEV04",
+  "short-name" : "EDF_DEV04",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "SCIOPS",
+  "short-name" : "SCIOPS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NEMO_PT",
+  "short-name" : "NEMO_PT",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "CU_NGAP",
+  "short-name" : "CU_NGAP",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LPDAAC_TS2",
+  "short-name" : "LPDAAC_TS2",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "ORNL_DAAC",
+  "short-name" : "ORNL_DAAC",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "PVC_TS2",
+  "short-name" : "PVC_TS2",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "AU_AADC",
+  "short-name" : "AU_AADC",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ESA",
+  "short-name" : "ESA",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "MMT_2",
+  "short-name" : "MMT_2",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NSIDCECTST",
+  "short-name" : "NSIDCECTST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LAADS",
+  "short-name" : "LAADS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LANCEMODIS",
+  "short-name" : "LANCEMODIS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LARC_ASDC",
+  "short-name" : "LARC_ASDC",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "NCR4580",
+  "short-name" : "NCR4580",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "NSIDCV0TST",
+  "short-name" : "NSIDCV0TST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NSIDC_TS1",
+  "short-name" : "NSIDC_TS1",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "OBPG",
+  "short-name" : "OBPG",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "OMINRT",
+  "short-name" : "OMINRT",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "PODAAC",
+  "short-name" : "PODAAC",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ECHO367",
+  "short-name" : "ECHO367",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "NOAA_TEST",
+  "short-name" : "NOAA_TEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "EDF_OPS",
+  "short-name" : "EDF_OPS",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "CUMULUS",
+  "short-name" : "CUMULUS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NCCS",
+  "short-name" : "NCCS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "SEDAC",
+  "short-name" : "SEDAC",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LANCEAMSR2",
+  "short-name" : "LANCEAMSR2",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "CMRONLYTST",
+  "short-name" : "CMRONLYTST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "OB_DAAC",
+  "short-name" : "OB_DAAC",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LM_FIRMS",
+  "short-name" : "LM_FIRMS",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "YARP",
+  "short-name" : "YARP",
+  "cmr-only" : false,
+  "small" : true
+}, {
+  "provider-id" : "MOPITT",
+  "short-name" : "MOPITT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "TEST_CUL",
+  "short-name" : "TEST_CUL",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "GHRC_CUL",
+  "short-name" : "GHRC_CUL",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "ASDC_DEV",
+  "short-name" : "ASDC_DEV",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "ASIPS",
+  "short-name" : "ASIPS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ESDIS",
+  "short-name" : "ESDIS",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "PO_NGP_UAT",
+  "short-name" : "PO_NGP_UAT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "SETIM",
+  "short-name" : "SETIM",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NASA_MAAP",
+  "short-name" : "NASA_MAAP",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "E2E_18_4",
+  "short-name" : "E2E_18_4",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "DEV07",
+  "short-name" : "DEV07",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "GHRC_CDEV",
+  "short-name" : "GHRC_CDEV",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LPCLOUDSIT",
+  "short-name" : "LPCLOUDSIT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LPCLOUDUAT",
+  "short-name" : "LPCLOUDUAT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ASFDEV",
+  "short-name" : "ASFDEV",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NSIDC_CSIT",
+  "short-name" : "NSIDC_CSIT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "GESDISCCLD",
+  "short-name" : "GESDISCCLD",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LAADSCLOUD",
+  "short-name" : "LAADSCLOUD",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LAADSCDSIT",
+  "short-name" : "LAADSCDSIT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "GIBS",
+  "short-name" : "GIBS",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "POCUMULUS",
+  "short-name" : "POCUMULUS",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "NSIDC_CUL2",
+  "short-name" : "NSIDC_CUL2",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "DEMO_89",
+  "short-name" : "Test Provider",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "POCLOUD",
+  "short-name" : "POCLOUD",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "GDISCTEST2",
+  "short-name" : "GDISCTEST2",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "CMR_TEST",
+  "short-name" : "CMR_TEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ORNL_CLOUD",
+  "short-name" : "ORNL_CLOUD",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "FEDEO",
+  "short-name" : "FEDEO",
+  "cmr-only" : false,
+  "small" : false,
+  "consortiums" : "CEOS FEDEO"
+}, {
+  "provider-id" : "CMR_TEST_2",
+  "short-name" : "CMR_TEST_2",
+  "cmr-only" : false,
+  "small" : false,
+  "consortiums" : "FEDEO CWIC FOOBAR"
+}, {
+  "provider-id" : "VAL_TEST",
+  "short-name" : "VAL_TEST",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "FUSION",
+  "short-name" : "FUSION",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "NSIDC_CSBX",
+  "short-name" : "NSIDC_CSBX",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ESA_MAAP",
+  "short-name" : "ESA_MAAP",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "GHRC_CLOUD",
+  "short-name" : "GHRC_CLOUD",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "EEDTEST",
+  "short-name" : "EEDTEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "EDF_DEV07",
+  "short-name" : "EDF_DEV07",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LPCLOUDSB",
+  "short-name" : "LPCLOUDSB",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "HYRAX_PROV",
+  "short-name" : "HYRAX_PROV",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "NSIDC_CUAT",
+  "short-name" : "NSIDC_CUAT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "JWT_PROV",
+  "short-name" : "JWT_PROV",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "DEMO_TEST",
+  "short-name" : "DEMO_TEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "LAADSCDUAT",
+  "short-name" : "LAADSCDUAT",
+  "cmr-only" : false,
+  "small" : false
+}, {
+  "provider-id" : "CSDA",
+  "short-name" : "CSDA",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "CEOS_EXTRA",
+  "short-name" : "CEOS_EXTRA",
+  "cmr-only" : false,
+  "small" : false,
+  "consortiums" : "CEOS GEOSS"
+}, {
+  "provider-id" : "DUG_PROV",
+  "short-name" : "DUG_PROV",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "PODAAC_CUL",
+  "short-name" : "PODAAC_CUL",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "NSIDC_CUL",
+  "short-name" : "NSIDC_CUL",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "ASDC_DEV1",
+  "short-name" : "ASDC_DEV1",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "ASDC_DEV2",
+  "short-name" : "ASDC_DEV2",
+  "cmr-only" : true,
+  "small" : true
+}, {
+  "provider-id" : "NSIDC_CDEV",
+  "short-name" : "NSIDC_CDEV",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "E2E_18_3",
+  "short-name" : "E2E_18_3",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "SWOT",
+  "short-name" : "SWOT",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "GDISC_TEST",
+  "short-name" : "GDISC_TEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "ARCTEST",
+  "short-name" : "ARCTEST",
+  "cmr-only" : true,
+  "small" : false
+}, {
+  "provider-id" : "JWT_PROV1",
+  "short-name" : "JWT_PROV1",
+  "cmr-only" : true,
+  "small" : false
+} ]

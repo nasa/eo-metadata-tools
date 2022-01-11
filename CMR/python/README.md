@@ -109,9 +109,11 @@ find, uninstall, find, package, install, find
 | Flag | Option   | Name      | Description |
 | ---- | -------- | --------- | -------------------------------------------- |
 | -c   |          | clean     | Clean up all generated files and directories
+| -C   |          | coverage  | Run the code coverage report
 | -d   |          | document  | Generate documentation files
 | -f   |          | find      | Find the package in pip3
 | -h   |          | help      | Print out this help message and then exits
+| -H   |          | html      | Generate the HTML coverage report
 | -i   |          | install   | Install latest wheel file
 | -u   |          | uninstall | Uninstall the wheel file
 | -l   |          | lint      | Print out this help message
