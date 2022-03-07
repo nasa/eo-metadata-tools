@@ -17,16 +17,16 @@ def get_block_of_records(search, env=None):
     # build a url
     if env is None:
         env = 'sit' # assume SIT because that is where the data is
-    elif env in ['', 'ops', 'prod', 'production']: # production has many names
+    elif env not in ['sit', 'uat']: # production has many names
         env = '' # assume empty string which will result in '..' later
     if env == 'localhost':
         base = 'http://localhost:3003'
     else:
-        base = "https://cmr.{}.earthdata.nasa.gov/search".format(env)
+        base = f'https://cmr.{env}.earthdata.nasa.gov/search'
         base = base.replace("r..e", "r.e")
 
-    url = "{}/variables?{}".format(base, net.expand_query_to_parameters(search))
-    print("Using {} for network example.".format(url))
+    url = f'{base}/variables?{net.expand_query_to_parameters(search)}'
+    print(f'Using {url} for network example.')
 
     # setup headers and inputs
     accept = "application/vnd.nasa.cmr.umm_results+json"
@@ -46,10 +46,10 @@ def process_records(title, records):
         cid = meta["concept-id"]
         var_name = umm["Name"]
         processed_records[cid] = var_name
-    print ("\n## {} ##".format(title))
-    print ("* Returned item count: {}".format(len(records)))
-    print ("* Uniq keys: {}".format(len(processed_records.keys())))
-    print ("* {}".format(processed_records))
+    print (f'\n## {title} ##')
+    print (f'* Returned item count: {len(records)}')
+    print (f'* Uniq keys: {len(processed_records.keys())}')
+    print (f'* {processed_records}')
 
 def use_low_level_network(query, env):
     """ Make a call for variables using the lower level network code """

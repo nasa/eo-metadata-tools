@@ -15,15 +15,15 @@ from enum import Enum
 class Code(Enum):
     """ Terminal codes """
     RED = "\033[0;31m"
-    GREEN ='\033[0;32m'
-    YELLOW ='\033[0;33m'
-    BLUE ='\033[0;34m'
+    GREEN ="\033[0;32m"
+    YELLOW ="\033[0;33m"
+    BLUE ="\033[0;34m"
 
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    HEADER = '\033[95m'
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    HEADER = "\033[95m"
 
     NONE = "\033[0m"
 
@@ -45,12 +45,12 @@ def yellow(msg):
 
 def style_text(msg, color):
     "returned text with terminal codes"
-    return color + msg + Code.NONE
+    return str(color.value) + msg + str(Code.NONE.value)
 
-print ("Primary Colors: %s %s %s." % (red("Red"), green("Green"), blue("Blue")))
-print ("Traffic Lights: %s %s %s." % (red("stop"), yellow("faster"), green("go")))
-print ("Test: %s, %s, %s, %s, %s." % (style_text("bold", Code.BOLD),
-    style_text("underline", Code.UNDERLINE),
-    style_text("warning", Code.WARNING),
-    style_text("fail", Code.FAIL),
-    style_text("header", Code.HEADER)))
+print (f'Primary Colors: {red("Red")} {green("Green")}  {blue("Blue")}')
+print (f'Traffic Lights: {red("stop")} {yellow("faster")} {green("go")}')
+print (f'Test: {style_text("bold", Code.BOLD)}, '
+    f'{style_text("underline", Code.UNDERLINE)}, '
+    f'{style_text("warning", Code.WARNING)}, '
+    f'{style_text("fail", Code.FAIL)}, '
+    f'{style_text("header", Code.HEADER)}')

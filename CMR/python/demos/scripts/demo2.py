@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 def text_color(msg='{}', color='\033[0;37m'):
     """Defaults to White"""
     no_color = '\033[0m'
-    return '{}{}{}'.format(color, msg, no_color)
+    return f'{color}{msg}{no_color}'
 def style_error(msg='{}'):
     """Set text to red"""
     red_code = '\033[0;31m'

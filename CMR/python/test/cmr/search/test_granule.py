@@ -29,7 +29,7 @@ from functools import partial
 
 import test.cmr as tutil
 
-import cmr.util.common as common
+from cmr.util import common
 import cmr.search.granule as gran
 
 # ******************************************************************************

@@ -47,7 +47,7 @@ def main():
     Test the function and verify that it is returning unique records
     """
     records = get_block_of_records({"keyword": "food"})
-    print ("returned items: {}".format(len(records)))
+    print (f'returned items: {len(records)}')
 
     processed_records = {}
     for item in records:
@@ -57,7 +57,7 @@ def main():
         short_name = umm["ShortName"]
         processed_records[cid] = short_name
 
-    print ("uniq keys: {}".format(len(processed_records.keys())))
+    print (f'uniq keys: {len(processed_records.keys())}')
 
 if __name__ == '__main__':
     main()
