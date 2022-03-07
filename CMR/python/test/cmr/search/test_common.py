@@ -30,7 +30,7 @@ import urllib.error as urlerr
 
 import test.cmr as tutil
 
-import cmr.util.common as common
+from cmr.util import common
 import cmr.search.common as scom
 
 # ******************************************************************************
@@ -179,6 +179,35 @@ class TestSearch(unittest.TestCase):
         token_result = scom._standard_headers_from_config(config)
         self.assertEqual(token_expected, token_result)
 
+    def test_cmr_basic_url(self):
+        """ Test the inner function that supports test_cmr_query_url() """
+        # expected, base, query_params, config, message
+        test = lambda e,b,q,c,m : self.assertEqual(e, scom._cmr_basic_url(b, q, c), m)
+        test1 = lambda e,c,m : test(f'https://{e}/search/','',{},{'env':c},m)
+
+        test('https://cmr.earthdata.nasa.gov/search/', None, None, None, 'Nothing provided')
+        test('https://cmr.earthdata.nasa.gov/search/', '', {}, {}, 'all empty')
+        test('https://cmr.earthdata.nasa.gov/search/param', 'param', {}, {}, 'only path param')
+        test('https://cmr.earthdata.nasa.gov/search/?pretty=true',
+            '', {'pretty':'true'}, {}, 'only query param')
+        test('https://cmr.earthdata.nasa.gov/search/param?pretty=true',
+            'param', {'pretty':'true'}, {}, 'all empty')
+        test('https://cmr.earthdata.nasa.gov/search/', '', {}, {'pretty':'true'},
+            'param used as env')
+
+        test1('cmr.earthdata.nasa.gov', None, 'requesting None')
+        test1('cmr.earthdata.nasa.gov', '', 'requesting with no value')
+        test1('cmr.earthdata.nasa.gov', ' ', 'just with spaces')
+        test1('cmr.earthdata.nasa.gov', 'ops', 'requesting ops')
+        test1('cmr.earthdata.nasa.gov', 'prod', 'request prod')
+        test1('cmr.earthdata.nasa.gov', 'production', 'request production')
+        test1('cmr.earthdata.nasa.gov', 'fictional', 'request production')
+        test1('cmr.uat.earthdata.nasa.gov', 'uat', 'uat')
+        test1('cmr.uat.earthdata.nasa.gov', 'uAt', 'uat case')
+        test1('cmr.uat.earthdata.nasa.gov', ' uat ', 'uat with spaces')
+        test1('cmr.sit.earthdata.nasa.gov', 'sit', 'sit')
+        test1('cmr.sit.earthdata.nasa.gov', 'sIt', 'sit case')
+
     # pylint: disable=W0212
     def test_cmr_query_url(self):
         """ Test that a CMR url can be built correctly"""
@@ -201,12 +230,6 @@ class TestSearch(unittest.TestCase):
         #now test for scrolling
         result = scom._cmr_query_url("search", {'provider':'p01'}, page_state,
             config={'env':'sit'})
-        expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
-            'page_size=683&provider=p01&scroll=true'
-        self.assertEqual(expected, result)
-
-        result = scom._cmr_query_url("search", {'provider':'p01'}, page_state,
-            config={'env':'sit.'})
         expected = 'https://cmr.sit.earthdata.nasa.gov/search/search?' \
             'page_size=683&provider=p01&scroll=true'
         self.assertEqual(expected, result)
