@@ -143,10 +143,10 @@ def _env_to_extention(config: dict = None):
     env = config.get('env', '')
     if env is None:
         env = ''
-    env = env.lower().strip()
+    env = env.strip().lower()
     if len(env)>0 and env.endswith("."):
         env = env[:-1]
-    if env in ['', 'ops', 'prod', 'production']:
+    if env not in ['sit', 'uat']:
         env = "" # no extension
     else:
         env = "." + env
@@ -295,7 +295,7 @@ def create_token(edl_user, token_lambdas = None, config:dict = None):
     url = _env_to_edl_url("token", config)
 
     token_lambdas = _lamdba_list_always(token_lambdas, [token_manager, token_config])
-    if len(token_lambdas)<1:
+    if len(token_lambdas) < 1:
         return None
 
     tokens = {}

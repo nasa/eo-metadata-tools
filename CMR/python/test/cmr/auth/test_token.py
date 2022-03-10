@@ -159,7 +159,6 @@ class TestToken(unittest.TestCase):
         test(".uat", {"env":"uat"}, "UAT specified")
         test(".sit", {"env":"sit"}, "SIT specified")
         test(".sit", {"env":"sit."}, "SIT with a dot specified")
-        test(".future", {"env":"future"}, "Future envirnment")
 
     def test__env_to_edl_url(self):
         """
