@@ -16,16 +16,9 @@ def get_block_of_records(search, env=None):
 
     # build a url
     if env is None:
-        env = 'sit' # assume SIT because that is where the data is
-    elif env not in ['sit', 'uat']: # production has many names
-        env = '' # assume empty string which will result in '..' later
-    if env == 'localhost':
-        base = 'http://localhost:3003'
-    else:
-        base = f'https://cmr.{env}.earthdata.nasa.gov/search'
-        base = base.replace("r..e", "r.e")
+        env = 'sit' # assume SIT and not OPS because that is where the data is
+    url = scom.cmr_basic_url(base='variables', query=search, config={'env':env})
 
-    url = f'{base}/variables?{net.expand_query_to_parameters(search)}'
     print(f'Using {url} for network example.')
 
     # setup headers and inputs
