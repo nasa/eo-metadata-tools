@@ -38,7 +38,7 @@ import subprocess
 import base64 as b64
 from datetime import datetime
 
-import cmr.util.common as common
+from cmr.util import common
 import cmr.util.network as net
 
 # ##############################################################################
@@ -162,16 +162,17 @@ def _env_to_edl_url(endpoint, config: dict = None):
         config: responds to 'env'
     Return: URL
     """
+    endpoint = common.always(endpoint, str)
     config = common.always(config)
 
     env = config.get('env', '')
     if env is None:
         env = ''
-    env = env.lower().strip()
-    if env in ['', 'ops', 'prod', 'production']:
+    env = env.strip().lower()
+    if env not in ['sit', 'uat']:
         env = "" # no extension
 
-    url = 'https://{}.urs.earthdata.nasa.gov/api/users/{}'.format(env, endpoint)
+    url = f'https://{env}.urs.earthdata.nasa.gov/api/users/{endpoint}'
     url = url.replace("://.urs", "://urs")
 
     return url
@@ -233,7 +234,8 @@ def _format_as_bearer_token(raw_token):
     Return:
         Bearer Token ready for use with an HTTP header
     """
-    return "Bearer {}".format(raw_token)
+    return f"Bearer {raw_token}"
+
 # ##############################################################################
 #mark - public functions
 
@@ -267,9 +269,9 @@ def read_tokens(edl_user, token_lambdas = None, config:dict = None):
         # handler did not create a valid password, try the next handler
         tokens = read_tokens(edl_user, token_lambdas, config)
     else:
-        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        plain_text = f'{edl_user}:{pass_phrase}'
         cipher_text = _base64_text(plain_text)
-        encoded_credentials = "Basic {}".format(cipher_text)
+        encoded_credentials = f'Basic {cipher_text}'
         headers = {"Authorization" : encoded_credentials}
         tokens = net.get(url, None, headers=headers)
     return tokens
@@ -303,9 +305,9 @@ def create_token(edl_user, token_lambdas = None, config:dict = None):
     if pass_phrase is None or len(pass_phrase) < 1:
         tokens = create_token(edl_user, token_lambdas, config)
     else:
-        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        plain_text = f'{edl_user}:{pass_phrase}'
         cipher_text = _base64_text(plain_text)
-        encoded_credentials = "Basic {}".format(cipher_text)
+        encoded_credentials = f'Basic {cipher_text}'
         headers = {"Authorization" : encoded_credentials}
         tokens = net.post(url, None, headers=headers)
     return tokens
@@ -327,9 +329,9 @@ def delete_token(access_token, edl_user, token_lambdas = None, config:dict = Non
             config=config)
     else:
         # Construct and issue request
-        plain_text = "{}:{}".format(edl_user, pass_phrase)
+        plain_text = f'{edl_user}:{pass_phrase}'
         cipher_text = _base64_text(plain_text)
-        encoded_credentials = "Basic {}".format(cipher_text)
+        encoded_credentials = f'Basic {cipher_text}'
         headers = {"Authorization" : encoded_credentials}
         response = net.post(url, "token=" + access_token, headers=headers)
         tokens = response

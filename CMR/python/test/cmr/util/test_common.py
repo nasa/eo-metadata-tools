@@ -59,6 +59,9 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(['a', 'b'], com.always(['a','b'], otype=list), 'populated list')
         self.assertEqual((1,2,3), com.always((1,2,3), otype=tuple), 'populated tuple')
         self.assertEqual((1,2,3), com.always((1,2,3), tuple), 'populated tuple, positional')
+        self.assertEqual('', com.always(None, str), 'not populated string, positional')
+        self.assertEqual('', com.always('', str), 'empty string, positional')
+        self.assertEqual('text', com.always('text', str), 'populated string, positional')
 
         # None use cases
         self.assertEqual({}, com.always(None), 'assumed, none, dict')

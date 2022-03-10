@@ -39,7 +39,7 @@ import logging
 import math
 import webbrowser as web
 
-import cmr.util.common as common
+from cmr.util import common
 import cmr.util.network as net
 
 # ******************************************************************************
@@ -138,6 +138,7 @@ def _cmr_query_url(base: str, query: dict, page_state: dict, config: dict = None
         config: configurations, responds to:
             * env - sit, uat, ops, prod, production, or blank for production
     """
+    #here
     if query is None:
         query = {}
     if int(page_state['limit'])>2000:
@@ -157,18 +158,20 @@ def _cmr_basic_url(base: str, query: dict, config: dict = None):
         config: configurations, responds to:
             * env - sit, uat, ops, prod, production, or blank for production
     """
-    expanded = ""
-    if query is not None and len(query)>0:
-        expanded = "?" + net.expand_query_to_parameters(query)
+    base = common.always(base, str)
 
-    config = common.always(config)
-    env = config.get('env', '').lower().strip()
-    if len(env)>0 and not env.endswith("."):
-        env += "."
-    if env in ['', 'ops', 'prod', 'production']:
-        env = ""
+    query = common.always(query)
+    query = '' if len(query)<1 else f'?{net.expand_query_to_parameters(query)}'
 
-    url = ('https://cmr.{}earthdata.nasa.gov/search/{}{}').format(env, base, expanded)
+    env = common.always(config).get('env', '')
+    if env is None:
+        env = ''
+    env = env.strip().lower()
+    if env not in ['sit', 'uat']:
+        env = ''
+
+    url = f'https://cmr.{env}.earthdata.nasa.gov/search/{base}{query}'
+    url = url.replace("r..e", "r.e")
     return url
 
 # document-it: {"key":"accept", "default":"application/vnd.nasa.cmr.umm_results+json"}

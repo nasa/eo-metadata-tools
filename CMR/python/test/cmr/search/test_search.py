@@ -27,7 +27,7 @@ import unittest
 
 import test.cmr as tutil
 
-import cmr.util.common as common
+from cmr.util import common
 import cmr.search.collection as coll
 
 # ******************************************************************************

@@ -31,8 +31,8 @@ from datetime import datetime
 
 import test.cmr as util
 
-import cmr.auth.token as token
-import cmr.util.common as common
+from cmr.auth import token
+from cmr.util import common
 
 # ******************************************************************************
 

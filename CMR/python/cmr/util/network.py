@@ -26,7 +26,7 @@ import logging
 import urllib.parse
 import urllib.request
 
-import cmr.util.common as common
+from cmr.util import common
 
 logging.basicConfig(level = logging.ERROR)
 logger = logging.getLogger('cmr.util.network')

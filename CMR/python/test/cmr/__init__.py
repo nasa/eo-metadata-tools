@@ -68,7 +68,7 @@ def read_file(path):
     """
     text = None
     if os.path.isfile(path):
-        with open(path, "r") as file:
+        with open(path, 'r', encoding='utf-8') as file:
             text = file.read().strip()
             file.close()
     return text

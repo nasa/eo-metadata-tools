@@ -80,6 +80,8 @@ def always(obj: dict, otype = dict):
         obj = obj if isinstance(obj, list) else []
     elif otype == tuple:
         obj = obj if isinstance(obj, tuple) else ()
+    elif otype == str:
+        obj = obj if isinstance(obj, str) else ''
     return obj
 
 def drop_key_safely(dictionary, key):
@@ -99,7 +101,7 @@ def read_file(path):
     """
     text = None
     if os.path.isfile(path):
-        with open(path, "r") as file:
+        with open(path, 'r', encoding='utf-8') as file:
             text = file.read().strip()
             file.close()
     return text
@@ -112,7 +114,7 @@ def write_file(path, text):
         text (string): content for file
     """
     path = os.path.expanduser(path)
-    with open(path, "w+") as cache:
+    with open(path, 'w+', encoding='utf-8') as cache:
         cache.write(text)
         cache.close()
 
