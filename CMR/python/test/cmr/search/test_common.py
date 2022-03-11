@@ -224,6 +224,12 @@ class TestSearch(unittest.TestCase):
             {'pretty':'true'},
             None,
             'param used as env')
+        test('cmr.earthdata.nasa.gov/search/collections/tar..estuary/?keyword=tar..estuary',
+            'collections/tar..estuary/',
+            {'keyword':'tar..estuary'},
+            {'env': 'ops'},
+            None,
+            'only remove the first double dot, science data shoud be allowed to use dot dot')
         test_h('localhost:3003/keywords/platforms?pretty=true',
             'keywords/platforms',
             {'pretty':'true'},
@@ -256,6 +262,7 @@ class TestSearch(unittest.TestCase):
         test2('cmr.uat.earthdata.nasa.gov', ' uat ', 'uat with spaces')
         test2('cmr.sit.earthdata.nasa.gov', 'sit', 'sit')
         test2('cmr.sit.earthdata.nasa.gov', 'sIt', 'sit case')
+
 
     # pylint: disable=W0212
     def test_cmr_query_url(self):

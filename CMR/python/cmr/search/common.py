@@ -178,7 +178,7 @@ def cmr_basic_url(base: str, query: dict = None, config: dict = None, endpoint: 
         url = f'http://localhost:{cmr_ports[endpoint]}/{base}{query}'
     else:
         url = f'https://cmr.{env}.earthdata.nasa.gov/{endpoint}/{base}{query}'
-        url = url.replace("r..e", "r.e")
+        url = url.replace("r..e", "r.e", 1)
 
     return url
 
