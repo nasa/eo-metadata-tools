@@ -128,7 +128,7 @@ def _standard_headers_from_config(config: dict):
     headers = net.config_to_header(config, 'User-Agent', headers, default='python_cmr_lib')
     return headers
 
-# document-it: {"from":"._cmr_basic_url"}
+# document-it: {"from":".cmr_basic_url"}
 def _cmr_query_url(base: str, query: dict, page_state: dict, config: dict = None):
     """
     build a collection or granule search URL to CMR
@@ -138,40 +138,48 @@ def _cmr_query_url(base: str, query: dict, page_state: dict, config: dict = None
         config: configurations, responds to:
             * env - sit, uat, ops, prod, production, or blank for production
     """
-    #here
     if query is None:
         query = {}
     if int(page_state['limit'])>2000:
         query = common.conj(query, {'scroll': 'true'})
     query = common.conj(query, {'page_size': page_state['page_size']})
-    return _cmr_basic_url(base, query, config)
+    return cmr_basic_url(base, query, config)
 
 # document-it: {"key":"env", "default":"", "msg":"uat, ops, prod, production, or blank for ops"}
-def _cmr_basic_url(base: str, query: dict, config: dict = None):
+def cmr_basic_url(base: str, query: dict = None, config: dict = None, endpoint: str = None):
     """
     Create a url for calling any CMR search end point, should not make any
     assumption, beyond the search directory. Will auto set the environment based
     on how config is set
     Parameters:
-        base: CMR endpoint
+        base: API base action within the endpoint
         query: dictionary url parameters
         config: configurations, responds to:
             * env - sit, uat, ops, prod, production, or blank for production
+        endpoint: CMR endpoint/application, like search or ingest
     """
     base = common.always(base, str)
 
     query = common.always(query)
-    query = '' if len(query)<1 else f'?{net.expand_query_to_parameters(query)}'
+    query = '' if len(query) < 1 else f'?{net.expand_query_to_parameters(query)}'
 
     env = common.always(config).get('env', '')
     if env is None:
         env = ''
     env = env.strip().lower()
-    if env not in ['sit', 'uat']:
+    if env not in ['sit', 'uat', 'localhost']:
         env = ''
 
-    url = f'https://cmr.{env}.earthdata.nasa.gov/search/{base}{query}'
-    url = url.replace("r..e", "r.e")
+    if endpoint is None:
+        endpoint = 'search'
+
+    if env == 'localhost':
+        cmr_ports = {'kms':2999, 'ingest': 3002, 'search':3003}
+        url = f'http://localhost:{cmr_ports[endpoint]}/{base}{query}'
+    else:
+        url = f'https://cmr.{env}.earthdata.nasa.gov/{endpoint}/{base}{query}'
+        url = url.replace("r..e", "r.e", 1)
+
     return url
 
 # document-it: {"key":"accept", "default":"application/vnd.nasa.cmr.umm_results+json"}
@@ -265,7 +273,7 @@ def create_page_state(page_size = 10, page_num = 1, took = 0, limit = 10):
 
 
 # document-it: {"from": "._standard_headers_from_config"}
-# document-it: {"from":"._cmr_basic_url"}
+# document-it: {"from":".cmr_basic_url"}
 def clear_scroll(scroll_id, config: dict = None):
     """
     This action is called to clear a scroll ID from CMR allowing CMR to free up
@@ -290,7 +298,7 @@ def clear_scroll(scroll_id, config: dict = None):
     headers = _standard_headers_from_config(config)
     headers = common.conj(headers, {'Content-Type': 'application/json'})
 
-    url = _cmr_basic_url('clear-scroll', None, config)
+    url = cmr_basic_url('clear-scroll', None, config)
     data = '{"scroll_id": "' + str(scroll_id) + '"}'
     logger.info(" - %s: %s", 'POST', url)
     obj_json = net.post(url, data, headers=headers)

@@ -34,12 +34,12 @@ use configurations, then use the 'from' syntax to have those docit strings
 included.
 
     # document-it: {"key":"cmr-token", "default":"None"}
-    # document-it: {"from":"._cmr_basic_url"}
+    # document-it: {"from":".cmr_basic_url"}
     def some_function(config=None):
 
 In the first case, a function uses the setting 'cmr-token' which defaults to None
 In the second case, the function reports to use a function in the same file
-called '_cmr_basic_url()'. Provided a full module path if the function is not in
+called 'cmr_basic_url()'. Provided a full module path if the function is not in
 the same file.
 
 date 2020-12-21

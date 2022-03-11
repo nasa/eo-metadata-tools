@@ -181,32 +181,88 @@ class TestSearch(unittest.TestCase):
 
     def test_cmr_basic_url(self):
         """ Test the inner function that supports test_cmr_query_url() """
-        # expected, base, query_params, config, message
-        test = lambda e,b,q,c,m : self.assertEqual(e, scom._cmr_basic_url(b, q, c), m)
-        test1 = lambda e,c,m : test(f'https://{e}/search/','',{},{'env':c},m)
 
-        test('https://cmr.earthdata.nasa.gov/search/', None, None, None, 'Nothing provided')
-        test('https://cmr.earthdata.nasa.gov/search/', '', {}, {}, 'all empty')
-        test('https://cmr.earthdata.nasa.gov/search/param', 'param', {}, {}, 'only path param')
-        test('https://cmr.earthdata.nasa.gov/search/?pretty=true',
-            '', {'pretty':'true'}, {}, 'only query param')
-        test('https://cmr.earthdata.nasa.gov/search/param?pretty=true',
-            'param', {'pretty':'true'}, {}, 'all empty')
-        test('https://cmr.earthdata.nasa.gov/search/', '', {}, {'pretty':'true'},
+        # Lambda functions for testing in the most compact way posible. pylint
+        # will complain if lines are to long, lambda can only be on one line.
+        # Try to get the test lines to be as compact as are3 can be in CMR
+
+        # General Test of cmr_basic_url()
+        # Expected, Base, Query_params, Config, end_Point, Message
+        test_base = lambda e,b,q,c,p,m : self.assertEqual(e, scom.cmr_basic_url(b, q, c, p), m)
+
+        # Most common test assuming URL is HTTPS
+        # Expected, Base, Query_params, Config, Process, end Point, Message
+        test = lambda e,b,q,c,p,m : test_base(f'https://{e}', b, q, c, p, m)
+
+        # Alt test assuming URL is HTTP
+        # Expected, Base, Query_params, Config, Process, end Point, Message
+        test_h = lambda e,b,q,c,p,m : test_base(f'http://{e}', b, q, c, p, m)
+
+        # Short version of test() with many assumptions made
+        # Expected, Config-Env, Message
+        test2 = lambda e,c,m : test(f'{e}/search/','',{},{'env':c},None,m)
+
+        # Expected, Base, Query_params, Config, Process, end Point, Message
+        test('cmr.earthdata.nasa.gov/search/', None, None, None, None, 'Nothing provided')
+        test('cmr.earthdata.nasa.gov/search/', '', {}, {}, None, 'all empty')
+        test('cmr.earthdata.nasa.gov/search/param', 'param', {}, {}, None, 'only path param')
+        test('cmr.earthdata.nasa.gov/search/?pretty=true',
+            '',
+            {'pretty':'true'},
+            {},
+            None,
+            'only query param')
+        test('cmr.earthdata.nasa.gov/search/param?pretty=true',
+            'param',
+            {'pretty':'true'},
+            {},
+            None,
+            'all empty')
+        test('cmr.earthdata.nasa.gov/search/',
+            '',
+            {},
+            {'pretty':'true'},
+            None,
             'param used as env')
+        test('cmr.earthdata.nasa.gov/search/collections/tar..estuary/?keyword=tar..estuary',
+            'collections/tar..estuary/',
+            {'keyword':'tar..estuary'},
+            {'env': 'ops'},
+            None,
+            'only remove the first double dot, science data shoud be allowed to use dot dot')
+        test_h('localhost:3003/keywords/platforms?pretty=true',
+            'keywords/platforms',
+            {'pretty':'true'},
+            {'env':'localhost'},
+            None,
+            "localhost url to the KMS Keywords interface")
+        test_h('localhost:3003/keywords/platforms?pretty=true',
+            'keywords/platforms',
+            {'pretty':'true'},
+            {'env':'localhost'},
+            None,
+            "localhost url to the KMS Keywords interface")
+        test_h('localhost:3002/providers?pretty=true',
+            'providers',
+            {'pretty':'true'},
+            {'env':'localhost'},
+            'ingest',
+            "localhost url to the provider report from ingest interface")
 
-        test1('cmr.earthdata.nasa.gov', None, 'requesting None')
-        test1('cmr.earthdata.nasa.gov', '', 'requesting with no value')
-        test1('cmr.earthdata.nasa.gov', ' ', 'just with spaces')
-        test1('cmr.earthdata.nasa.gov', 'ops', 'requesting ops')
-        test1('cmr.earthdata.nasa.gov', 'prod', 'request prod')
-        test1('cmr.earthdata.nasa.gov', 'production', 'request production')
-        test1('cmr.earthdata.nasa.gov', 'fictional', 'request production')
-        test1('cmr.uat.earthdata.nasa.gov', 'uat', 'uat')
-        test1('cmr.uat.earthdata.nasa.gov', 'uAt', 'uat case')
-        test1('cmr.uat.earthdata.nasa.gov', ' uat ', 'uat with spaces')
-        test1('cmr.sit.earthdata.nasa.gov', 'sit', 'sit')
-        test1('cmr.sit.earthdata.nasa.gov', 'sIt', 'sit case')
+        # Expected, Config-Env, Message
+        test2('cmr.earthdata.nasa.gov', None, 'requesting None')
+        test2('cmr.earthdata.nasa.gov', '', 'requesting with no value')
+        test2('cmr.earthdata.nasa.gov', ' ', 'just with spaces')
+        test2('cmr.earthdata.nasa.gov', 'ops', 'requesting ops')
+        test2('cmr.earthdata.nasa.gov', 'prod', 'request prod')
+        test2('cmr.earthdata.nasa.gov', 'production', 'request production')
+        test2('cmr.earthdata.nasa.gov', 'fictional', 'request production')
+        test2('cmr.uat.earthdata.nasa.gov', 'uat', 'uat')
+        test2('cmr.uat.earthdata.nasa.gov', 'uAt', 'uat case')
+        test2('cmr.uat.earthdata.nasa.gov', ' uat ', 'uat with spaces')
+        test2('cmr.sit.earthdata.nasa.gov', 'sit', 'sit')
+        test2('cmr.sit.earthdata.nasa.gov', 'sIt', 'sit case')
+
 
     # pylint: disable=W0212
     def test_cmr_query_url(self):

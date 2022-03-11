@@ -65,6 +65,45 @@ To run the library without installing it, then try the following in the calling 
 
 For usage help on the runme.sh command, try: `runme.sh -h` for help.
 
+### Basic Searching
+
+Here are some basic examples of how to do some simple sesarches, more information can be found under the [demos](demos) directory.
+
+#### Collections
+
+    from cmr.search import collection
+    
+    # get records that mention fish
+    result = collection.search({'keyword':'fish'})
+    
+    # get no more then 100 records
+    result = collection.search({'keyword':'fish'}, limit=100)
+    
+    # search for a few fishy UAT records
+    result = collection.search({'keyword':'fish'}, limit=100, config={'env':'uat'})
+
+#### Granules
+	from cmr.search import granule
+	
+	# basic granule search bound by a provider
+	result = granule.search({'provider':'ORNL_DAAC'})
+	
+	# find collections about water and grab a sample of granules from those collections
+	result = gran.sample_by_collections({'keyword':'water'})
+	
+	# limit to 2 granules per collection and 5 collections in all
+	result = gran.sample_by_collections({'keyword':'water'}, limits=[2,5])
+
+#### Providers
+
+	from cmr.search import providers
+	
+	# list all providers
+	result = providers.search()
+	
+	# list some providers using RegExp
+	result = providers.search_by_id('.*ghrc.*')
+
 ### UAT vs Production
 
 For testing and general exploration it is advised that the User Acceptance Testing (UAT) environment of CMR be used instead of Production. These two end points have different URLs which are managed by the API. The default is production, however to use the UAT service pass in an optional configuration as shown here:
