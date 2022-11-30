@@ -2,3 +2,6 @@
 	path = pyQuARC
 	url = https://github.com/nasa-impact/pyQuARC.git
 	branch = master
+[submodule "earthdata"]
+	path = earthdata
+	url = https://github.com/betolink/earthdata
