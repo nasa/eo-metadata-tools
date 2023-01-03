@@ -5,6 +5,7 @@ import requests
 token = os.getenv('TOKEN')
 # graphql-address e.g. 'https://graphql.sit.earthdata.nasa.gov/api'
 endpoint = os.getenv('GRAPHQL_URL')
+# Bearer may be needed before the token if you are using a personal token
 headers = {"Authorization": f"{token}"}
 cursor = ""
 page_num = 0
