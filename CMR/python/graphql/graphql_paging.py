@@ -6,12 +6,12 @@ as an env variable otherwise only what is publicly available will be able to be 
 then print the list of these concepts to a local file
 """
 import os
-import requests
 import sys
 import logging
+import requests
 
 # Set logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.NOTSET)
 
 token = os.getenv('TOKEN')
 
@@ -20,9 +20,9 @@ endpoint = os.getenv('GRAPHQL_URL', 'https://graphql.earthdata.nasa.gov/api')
 # Bearer may be needed before the token in your env var
 # if you are using an EDL token instead of a launchpad or echo
 headers = {"Authorization": f"{token}"}
-cursor = ""
-page_num = 0
-query = """query ($params: CollectionsInput) {
+CURSOR = ""
+
+QUERY = """query ($params: CollectionsInput) {
   collections(params: $params) {
     cursor
     items {
@@ -31,28 +31,29 @@ query = """query ($params: CollectionsInput) {
   }
 }"""
 
-variables = """{
+VARIABLES = """{
   "params":{
     "limit":1,
     "cursor":"%s"
   }
-}"""% (cursor)
+}"""% (CURSOR)
 
-response = requests.post(url=endpoint, json={"query": query, "variables": variables}, headers=headers, timeout=5)
+response = requests.post(url=endpoint, json={"query": QUERY, "variables": VARIABLES}, headers=headers, timeout=5)
 first_result = response.json()
 
 # Retrieve the first cursor value
-if (response.status_code == 200):
-  cursor = first_result.get('data', {}).get('collections', {}).get('cursor')
+if response.status_code == 200:
+    cursor = first_result.get('data', {}).get('collections', {}).get('cursor')
 else:
-  print("There was a failure in retrieving the first cursor check logs for status code")
-  logging.debug('Response status code:  f{response.status_code}')
-  sys.exit()
+    print("There was a failure in retrieving the first cursor check logs for status code")
+    logging.debug(f'Response status code: {response.status_code}')
+    sys.exit()
 
 # Retrieve subsequent collections
 if response.status_code == 200:
     all_collections = []
-    while(cursor):
+    page_num = 0
+    while cursor:
         # update variable by passing in the cursor with the updated value
         variables = """{
         "params":{
@@ -60,17 +61,17 @@ if response.status_code == 200:
             "cursor":"%s"
         }
         }"""% (cursor)
-        print('current page', page_num)
-        logging.debug('Search_after cursor values f{cursor}')
+        print(f'current page: {page_num}')
+        print(f'Search_after cursor values {cursor}')
         response = requests.post(url=endpoint, json={"query": query, "variables": variables}, headers=headers, timeout=5)
         result = response.json()
         collections = result.get('data', {}).get('collections', {}).get('items', [])
         cursor = result.get('data', {}).get('collections', {}).get('cursor')
-        logging.debug('Response in json: f{collections}')
+        logging.debug(f'Response in json: {collections}')
         for collection in collections:
             all_collections.append(collection.get('conceptId'))
         page_num = page_num + 1
-  
+
     print('Total number of pages f{page_num}')
     all_collections.sort()
     # Write the sorted concept-id list to a local folder
