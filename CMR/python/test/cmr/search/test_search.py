@@ -266,8 +266,7 @@ class TestSearch(unittest.TestCase):
         # Test
         with self.assertLogs(coll.scom.logger, level='DEBUG') as log_collector:
             coll.set_logging_to("DEBUG")
-            expected = ['INFO:cmr.search.common:Using a CMR-Token',
-                        'INFO:cmr.search.common:Using an Authorization token',
+            expected = ['INFO:cmr.search.common:Using an Authorization token',
                         'INFO:cmr.search.common: - POST: https://cmr.earthdata.'
                             'nasa.gov/search/collections?page_size=1',
                         'INFO:cmr.search.common:Total records downloaded was 10'

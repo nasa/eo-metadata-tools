@@ -105,7 +105,7 @@ def _continue_download(page_state):
     items_downloaded = page_state['page_size']*page_state['page_num']
     return items_downloaded<limit
 
-# document-it: {"key":"cmr-token", "default":"None", "msg":"also known as the echo token"}
+# document-it: {"key":"Authorization", "default":"None", "msg":"also known as a cmr or EDL token"}
 # document-it: {"key":"X-Request-id", "default":"None"}
 # document-it: {"key":"Client-Id", "default":"python_cmr_lib"}
 # document-it: {"key":"User-Agent", "default":"python_cmr_lib"}
@@ -114,14 +114,15 @@ def _standard_headers_from_config(config: dict):
     Create a dictionary with the CMR specific headers meant to be passed to urllib
     Parameters:
         config (dictionary): where to pull configurations from, responds to:
-            * cmr-token: a CMR token, AKA an Echo Token, any token CMR will accept
+            * cmr-token: a CMR token, any token CMR will accept
+            * authorization: any Authorization token CMR will accept
             * X-Request-Id: Used for tracking requests across systems
             * Client-Id: Browser Agent Name
     Returns:
         dictionary with headers suitable for passing to urllib
     """
     headers = None
-    headers = net.config_to_header(config, 'cmr-token', headers, 'Echo-Token')
+    headers = net.config_to_header(config, 'cmr-token', headers, 'Authorization')
     headers = net.config_to_header(config, 'authorization', headers, 'Authorization')
     headers = net.config_to_header(config, 'X-Request-Id', headers)
     headers = net.config_to_header(config, 'Client-Id', headers, default='python_cmr_lib')
@@ -201,8 +202,6 @@ def _make_search_request(base: str, query: dict, page_state: dict, config: dict)
     # Build headers
     headers = _standard_headers_from_config(config)
 
-    if 'Echo-Token' in headers:
-        logger.info('Using a CMR-Token')
     if 'Authorization' in headers:
         logger.info('Using an Authorization token')
 

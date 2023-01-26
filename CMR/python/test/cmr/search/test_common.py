@@ -164,7 +164,7 @@ class TestSearch(unittest.TestCase):
             'X-Request-Id': '0123-45-6789',
             'Client-Id': 'fancy-client',
             'Not-A-Header': 'do not include me'}
-        defined_expected = {'Echo-Token': 'a-cmr-token',
+        defined_expected = {'Authorization': 'a-cmr-token',
             'X-Request-Id': '0123-45-6789',
             'User-Agent': 'python_cmr_lib',
             'Client-Id': 'fancy-client'}
@@ -173,7 +173,7 @@ class TestSearch(unittest.TestCase):
 
         config = {'cmr-token': 'a-cmr-token',
             'Not-A-Header': 'do not include me'}
-        token_expected = {'Echo-Token': 'a-cmr-token',
+        token_expected = {'Authorization': 'a-cmr-token',
             'User-Agent': 'python_cmr_lib',
             'Client-Id': 'python_cmr_lib'}
         token_result = scom._standard_headers_from_config(config)
