@@ -4,7 +4,6 @@ A very short demo of how to use the provider API
 
 import cmr.search.providers as p
 
-
 print(p.search_by_id(None))
 
 print ("*"*80)
