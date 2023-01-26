@@ -18,21 +18,21 @@ configurations={'env':'sit'}
 ########################################
 # Basic search with no token
 public_count = len(coll.search(params, limit=500, config=configurations))
-print (f"Records when not logged in: {public_count}")
+print (f'Records when not logged in: {public_count}')
 
 ########################################
 # Add token to config
-if len(sys.argv)>1:
-    configurations['cmr.token.file'] = '~/.pw/urs.token.sit'
-    print ("\nUsing a token from user specificed file...")
+if len(sys.argv)>1 and len(sys.argv[1])>0:
+    configurations['cmr.token.file'] = sys.argv[1]
+    print ('\nUsing a token from user specificed file...')
 configurations = t.use_bearer_token(config=configurations)
 
 ########################################
 # Basic search, now WITH a token
 private_count = len(coll.search(params, limit=500, config=configurations))
-print (f"Records when logged in: {private_count}")
+print (f'Records when logged in: {private_count}')
 
 ########################################
 # Conclusion
 if public_count != private_count:
-    print ("\nLogging in results in a different number of records.")
+    print ('\nLogging in results in a different number of records.')
