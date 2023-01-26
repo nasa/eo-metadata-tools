@@ -1,5 +1,11 @@
 # Document-it report
 All the code 'document-it' tags are listed here by package
+## `cmr`
+
+## `API Version`
+
+0.0.1
+
 ## `cmr.auth.token`
 
 ### `token_config()`
@@ -8,7 +14,6 @@ All the code 'document-it' tags are listed here by package
 
 ### `token_file()`
 
-* `cmr.token.file` (defaults to `~/.cmr_token`).
 
 ### `token_manager()`
 
@@ -25,12 +30,12 @@ All the code 'document-it' tags are listed here by package
       * also from `cmr.search.common._make_search_request`
         * `accept` (defaults to `application/vnd.nasa.cmr.umm_results+json`).
           * also from `cmr.search.common._standard_headers_from_config`
-            * `cmr-token` (defaults to `None`). Notes: also known as the echo token
+            * `Authorization` (defaults to `None`). Notes: also known as a cmr or EDL token
             * `X-Request-id` (defaults to `None`).
             * `Client-Id` (defaults to `python_cmr_lib`).
             * `User-Agent` (defaults to `python_cmr_lib`).
           * also from `cmr.search.common._cmr_query_url`
-              * also from `cmr.search.common._cmr_basic_url`
+              * also from `cmr.search.common.cmr_basic_url`
                 * `env` (defaults to ``). Notes: uat, ops, prod, production, or blank for ops
 
 ## `cmr.search.common`
@@ -38,24 +43,28 @@ All the code 'document-it' tags are listed here by package
 ### `clear_scroll()`
 
   * also from `cmr.search.common._standard_headers_from_config`
-    * `cmr-token` (defaults to `None`). Notes: also known as the echo token
+    * `Authorization` (defaults to `None`). Notes: also known as a cmr or EDL token
     * `X-Request-id` (defaults to `None`).
     * `Client-Id` (defaults to `python_cmr_lib`).
     * `User-Agent` (defaults to `python_cmr_lib`).
-  * also from `cmr.search.common._cmr_basic_url`
+  * also from `cmr.search.common.cmr_basic_url`
     * `env` (defaults to ``). Notes: uat, ops, prod, production, or blank for ops
+
+### `cmr_basic_url()`
+
+* `env` (defaults to ``). Notes: uat, ops, prod, production, or blank for ops
 
 ### `experimental_search_by_page_generator()`
 
   * also from `cmr.search.common._make_search_request`
     * `accept` (defaults to `application/vnd.nasa.cmr.umm_results+json`).
       * also from `cmr.search.common._standard_headers_from_config`
-        * `cmr-token` (defaults to `None`). Notes: also known as the echo token
+        * `Authorization` (defaults to `None`). Notes: also known as a cmr or EDL token
         * `X-Request-id` (defaults to `None`).
         * `Client-Id` (defaults to `python_cmr_lib`).
         * `User-Agent` (defaults to `python_cmr_lib`).
       * also from `cmr.search.common._cmr_query_url`
-          * also from `cmr.search.common._cmr_basic_url`
+          * also from `cmr.search.common.cmr_basic_url`
             * `env` (defaults to ``). Notes: uat, ops, prod, production, or blank for ops
 
 ### `search_by_page()`
@@ -64,12 +73,12 @@ All the code 'document-it' tags are listed here by package
   * also from `cmr.search.common._make_search_request`
     * `accept` (defaults to `application/vnd.nasa.cmr.umm_results+json`).
       * also from `cmr.search.common._standard_headers_from_config`
-        * `cmr-token` (defaults to `None`). Notes: also known as the echo token
+        * `Authorization` (defaults to `None`). Notes: also known as a cmr or EDL token
         * `X-Request-id` (defaults to `None`).
         * `Client-Id` (defaults to `python_cmr_lib`).
         * `User-Agent` (defaults to `python_cmr_lib`).
       * also from `cmr.search.common._cmr_query_url`
-          * also from `cmr.search.common._cmr_basic_url`
+          * also from `cmr.search.common.cmr_basic_url`
             * `env` (defaults to ``). Notes: uat, ops, prod, production, or blank for ops
 
 ## `cmr.search.granule`
@@ -80,12 +89,12 @@ All the code 'document-it' tags are listed here by package
       * also from `cmr.search.common._make_search_request`
         * `accept` (defaults to `application/vnd.nasa.cmr.umm_results+json`).
           * also from `cmr.search.common._standard_headers_from_config`
-            * `cmr-token` (defaults to `None`). Notes: also known as the echo token
+            * `Authorization` (defaults to `None`). Notes: also known as a cmr or EDL token
             * `X-Request-id` (defaults to `None`).
             * `Client-Id` (defaults to `python_cmr_lib`).
             * `User-Agent` (defaults to `python_cmr_lib`).
           * also from `cmr.search.common._cmr_query_url`
-              * also from `cmr.search.common._cmr_basic_url`
+              * also from `cmr.search.common.cmr_basic_url`
                 * `env` (defaults to ``). Notes: uat, ops, prod, production, or blank for ops
 
 ### `search()`
@@ -95,14 +104,14 @@ All the code 'document-it' tags are listed here by package
       * also from `cmr.search.common._make_search_request`
         * `accept` (defaults to `application/vnd.nasa.cmr.umm_results+json`).
           * also from `cmr.search.common._standard_headers_from_config`
-            * `cmr-token` (defaults to `None`). Notes: also known as the echo token
+            * `Authorization` (defaults to `None`). Notes: also known as a cmr or EDL token
             * `X-Request-id` (defaults to `None`).
             * `Client-Id` (defaults to `python_cmr_lib`).
             * `User-Agent` (defaults to `python_cmr_lib`).
           * also from `cmr.search.common._cmr_query_url`
-              * also from `cmr.search.common._cmr_basic_url`
+              * also from `cmr.search.common.cmr_basic_url`
                 * `env` (defaults to ``). Notes: uat, ops, prod, production, or blank for ops
 
 ----
-CMR Library - NASA - Copyright 2020-12-29
-Created 2020-12-29 09:08:43
+CMR Library - NASA - Copyright 2023-01-25
+Created 2023-01-25 15:34:07

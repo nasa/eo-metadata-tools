@@ -309,7 +309,8 @@ def tree(report, func_db, module, config=None, cache=None):
             '__path__',
             '__spec__',
             'Callable',
-            'logger']:
+            'logger',
+            'datetime']:
             out.append ("unknown: {} {}".format(obj_type, obj))
     if len(out) > 0:
         report.append ("\n".join(head))

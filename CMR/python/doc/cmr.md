@@ -4,14 +4,16 @@
 * [cmr.util](#cmr.util)
 * [cmr.util.common](#cmr.util.common)
 * [cmr.util.network](#cmr.util.network)
-* [cmr.auth](#cmr.auth)
 * [cmr.auth.token](#cmr.auth.token)
+* [cmr.auth](#cmr.auth)
 * [cmr.search](#cmr.search)
 * [cmr.search.granule](#cmr.search.granule)
+* [cmr.search.providers](#cmr.search.providers)
 * [cmr.search.common](#cmr.search.common)
 * [cmr.search.collection](#cmr.search.collection)
 
-<a name="cmr"></a>
+<a id="cmr"></a>
+
 # cmr
 
 A Library interfacing with the CMR API
@@ -24,30 +26,35 @@ Create version info Query the BUILD constant for information on the package vers
 More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
-<a name="cmr.__version__"></a>
+<a id="cmr.__version__"></a>
+
 #### \_\_version\_\_
 
 Package Version number
 
-<a name="cmr.BUILD"></a>
+<a id="cmr.BUILD"></a>
+
 #### BUILD
 
 Build and version information for the entire package
 
-<a name="cmr.util"></a>
+<a id="cmr.util"></a>
+
 # cmr.util
 
-<a name="cmr.util.common"></a>
+<a id="cmr.util.common"></a>
+
 # cmr.util.common
 
 date 2020-10-26
 since 0.0
 
-<a name="cmr.util.common.conj"></a>
+<a id="cmr.util.common.conj"></a>
+
 #### conj
 
 ```python
-conj(coll, to_add)
+def conj(coll, to_add)
 ```
 
 Similar to clojure's function, add items to a list or dictionary
@@ -70,20 +77,42 @@ concrete type. if coll is:
 
   object of the same type as coll but with to_add items added
 
-<a name="cmr.util.common.drop_key_safely"></a>
+<a id="cmr.util.common.always"></a>
+
+#### always
+
+```python
+def always(obj: dict, otype=dict)
+```
+
+Ensure that something is always returned. Assumes dictionary, but list or
+tuple can be specified, because source may be none, it can not be derived
+
+**Arguments**:
+
+- `obj` - a dictionary, list, or tuple
+- `otype` - object type, the actual type `dict` (default), `list`, or `tuple`
+
+**Returns**:
+
+  {}, [], or () as needed, or the object that was passed in if it already exists
+
+<a id="cmr.util.common.drop_key_safely"></a>
+
 #### drop\_key\_safely
 
 ```python
-drop_key_safely(dictionary, key)
+def drop_key_safely(dictionary, key)
 ```
 
 Drop a key from a dict if it exists and return that change
 
-<a name="cmr.util.common.read_file"></a>
+<a id="cmr.util.common.read_file"></a>
+
 #### read\_file
 
 ```python
-read_file(path)
+def read_file(path)
 ```
 
 Read and return the contents of a file
@@ -96,11 +125,12 @@ Read and return the contents of a file
 
   None if file was not found, contents otherwise
 
-<a name="cmr.util.common.write_file"></a>
+<a id="cmr.util.common.write_file"></a>
+
 #### write\_file
 
 ```python
-write_file(path, text)
+def write_file(path, text)
 ```
 
 Write (creating if need be) file and set it's content
@@ -110,11 +140,12 @@ Write (creating if need be) file and set it's content
 - `path` _string_ - path to file to write
 - `text` _string_ - content for file
 
-<a name="cmr.util.common.execute_command"></a>
+<a id="cmr.util.common.execute_command"></a>
+
 #### execute\_command
 
 ```python
-execute_command(cmd)
+def execute_command(cmd)
 ```
 
 A utility method to execute a shell command and return a string of the output
@@ -127,80 +158,122 @@ A utility method to execute a shell command and return a string of the output
 
   response from command
 
-<a name="cmr.util.common.call_security"></a>
+<a id="cmr.util.common.call_security"></a>
+
 #### call\_security
 
 ```python
-call_security(account, service, app="/usr/bin/security")
+def call_security(account, service, app="/usr/bin/security")
 ```
 
 Call the security command to look up encrypted values
 
-<a name="cmr.util.common.help_format_lambda"></a>
+<a id="cmr.util.common.help_format_lambda"></a>
+
 #### help\_format\_lambda
 
 ```python
-help_format_lambda(contains="")
+def help_format_lambda(contains="")
 ```
 
 Return a lambda to be used to format help output for a function
 
-<a name="cmr.util.network"></a>
+<a id="cmr.util.common.mask_string"></a>
+
+#### mask\_string
+
+```python
+def mask_string(unsafe_value)
+```
+
+Prevent sensitive information from being printed by masking values
+
+<a id="cmr.util.common.mask_dictionary"></a>
+
+#### mask\_dictionary
+
+```python
+def mask_dictionary(data, keys)
+```
+
+Prevent sensitive information from being printed by masking values of listed
+keys in a dictionaries. The middle third of the values will be replaced with
+'*'. Uses Dictionaries copy() function.
+Return a shallow copy of the data dictionary that has been updated
+
+<a id="cmr.util.common.now"></a>
+
+#### now
+
+```python
+def now()
+```
+
+return the current time in a function that can be patched away for testing
+
+<a id="cmr.util.network"></a>
+
 # cmr.util.network
 
 date 2020-11-05
 since 0.0
 
-<a name="cmr.util.network.get_local_ip"></a>
+<a id="cmr.util.network.get_local_ip"></a>
+
 #### get\_local\_ip
 
 ```python
-get_local_ip()
+def get_local_ip()
 ```
 
 Rewrite this stub, it is used in code not checked in yet
 
-<a name="cmr.util.network.value_to_param"></a>
+<a id="cmr.util.network.value_to_param"></a>
+
 #### value\_to\_param
 
 ```python
-value_to_param(key, value)
+def value_to_param(key, value)
 ```
 
 Convert a key value pair into a URL parameter pair
 
-<a name="cmr.util.network.expand_parameter_to_parameters"></a>
+<a id="cmr.util.network.expand_parameter_to_parameters"></a>
+
 #### expand\_parameter\_to\_parameters
 
 ```python
-expand_parameter_to_parameters(key, parameter)
+def expand_parameter_to_parameters(key, parameter)
 ```
 
 Convert a list of values into a list of URL parameters
 
-<a name="cmr.util.network.expand_query_to_parameters"></a>
+<a id="cmr.util.network.expand_query_to_parameters"></a>
+
 #### expand\_query\_to\_parameters
 
 ```python
-expand_query_to_parameters(query=None)
+def expand_query_to_parameters(query=None)
 ```
 
 Convert a dictionary to URL parameters
 
-<a name="cmr.util.network.apply_headers_to_request"></a>
+<a id="cmr.util.network.apply_headers_to_request"></a>
+
 #### apply\_headers\_to\_request
 
 ```python
-apply_headers_to_request(req, headers)
+def apply_headers_to_request(req, headers)
 ```
 
 Apply a headers to a urllib request object
 
-<a name="cmr.util.network.transform_results"></a>
+<a id="cmr.util.network.transform_results"></a>
+
 #### transform\_results
 
 ```python
-transform_results(results, keys_of_interest)
+def transform_results(results, keys_of_interest)
 ```
 
 Take a list of results and convert them to a multi valued dictionary. The
@@ -210,11 +283,16 @@ them to a granule search.
 [{key1:value1},{key1:value2},...] -> {"key1": [value1,value2]} ->
     &key1=value1&key1=value2 ( via expand_query_to_parameters() )
 
-<a name="cmr.util.network.config_to_header"></a>
+<a id="cmr.util.network.config_to_header"></a>
+
 #### config\_to\_header
 
 ```python
-config_to_header(config, source_key, headers, destination_key=None, default=None)
+def config_to_header(config,
+                     source_key,
+                     headers,
+                     destination_key=None,
+                     default=None)
 ```
 
 Copy a value in the config into a header dictionary for use by urllib. Written
@@ -230,11 +308,12 @@ config[key] -> [or default] -> [rename] -> headers[key]
 - `destination_key(string)` - name of key to save to in headers
 - `default(string)` - value to use if value can not be found in config
 
-<a name="cmr.util.network.post"></a>
+<a id="cmr.util.network.post"></a>
+
 #### post
 
 ```python
-post(url, body, accept=None, headers=None)
+def post(url, body, accept=None, headers=None)
 ```
 
 Make a basic HTTP call to CMR using the POST action
@@ -247,10 +326,26 @@ Make a basic HTTP call to CMR using the POST action
 - `client_id` _string_ - name of the client making the (not python or curl)
 - `headers` _dictionary_ - HTTP headers to apply
 
-<a name="cmr.auth"></a>
-# cmr.auth
+<a id="cmr.util.network.get"></a>
 
-<a name="cmr.auth.token"></a>
+#### get
+
+```python
+def get(url, accept=None, headers=None)
+```
+
+Make a basic HTTP call to CMR using the POST action
+
+**Arguments**:
+
+- `url` _string_ - resource to get
+- `body` _dictionary_ - parameters to send, or string if raw text to be sent
+- `accept` _string_ - encoding of the returned data, some form of json is expected
+- `client_id` _string_ - name of the client making the (not python or curl)
+- `headers` _dictionary_ - HTTP headers to apply
+
+<a id="cmr.auth.token"></a>
+
 # cmr.auth.token
 
 A Library for managing EDL tokens to be used with CMR
@@ -258,17 +353,22 @@ date: 2020-10-26
 since: 0.0
 
 Overview:
+    The function fetch_bearer_token_with_password(user, password, config) will
+    handle all network calls to either get or generate a user token and place
+    this token inside a config dictionary for use in all other calls.
+
     The function token(lambda_list, config) will iterate over a list of token
     managers and return the value from the first manager that finds a token.
 
     Token Managers are lambda functions that take in a 'config' dictionary for
     use as a source for configurations, and returns a token as a string.
 
-<a name="cmr.auth.token.token_literal"></a>
+<a id="cmr.auth.token.token_literal"></a>
+
 #### token\_literal
 
 ```python
-token_literal(token_text: str)
+def token_literal(token_text: str)
 ```
 
 Generates an token lambda file which always returns the same value, this is
@@ -282,11 +382,12 @@ used for testing, and also as an example of how to write token managers
 
   A lambda function which takes a dictionary and returns a token
 
-<a name="cmr.auth.token.token_config"></a>
+<a id="cmr.auth.token.token_config"></a>
+
 #### token\_config
 
 ```python
-token_config(config: dict = None) -> str
+def token_config(config: dict = None)
 ```
 
 Pull a token from the configuration dictionary
@@ -296,11 +397,12 @@ Pull a token from the configuration dictionary
 - `config` - Responds to:
 - `"cmr.token.value"` - value of token, defaults to 'None'
 
-<a name="cmr.auth.token.token_file"></a>
+<a id="cmr.auth.token.token_file"></a>
+
 #### token\_file
 
 ```python
-token_file(config: dict = None) -> str
+def token_file(config: dict = None)
 ```
 
 Load a token from a local user file assumed to be ~/.cmr_token
@@ -309,14 +411,18 @@ Load a token from a local user file assumed to be ~/.cmr_token
 
 - `config` - Responds to:
 - `"cmr.token.file"` - location of token file, defaults to ~/.cmr_token
+  for production, followed by a dot and the environment name if
+  specified.
+- `"env"` - if not production, appended to the end of ~/.cmr_token with a dot
   Returns
   token from file
 
-<a name="cmr.auth.token.token_manager"></a>
+<a id="cmr.auth.token.token_manager"></a>
+
 #### token\_manager
 
 ```python
-token_manager(config: dict = None) -> str
+def token_manager(config: dict = None)
 ```
 
 Use a system like the MacOS X Keychain app. Any os which also has the
@@ -333,14 +439,187 @@ security app would also work.
 
   token from Keychain
 
-<a name="cmr.auth.token.token"></a>
+<a id="cmr.auth.token.read_tokens"></a>
+
+#### read\_tokens
+
+```python
+def read_tokens(edl_user, token_lambdas=None, config: dict = None)
+```
+
+Read and return the EDL tokens for a given user. Using this function makes
+the assumption that your storing the EDL password in one of the token lambda
+handlers and not tokens themself. This can be overwritten in the config file
+if you plan to store both tokens and password.
+
+**Arguments**:
+
+- `edl_user` - EDL User name
+- `token_lambda` - a token lambda or a list of functions
+- `config` - config dictionary to base new dictionary off of
+
+**Returns**:
+
+  a dictionary like the following:
+- `{"hits"` - 1,
+- `"items"` - [{"access_token": "EDL-UToken-Content",
+- `"expiration_date"` - "10/31/2121"}]}
+
+<a id="cmr.auth.token.create_token"></a>
+
+#### create\_token
+
+```python
+def create_token(edl_user, token_lambdas=None, config: dict = None)
+```
+
+Create and return a EDL token for a given user. Using this function makes
+the assumption that your storing the EDL password in one of the token lambda
+handlers and not tokens themself. This can be overwritten in the config file
+if you plan to store both tokens and password.
+
+**Arguments**:
+
+- `edl_user` - EDL User name
+- `token_lambda` - a token lambda or a list of functions
+- `config` - config dictionary to base new dictionary off of
+
+**Returns**:
+
+  a dictionary like the following:
+- `{"access_token"` - "EDL-UToken-Content",
+  "token_type":"Bearer",
+- `"expiration_date"` - "10/31/2121"}
+
+<a id="cmr.auth.token.delete_token"></a>
+
+#### delete\_token
+
+```python
+def delete_token(access_token,
+                 edl_user,
+                 token_lambdas=None,
+                 config: dict = None)
+```
+
+Delete a taken from EDL
+Return None if failed, otherwise EDL response
+
+<a id="cmr.auth.token.fetch_token"></a>
+
+#### fetch\_token
+
+```python
+def fetch_token(edl_user, token_lambdas=None, config: dict = None)
+```
+
+Talk to EDL and pull out a token for use in CMR calls. To lookup tokens, an
+EDL User name and password will be sent over the network.
+Return: None or Access token
+
+<a id="cmr.auth.token.fetch_bearer_token_with_password"></a>
+
+#### fetch\_bearer\_token\_with\_password
+
+```python
+def fetch_bearer_token_with_password(edl_user,
+                                     edl_password,
+                                     config: dict = None)
+```
+
+This function is the fastest way to use this API, this call will run all
+other functions needed to either get or generate a token on the users behalf.
+
+**Arguments**:
+
+- `edl_user` - user name in the Earth Data Login System
+- `edl_password` - password in the Earth Data Login system
+- `config` - configuration dictionary
+
+**Returns**:
+
+- `Success` - config dict with 'authorization' key added
+- `Error` - {'error': 'invalid_credentials', 'error_description':
+  'Invalid user credentials', 'code': 401, 'reason': 'Unauthorized'}
+
+<a id="cmr.auth.token.fetch_bearer_token"></a>
+
+#### fetch\_bearer\_token
+
+```python
+def fetch_bearer_token(edl_user, token_lambdas=None, config: dict = None)
+```
+
+This function is the similar to fetch_bearer_token_with_password() but takes
+lambda lookup functions instead of a fixed password. This call will run all
+other functions needed to either get or generate a token on the users behalf.
+
+**Arguments**:
+
+- `edl_user` - user name in the Earth Data Login System
+- `token_lambda` - a token lambda or a list of functions
+- `config` - configuration dictionary
+
+**Returns**:
+
+- `Success` - config dict with 'authorization' key added
+- `Error` - {'error': 'invalid_credentials', 'error_description':
+  'Invalid user credentials', 'code': 401, 'reason': 'Unauthorized'}
+
+<a id="cmr.auth.token.use_bearer_token"></a>
+
+#### use\_bearer\_token
+
+```python
+def use_bearer_token(token_lambdas=None, config: dict = None)
+```
+
+Create a new config dictionary, optionally based on a supplied one, and add
+the bearer token to the config object abstracting away as many details as
+possible.
+
+**Arguments**:
+
+- `token_lambda` - a token lambda or a list of functions
+- `config` - config dictionary to base new dictionary off of
+
+**Returns**:
+
+  new config dictionary with Bearer token assigned as an 'authorization'
+
+<a id="cmr.auth.token.bearer"></a>
+
+#### bearer
+
+```python
+def bearer(token_lambdas=None, config: dict = None)
+```
+
+Loops through the list of lambdas till a token is found. These lamdba functions
+return an EDL token which can be passed to Earthdata software to authenticate
+the user. To get a token, go to https://sit.urs.earthdata.nasa.gov/user_tokens
+Token is returned as a Bearer String
+
+**Arguments**:
+
+- `token_lambda` - a token lambda or a list of functions
+- `config` - Responds to no values
+
+**Returns**:
+
+  the EDL Bearer Token from the token lambda
+
+<a id="cmr.auth.token.token"></a>
+
 #### token
 
 ```python
-token(token_lambdas=None, config: dict = None) -> str
+def token(token_lambdas=None, config: dict = None)
 ```
 
-Recursively calls lambdas till a token is found
+Loops through the list of lambdas till a token is found. These lamdba functions
+return an EDL token which can be passed to Earthdata software to authenticate
+the user. To get a token, go to https://sit.urs.earthdata.nasa.gov/user_tokens
 
 **Arguments**:
 
@@ -351,11 +630,12 @@ Recursively calls lambdas till a token is found
 
   the EDL Token from the token lambda
 
-<a name="cmr.auth.token.help_text"></a>
+<a id="cmr.auth.token.help_text"></a>
+
 #### help\_text
 
 ```python
-help_text(prefix: str = '') -> str
+def help_text(prefix: str = '') -> str
 ```
 
 Built in help - prints out the public function names for the token API
@@ -368,10 +648,16 @@ Built in help - prints out the public function names for the token API
 
   text ready to be passed to print()
 
-<a name="cmr.search"></a>
+<a id="cmr.auth"></a>
+
+# cmr.auth
+
+<a id="cmr.search"></a>
+
 # cmr.search
 
-<a name="cmr.search.granule"></a>
+<a id="cmr.search.granule"></a>
+
 # cmr.search.granule
 
 A Library for building and requesting CMR granule searches
@@ -390,66 +676,73 @@ This function can handle any query parameter which is supported by the CMR.
 More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
-<a name="cmr.search.granule.all_fields"></a>
+<a id="cmr.search.granule.all_fields"></a>
+
 #### all\_fields
 
 ```python
-all_fields(item)
+def all_fields(item)
 ```
 
 Makes no change to the item, passes through. Used primarily as an example
 and for testing the filter workflow
 
-<a name="cmr.search.granule.meta_fields"></a>
+<a id="cmr.search.granule.meta_fields"></a>
+
 #### meta\_fields
 
 ```python
-meta_fields(item)
+def meta_fields(item)
 ```
 
 Return only the the meta objects
 
-<a name="cmr.search.granule.umm_fields"></a>
+<a id="cmr.search.granule.umm_fields"></a>
+
 #### umm\_fields
 
 ```python
-umm_fields(item)
+def umm_fields(item)
 ```
 
 Return only the UMM part of the data
 
-<a name="cmr.search.granule.concept_id_fields"></a>
+<a id="cmr.search.granule.concept_id_fields"></a>
+
 #### concept\_id\_fields
 
 ```python
-concept_id_fields(item)
+def concept_id_fields(item)
 ```
 
 Extract only fields that are used to identify a record
 
-<a name="cmr.search.granule.drop_fields"></a>
+<a id="cmr.search.granule.drop_fields"></a>
+
 #### drop\_fields
 
 ```python
-drop_fields(key)
+def drop_fields(key)
 ```
 
 Drop a key from a dictionary
 
-<a name="cmr.search.granule.granule_core_fields"></a>
+<a id="cmr.search.granule.granule_core_fields"></a>
+
 #### granule\_core\_fields
 
 ```python
-granule_core_fields(item)
+def granule_core_fields(item)
 ```
 
 Extract only fields that are used to identify a record
 
-<a name="cmr.search.granule.apply_filters"></a>
+<a id="cmr.search.granule.apply_filters"></a>
+
 #### apply\_filters
 
 ```python
-apply_filters(filters, items)
+def apply_filters(filters, items)
 ```
 
 Apply all the filters on the downloaded data
@@ -463,11 +756,12 @@ Apply all the filters on the downloaded data
 
   Filtered data
 
-<a name="cmr.search.granule.search"></a>
+<a id="cmr.search.granule.search"></a>
+
 #### search
 
 ```python
-search(query, filters=None, limit=None, config: dict = None)
+def search(query, filters=None, limit=None, config: dict = None)
 ```
 
 Search and return all records
@@ -483,11 +777,40 @@ Search and return all records
 
   JSON results from CMR
 
-<a name="cmr.search.granule.experimental_search_generator"></a>
+<a id="cmr.search.granule.sample_by_collections"></a>
+
+#### sample\_by\_collections
+
+```python
+def sample_by_collections(collection_query,
+                          filters=None,
+                          limits=None,
+                          config: dict = None)
+```
+
+Perform a compound search looking for granules based on the results of a
+collection search. First find a list of collections using a supplied collection
+query, then take the resulting collection IDs and perform a granule search
+with them. Granule samples are then returned from many of the collections.
+
+**Arguments**:
+
+  collection_query(dictionary) : a collection query
+- `filters(list)` - a list of filter lambdas which taken in a row and return and row
+- `limits` - an int, a list of 0 to 2 int values, or a dictionary, None values will be asasumed
+- `list` - [granule limit, collection limit]
+- `dictionary` - {'granule': None, 'collection': None}
+- `config` _dictionary_ - configuration settings
+
+<a id="cmr.search.granule.experimental_search_generator"></a>
+
 #### experimental\_search\_generator
 
 ```python
-experimental_search_generator(query, filters=None, limit=None, config: dict = None)
+def experimental_search_generator(query,
+                                  filters=None,
+                                  limit=None,
+                                  config: dict = None)
 ```
 
 WARNING: This is an experimental function, do not use in an operational
@@ -508,11 +831,12 @@ but some experimenting is needed.
 
   JSON results from CMR
 
-<a name="cmr.search.granule.open_api"></a>
+<a id="cmr.search.granule.open_api"></a>
+
 #### open\_api
 
 ```python
-open_api(section='#granule-search-by-parameters')
+def open_api(section='#granule-search-by-parameters')
 ```
 
 Ask python to open up the API in a new browser window
@@ -521,11 +845,12 @@ Ask python to open up the API in a new browser window
 
 - `selection(string)` - HTML Anchor Tag, default is `granule`-search-by-parameters
 
-<a name="cmr.search.granule.set_logging_to"></a>
+<a id="cmr.search.granule.set_logging_to"></a>
+
 #### set\_logging\_to
 
 ```python
-set_logging_to(level)
+def set_logging_to(level)
 ```
 
 Set the logging level to the stated value. Any of the standard logging level
@@ -536,16 +861,106 @@ can be used here. These include: DEBUG, INFO, WARNING, ERROR, and CRITICAL
 
 - `level` - a value like logging.INFO
 
-<a name="cmr.search.granule.help_text"></a>
+<a id="cmr.search.granule.help_text"></a>
+
 #### help\_text
 
 ```python
-help_text(contains: str = "")
+def help_text(contains: str = "")
 ```
 
 Return help for the public functions in the Granule api
 
-<a name="cmr.search.common"></a>
+<a id="cmr.search.providers"></a>
+
+# cmr.search.providers
+
+A Library for requesting CMR Provider Names
+date: 2022-03-09
+since: 0.1
+
+A provider search for CMR. Use the search() function to lookup all the providers.
+search_by_id() can be used to return only providers matching a regular expression.
+
+<a id="cmr.search.providers.search"></a>
+
+#### search
+
+```python
+def search(config: dict = None)
+```
+
+Search for and return providers, optional filter them
+
+**Arguments**:
+
+  config - configurations
+
+**Returns**:
+
+  JSON list of providers on success, Map with 'errors' otherwise
+
+<a id="cmr.search.providers.search_by_id"></a>
+
+#### search\_by\_id
+
+```python
+def search_by_id(query: str, config: dict = None)
+```
+
+Search for providers and filter them down with a Regular expression
+
+**Arguments**:
+
+- `filter` - RegExp string to match provider names
+- `config` - configurations
+
+**Returns**:
+
+  JSON list of providers on success, Map with 'errors' otherwise
+
+<a id="cmr.search.providers.set_logging_to"></a>
+
+#### set\_logging\_to
+
+```python
+def set_logging_to(level)
+```
+
+Set the logging level to the stated value. Any of the standard logging level
+as stated in https://docs.python.org/3/howto/logging.html#when-to-use-logging
+can be used here. These include: DEBUG, INFO, WARNING, ERROR, and CRITICAL
+
+**Arguments**:
+
+- `level` - a value like logging.INFO
+
+<a id="cmr.search.providers.open_api"></a>
+
+#### open\_api
+
+```python
+def open_api(section='#collection-search-by-parameters')
+```
+
+Ask python to open up the API in a new browser window
+
+<a id="cmr.search.providers.help_text"></a>
+
+#### help\_text
+
+```python
+def help_text(contains: str = "")
+```
+
+Built in help - prints out the public function names for the collection object for the token API
+
+**Arguments**:
+
+- `filter(string)` - filters out functions beginning with this text, defaults to all
+
+<a id="cmr.search.common"></a>
+
 # cmr.search.common
 
 Code common to both collection.py and granule.py
@@ -565,57 +980,86 @@ This function can handle any query parameter which is supported by the CMR.
 More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
-<a name="cmr.search.common.all_fields"></a>
+<a id="cmr.search.common.all_fields"></a>
+
 #### all\_fields
 
 ```python
-all_fields(item)
+def all_fields(item)
 ```
 
 Makes no change to the item, passes through. Used primarily as an example
 and for testing the filter workflow
 
-<a name="cmr.search.common.meta_fields"></a>
+<a id="cmr.search.common.meta_fields"></a>
+
 #### meta\_fields
 
 ```python
-meta_fields(item)
+def meta_fields(item)
 ```
 
 Return only the the meta objects
 
-<a name="cmr.search.common.umm_fields"></a>
+<a id="cmr.search.common.umm_fields"></a>
+
 #### umm\_fields
 
 ```python
-umm_fields(item)
+def umm_fields(item)
 ```
 
 Return only the UMM part of the data
 
-<a name="cmr.search.common.concept_id_fields"></a>
+<a id="cmr.search.common.concept_id_fields"></a>
+
 #### concept\_id\_fields
 
 ```python
-concept_id_fields(item)
+def concept_id_fields(item)
 ```
 
 Extract only fields that are used to identify a record
 
-<a name="cmr.search.common.drop_fields"></a>
+<a id="cmr.search.common.drop_fields"></a>
+
 #### drop\_fields
 
 ```python
-drop_fields(key)
+def drop_fields(key)
 ```
 
 Drop a key from a dictionary
 
-<a name="cmr.search.common.create_page_state"></a>
+<a id="cmr.search.common.cmr_basic_url"></a>
+
+#### cmr\_basic\_url
+
+```python
+def cmr_basic_url(base: str,
+                  query: dict = None,
+                  config: dict = None,
+                  endpoint: str = None)
+```
+
+Create a url for calling any CMR search end point, should not make any
+assumption, beyond the search directory. Will auto set the environment based
+on how config is set
+
+**Arguments**:
+
+- `base` - API base action within the endpoint
+- `query` - dictionary url parameters
+- `config` - configurations, responds to:
+  * env - sit, uat, ops, prod, production, or blank for production
+- `endpoint` - CMR endpoint/application, like search or ingest
+
+<a id="cmr.search.common.create_page_state"></a>
+
 #### create\_page\_state
 
 ```python
-create_page_state(page_size=10, page_num=1, took=0, limit=10)
+def create_page_state(page_size=10, page_num=1, took=0, limit=10)
 ```
 
 Dictionary to hold page state for the recursive call
@@ -627,11 +1071,12 @@ Dictionary to hold page state for the recursive call
 - `took` - positive number, seconds of total processing
 - `limit` - max records to return, 1-100000, default to 10
 
-<a name="cmr.search.common.clear_scroll"></a>
+<a id="cmr.search.common.clear_scroll"></a>
+
 #### clear\_scroll
 
 ```python
-clear_scroll(scroll_id, config: dict = None)
+def clear_scroll(scroll_id, config: dict = None)
 ```
 
 This action is called to clear a scroll ID from CMR allowing CMR to free up
@@ -653,11 +1098,12 @@ API call returns HTTP status code 204 when successful.
 
   error dictionary if there was a problem, otherwise a JSON object of response headers
 
-<a name="cmr.search.common.apply_filters"></a>
+<a id="cmr.search.common.apply_filters"></a>
+
 #### apply\_filters
 
 ```python
-apply_filters(filters, items)
+def apply_filters(filters, items)
 ```
 
 Apply all filters to the collection of data, returning the results
@@ -671,11 +1117,16 @@ Apply all filters to the collection of data, returning the results
 
   the results of the filters
 
-<a name="cmr.search.common.search_by_page"></a>
+<a id="cmr.search.common.search_by_page"></a>
+
 #### search\_by\_page
 
 ```python
-search_by_page(base, query=None, filters=None, page_state=None, config: dict = None)
+def search_by_page(base,
+                   query=None,
+                   filters=None,
+                   page_state=None,
+                   config: dict = None)
 ```
 
 Recursive function to download all the pages of data. Note, this function
@@ -692,11 +1143,16 @@ returning what was found in that amount of time.
   * max-time - total processing time allowed for all calls
   return collected items
 
-<a name="cmr.search.common.experimental_search_by_page_generator"></a>
+<a id="cmr.search.common.experimental_search_by_page_generator"></a>
+
 #### experimental\_search\_by\_page\_generator
 
 ```python
-experimental_search_by_page_generator(base, query=None, filters=None, page_state=None, config: dict = None)
+def experimental_search_by_page_generator(base,
+                                          query=None,
+                                          filters=None,
+                                          page_state=None,
+                                          config: dict = None)
 ```
 
 WARNING: This is an experimental function, do not use in an operational
@@ -705,20 +1161,22 @@ system, this function will go away.
 This function performs searches and returns data as a list generator. Errors
 will go mostly to logs.
 
-<a name="cmr.search.common.open_api"></a>
+<a id="cmr.search.common.open_api"></a>
+
 #### open\_api
 
 ```python
-open_api(section)
+def open_api(section)
 ```
 
 Ask python to open up the API in a new browser window - unsupported!
 
-<a name="cmr.search.common.set_logging_to"></a>
+<a id="cmr.search.common.set_logging_to"></a>
+
 #### set\_logging\_to
 
 ```python
-set_logging_to(level=logging.ERROR)
+def set_logging_to(level=logging.ERROR)
 ```
 
 Set the logging level to one of the levels 'CRITICAL', 'ERROR', 'WARNING',
@@ -728,11 +1186,12 @@ Set the logging level to one of the levels 'CRITICAL', 'ERROR', 'WARNING',
 
 - `level` - a value like logging.INFO or a string like 'INFO'
 
-<a name="cmr.search.common.help_text"></a>
+<a id="cmr.search.common.help_text"></a>
+
 #### help\_text
 
 ```python
-help_text(prefix, functions, filters)
+def help_text(prefix, functions, filters)
 ```
 
 Built in help - prints out the public function names for the token API
@@ -741,7 +1200,8 @@ Built in help - prints out the public function names for the token API
 
 - `filter(string)` - filters out functions beginning with this text, defaults to all
 
-<a name="cmr.search.collection"></a>
+<a id="cmr.search.collection"></a>
+
 # cmr.search.collection
 
 A Library for building and requesting CMR collection searches
@@ -760,75 +1220,83 @@ This function can handle any query parameter which is supported by the CMR.
 More information can be found at:
 https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
 
-<a name="cmr.search.collection.all_fields"></a>
+<a id="cmr.search.collection.all_fields"></a>
+
 #### all\_fields
 
 ```python
-all_fields(item)
+def all_fields(item)
 ```
 
 Makes no change to the item, passes through. Used primarily as an example
 and for testing the filter workflow
 
-<a name="cmr.search.collection.meta_fields"></a>
+<a id="cmr.search.collection.meta_fields"></a>
+
 #### meta\_fields
 
 ```python
-meta_fields(item)
+def meta_fields(item)
 ```
 
 Return only the the meta objects
 
-<a name="cmr.search.collection.umm_fields"></a>
+<a id="cmr.search.collection.umm_fields"></a>
+
 #### umm\_fields
 
 ```python
-umm_fields(item)
+def umm_fields(item)
 ```
 
 Return only the UMM part of the data
 
-<a name="cmr.search.collection.concept_id_fields"></a>
+<a id="cmr.search.collection.concept_id_fields"></a>
+
 #### concept\_id\_fields
 
 ```python
-concept_id_fields(item)
+def concept_id_fields(item)
 ```
 
 Extract only fields that are used to identify a record
 
-<a name="cmr.search.collection.drop_fields"></a>
+<a id="cmr.search.collection.drop_fields"></a>
+
 #### drop\_fields
 
 ```python
-drop_fields(key)
+def drop_fields(key)
 ```
 
 Drop a key from a dictionary
 
-<a name="cmr.search.collection.collection_core_fields"></a>
+<a id="cmr.search.collection.collection_core_fields"></a>
+
 #### collection\_core\_fields
 
 ```python
-collection_core_fields(item)
+def collection_core_fields(item)
 ```
 
 Extract only fields that are used to identify a record
 
-<a name="cmr.search.collection.collection_ids_for_granules_fields"></a>
+<a id="cmr.search.collection.collection_ids_for_granules_fields"></a>
+
 #### collection\_ids\_for\_granules\_fields
 
 ```python
-collection_ids_for_granules_fields(item: object)
+def collection_ids_for_granules_fields(item: object)
 ```
 
 Extract only the fields that are of interest to doing a granule search
 
-<a name="cmr.search.collection.apply_filters"></a>
+<a id="cmr.search.collection.apply_filters"></a>
+
 #### apply\_filters
 
 ```python
-apply_filters(filters, items)
+def apply_filters(filters, items)
 ```
 
 Apply all the filters on the downloaded data
@@ -842,20 +1310,22 @@ Apply all the filters on the downloaded data
 
   Filtered data
 
-<a name="cmr.search.collection.search"></a>
+<a id="cmr.search.collection.search"></a>
+
 #### search
 
 ```python
-search(query=None, filters=None, limit=None, config: dict = None)
+def search(query=None, filters=None, limit=None, config: dict = None)
 ```
 
 Search and return all records
 
-<a name="cmr.search.collection.set_logging_to"></a>
+<a id="cmr.search.collection.set_logging_to"></a>
+
 #### set\_logging\_to
 
 ```python
-set_logging_to(level)
+def set_logging_to(level)
 ```
 
 Set the logging level to the stated value. Any of the standard logging level
@@ -866,20 +1336,22 @@ can be used here. These include: DEBUG, INFO, WARNING, ERROR, and CRITICAL
 
 - `level` - a value like logging.INFO
 
-<a name="cmr.search.collection.open_api"></a>
+<a id="cmr.search.collection.open_api"></a>
+
 #### open\_api
 
 ```python
-open_api(section='#collection-search-by-parameters')
+def open_api(section='#collection-search-by-parameters')
 ```
 
 Ask python to open up the API in a new browser window
 
-<a name="cmr.search.collection.help_text"></a>
+<a id="cmr.search.collection.help_text"></a>
+
 #### help\_text
 
 ```python
-help_text(contains: str = "")
+def help_text(contains: str = "")
 ```
 
 Built in help - prints out the public function names for the collection object for the token API
