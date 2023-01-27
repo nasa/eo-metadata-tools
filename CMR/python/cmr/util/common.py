@@ -145,8 +145,7 @@ def help_format_lambda(contains=""):
     """
     layout = "\n{}:\n{}\n"
     # n=name, c=content ; made short to keep line length down and pylint happy
-    out = lambda n, c : (layout.format(n, c.__doc__.strip())) if contains in n else ""
-    return out
+    return lambda n, c : (layout.format(n, c.__doc__.strip())) if contains in n else ""
 
 def mask_string(unsafe_value):
     """Prevent sensitive information from being printed by masking values """

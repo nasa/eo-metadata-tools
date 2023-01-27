@@ -218,7 +218,6 @@ class TestSearch(unittest.TestCase):
         self.assertEqual (expected, result)
 
     # Ignore this so that an example of how to run the code can be documented
-    # pylint: disable=R0201
     def _test_live_search(self):
         """
         Make a live call to CMR, this is not normally included in the test suite.

@@ -130,8 +130,8 @@ class TestToken(unittest.TestCase):
     def test_use_bearer_token(self):
         """Test the function that handles all the work of tokens"""
         tokener = token.token_literal("test") #this always returns test as token
-        # pylint: disable=C0301 # lambdas must be on one line
-        tester = lambda expected, given, msg : self.assertEqual(expected, token.use_bearer_token(token_lambdas=tokener, config=given), msg)
+        def tester(expected, given, msg):
+            return self.assertEqual(expected, token.use_bearer_token(token_lambdas=tokener, config=given), msg)
 
         tester({"authorization":"Bearer test"}, None, "found from none")
         tester({"authorization":"Bearer test"}, {}, "found from nothing")
@@ -145,8 +145,8 @@ class TestToken(unittest.TestCase):
     # pylint: disable=W0212 ; test a private function
     def test__env_to_extention(self):
         """Check that the environment->extensions work as expected"""
-        # pylint: disable=C0301 # lambdas must be on one line
-        test = lambda expected, given, msg : self.assertEqual(expected, token._env_to_extention(given), msg)
+        def test(expected, given, msg):
+            return self.assertEqual(expected, token._env_to_extention(given), msg)
 
         test("", None, "No dictionary given")
         test("", {}, "Empty dictionary")
@@ -164,8 +164,8 @@ class TestToken(unittest.TestCase):
         """
         Test that an EDL URL can be generated with a given endpoint and config
         """
-        # pylint: disable=C0301 # lambdas must be on one line
-        test = lambda expected, given, config, msg : self.assertEqual(expected, token._env_to_edl_url(given, config=config), msg)
+        def test(expected, given, config, msg):
+            return self.assertEqual(expected, token._env_to_edl_url(given, config=config), msg)
 
         expected_token_ops = 'https://urs.earthdata.nasa.gov/api/users/token'
         expected_token_uat = 'https://uat.urs.earthdata.nasa.gov/api/users/token'
@@ -181,8 +181,8 @@ class TestToken(unittest.TestCase):
     # pylint: disable=W0212 ; test a private function
     def test_token_file_env(self):
         """Test the function that returns the token file path"""
-        # pylint: disable=C0301 # lambdas must be on one line
-        test = lambda expected, config, msg: self.assertEqual(expected, token._token_file_path(config), msg)
+        def test(expected, config, msg):
+            return self.assertEqual(expected, token._token_file_path(config), msg)
 
         test("~/.cmr_token", None, "Not specified")
         test("~/.cmr_token", {"env" : None}, "None value")
@@ -222,8 +222,8 @@ class TestToken(unittest.TestCase):
 
     def test__base64_text(self):
         "Test that the base64 library encodes values as the code expects"
-        # pylint: disable=C0301 # lambdas must be on one line
-        test = lambda expected, given, msg : self.assertEqual(expected, token._base64_text(given), msg)
+        def test(expected, given, msg):
+            return self.assertEqual(expected, token._base64_text(given), msg)
 
         test("", "", "Empty Test")
         test("RW5jb2RlIHRoaXMgbWVzc2FnZQ==", "Encode this message", "Value Test")
@@ -231,8 +231,9 @@ class TestToken(unittest.TestCase):
 
     def test__lambda_list_always(self):
         "Test the generation of a default lambda list "
-        # pylint: disable=C0301 # lambdas must be on one line
-        test = lambda expected, given, fallback, msg : self.assertEqual(expected, token._lamdba_list_always(given, fallback), msg)
+        def test(expected, given, fallback, msg):
+            self.assertEqual(expected, token._lamdba_list_always(given, fallback), msg)
+
         test([token.token_file, token.token_config], None, None, "None, with no fallback Test")
         test([], None, [], "None, with Empty fallback Test")
         test(['a'], 'a', None, "Not a list")
@@ -246,8 +247,9 @@ class TestToken(unittest.TestCase):
 
     def test__format_as_bearer_token(self):
         """ Make sure that the token can be wrapped as a bearer token correctly """
-        # pylint: disable=C0301 # lambdas must be on one line
-        test = lambda expected, given, msg : self.assertEqual(expected, token._format_as_bearer_token(given), msg)
+        def test(expected, given, msg):
+            return self.assertEqual(expected, token._format_as_bearer_token(given), msg)
+
         test("Bearer ", "", 'blank given')
         test("Bearer None", None, 'nothing given')
         test("Bearer token-here", 'token-here', 'token given')
