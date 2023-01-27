@@ -330,8 +330,8 @@ class TestSearch(unittest.TestCase):
         # cut down the function parameters to assume all the parts that will not change
         runner = partial(gran.sample_by_collections, collection_query, filters=filters)
 
-        # pylint: disable=C0301 # lambda must be on one line
-        tester = lambda expected, limit, msg : self.assertEqual(expected, runner(limits=limit), msg)
+        def tester(expected, limit, msg):
+            return self.assertEqual(expected, runner(limits=limit), msg)
 
         expected = [{'concept-id': 'G1527288030-SEDAC'},
             {'concept-id': 'G1527288030-SEDAC'},

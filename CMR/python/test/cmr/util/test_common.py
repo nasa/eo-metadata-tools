@@ -72,8 +72,9 @@ class TestSearch(unittest.TestCase):
 
     def test_drop_key_safely(self):
         """Test that values can be dropped safely"""
-        # pylint: disable=C0301 # lambdas must be on one line
-        tester = lambda expected, src, key, msg : self.assertEqual(expected, com.drop_key_safely(src, key), msg)
+        def tester (expected, src, key, msg):
+            return self.assertEqual(expected, com.drop_key_safely(src, key), msg)
+
         tester({}, {}, "Not existing", "Empty dictionary")
         tester({"key":"value"}, {"key": "value"}, "not found", "wrong key, no drop")
         tester({}, {"key":"value"}, "key", "drop found key")
@@ -92,8 +93,9 @@ class TestSearch(unittest.TestCase):
 
     def test_execute_command(self):
         """Execute will run any command, test that it behaves as expected"""
-        # pylint: disable=C0301 # lambdas must be on one line
-        tester = lambda expected, given, msg : self.assertEqual(expected, com.execute_command(given), msg)
+        def tester (expected, given, msg):
+            return self.assertEqual(expected, com.execute_command(given), msg)
+
         tester("", "true", "Test a single command response")
         tester("_result_", ["printf", '_%s_', 'result'], "Test a command with properties")
 
@@ -118,8 +120,8 @@ class TestSearch(unittest.TestCase):
 
     def test_mask_string(self):
         """Test that the mask_diictionary function will clean out sensitive info"""
-        # pylint: disable=C0301 # lambdas must be on one line
-        tester = lambda expected, given, msg : self.assertEqual(expected, com.mask_string(given), msg)
+        def tester(expected, given, msg):
+            return self.assertEqual(expected, com.mask_string(given), msg)
 
         tester("", None, "None sent")
         tester("", "", "No Letters")

@@ -76,8 +76,10 @@ def _collection_sample_limits(limits):
     """
     Assure that the limit values are not None and have reasonable values
     """
-    build = lambda gran, coll : {'granule': gran, 'collection': coll}
-    bound = lambda lower, value, upper : min(max(lower, value), upper)
+    def build (gran, coll):
+        return {'granule': gran, 'collection': coll}
+    def bound (lower, value, upper):
+        return min(max(lower, value), upper)
 
     default_granule_limit = 10
     default_collection_limit = 20
@@ -120,10 +122,9 @@ def _collection_samples(collection_query, limit, config):
     not require the loading of the search.py file, call the already loaded common
     file.
     """
-    just_cid = lambda obj : obj.get('meta', {}).get('concept-id')
     found_collections = scom.search_by_page("collections",
         query=collection_query,
-        filters=just_cid,
+        filters = lambda obj : obj.get('meta', {}).get('concept-id'),
         page_state=scom.create_page_state(limit=limit),
         config=config)
     return found_collections[:limit]

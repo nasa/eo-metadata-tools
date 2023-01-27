@@ -56,7 +56,9 @@ class TestSearch(unittest.TestCase):
     def test_value_to_param(self):
         """ Test that a value can be converted to a URL parameter """
         # pylint: disable=C0301 # lambda lines can be shorter
-        test = lambda expected, key, value, msg : self.assertEqual(expected, net.value_to_param(key, value), msg)
+        def test(expected, key, value, msg):
+            return self.assertEqual(expected, net.value_to_param(key, value), msg)
+
         test("key=value", "key", "value", "Basic")
         test("key=", "key", "", "Missing Value")
         test("=value", "", "value", "Missing Key")
@@ -136,8 +138,9 @@ class TestSearch(unittest.TestCase):
         Test the helper function which converts values in the config dictionary
         to the header dictionary
         """
-        # pylint: disable=C0301 # lambda lines can be shorter
-        test = lambda exp, opt, src, head, dest=None, defa=None : self.assertEqual(exp, net.config_to_header(opt, src, head, dest, defa))
+        # pylint: disable=R0913 # not to many parameters
+        def test(exp, opt, src, head, dest=None, defa=None):
+            return self.assertEqual(exp, net.config_to_header(opt, src, head, dest, defa))
 
         test(None, None, None, None)
         test({}, {}, 'user-setting', {})

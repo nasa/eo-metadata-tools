@@ -48,21 +48,27 @@ class TestSearch(unittest.TestCase):
 
     def test_meta_fields(self):
         """ Test that the meta fields are returned """
-        test = lambda exp, given, msg : self.assertEqual(exp, scom.meta_fields(given), msg)
+        def test(exp, given, msg):
+            return self.assertEqual(exp, scom.meta_fields(given), msg)
+
         test({}, {}, "empty")
         test({'key':'value'}, {'key':'value'}, "unrelated")
         test('meta-value', {'meta':'meta-value'}, "found a meta")
 
     def test_umm_fields(self):
         """ Test that the UMM fields are returned """
-        test = lambda exp, given, msg : self.assertEqual(exp, scom.umm_fields(given), msg)
+        def test(exp, given, msg):
+            return self.assertEqual(exp, scom.umm_fields(given), msg)
+
         test({}, {}, "empty")
         test({'key':'value'}, {'key':'value'}, "unrelated")
         test('umm-value', {'umm':'umm-value'}, "found a umm")
 
     def test_concept_id_fields(self):
         """ Test that the concept id fields are returned """
-        test = lambda exp, given, msg : self.assertEqual(exp, scom.concept_id_fields(given), msg)
+        def test(exp, given, msg):
+            return self.assertEqual(exp, scom.concept_id_fields(given), msg)
+
         test({}, {}, "empty")
         test({'key':'value'}, {'key':'value'}, "unrelated")
         test({'concept-id':'C123'}, {'meta':{'concept-id':'C123'}}, "found a concept-id in meta")
@@ -84,9 +90,12 @@ class TestSearch(unittest.TestCase):
 
     def test__error_object(self):
         """ Test that the Error Object is constructed correctly """
-        err = lambda code, msg : {'errors': [msg], 'code':code, 'reason':msg}
-        # pylint: disable=C0301 # lambda lines can not be shorter
-        test = lambda code, emsg, msg : self.assertEqual(err(code, emsg), scom._error_object(code, emsg), msg)
+        def err(code, msg):
+            return {'errors': [msg], 'code':code, 'reason':msg}
+
+        def test(code, emsg, msg):
+            return self.assertEqual(err(code, emsg), scom._error_object(code, emsg), msg)
+
         test(None, None, "nones")
         test(200, "OK", "200 msg")
         test(500, "Server Error", "500 error")
@@ -164,7 +173,7 @@ class TestSearch(unittest.TestCase):
             'X-Request-Id': '0123-45-6789',
             'Client-Id': 'fancy-client',
             'Not-A-Header': 'do not include me'}
-        defined_expected = {'Echo-Token': 'a-cmr-token',
+        defined_expected = {'Authorization': 'a-cmr-token',
             'X-Request-Id': '0123-45-6789',
             'User-Agent': 'python_cmr_lib',
             'Client-Id': 'fancy-client'}
@@ -173,7 +182,7 @@ class TestSearch(unittest.TestCase):
 
         config = {'cmr-token': 'a-cmr-token',
             'Not-A-Header': 'do not include me'}
-        token_expected = {'Echo-Token': 'a-cmr-token',
+        token_expected = {'Authorization': 'a-cmr-token',
             'User-Agent': 'python_cmr_lib',
             'Client-Id': 'python_cmr_lib'}
         token_result = scom._standard_headers_from_config(config)
@@ -182,71 +191,81 @@ class TestSearch(unittest.TestCase):
     def test_cmr_basic_url(self):
         """ Test the inner function that supports test_cmr_query_url() """
 
-        # Lambda functions for testing in the most compact way posible. pylint
-        # will complain if lines are to long, lambda can only be on one line.
-        # Try to get the test lines to be as compact as are3 can be in CMR
+        # Inner functions for testing in the most compact way posible.
 
         # General Test of cmr_basic_url()
-        # Expected, Base, Query_params, Config, end_Point, Message
-        test_base = lambda e,b,q,c,p,m : self.assertEqual(e, scom.cmr_basic_url(b, q, c, p), m)
+        def test_base(exp, changes,msg):
+            base = changes[0]
+            query = changes[1]
+            config = changes[2]
+            epoint = changes[3]
+            return self.assertEqual(exp, scom.cmr_basic_url(base, query, config, epoint), msg)
 
         # Most common test assuming URL is HTTPS
-        # Expected, Base, Query_params, Config, Process, end Point, Message
-        test = lambda e,b,q,c,p,m : test_base(f'https://{e}', b, q, c, p, m)
+        def test(exp, changes, msg):
+            base = changes[0]
+            query = changes[1]
+            config = changes[2]
+            process = changes[3]
+            return test_base(f'https://{exp}', [base, query, config, process], msg)
 
         # Alt test assuming URL is HTTP
-        # Expected, Base, Query_params, Config, Process, end Point, Message
-        test_h = lambda e,b,q,c,p,m : test_base(f'http://{e}', b, q, c, p, m)
+        def test_h(exp, changes, msg):
+            base = changes[0]
+            query = changes[1]
+            config = changes[2]
+            process = changes[3]
+            return test_base(f'http://{exp}', [base, query, config, process], msg)
 
         # Short version of test() with many assumptions made
-        # Expected, Config-Env, Message
-        test2 = lambda e,c,m : test(f'{e}/search/','',{},{'env':c},None,m)
+        def test2(exp, config, msg):
+            return test(f'{exp}/search/', ['', {}, {'env':config}, None], msg)
 
         # Expected, Base, Query_params, Config, Process, end Point, Message
-        test('cmr.earthdata.nasa.gov/search/', None, None, None, None, 'Nothing provided')
-        test('cmr.earthdata.nasa.gov/search/', '', {}, {}, None, 'all empty')
-        test('cmr.earthdata.nasa.gov/search/param', 'param', {}, {}, None, 'only path param')
+        test('cmr.earthdata.nasa.gov/search/', [None, None, None, None], 'Nothing provided')
+        test('cmr.earthdata.nasa.gov/search/', ['', {}, {}, None], 'all empty')
+        test('cmr.earthdata.nasa.gov/search/param', ['param', {}, {}, None], 'only path param')
         test('cmr.earthdata.nasa.gov/search/?pretty=true',
-            '',
+            ['',
             {'pretty':'true'},
             {},
-            None,
+            None],
             'only query param')
         test('cmr.earthdata.nasa.gov/search/param?pretty=true',
-            'param',
+            ['param',
             {'pretty':'true'},
             {},
-            None,
+            None],
             'all empty')
         test('cmr.earthdata.nasa.gov/search/',
-            '',
+            ['',
             {},
             {'pretty':'true'},
-            None,
+            None],
             'param used as env')
         test('cmr.earthdata.nasa.gov/search/collections/tar..estuary/?keyword=tar..estuary',
-            'collections/tar..estuary/',
+            ['collections/tar..estuary/',
             {'keyword':'tar..estuary'},
             {'env': 'ops'},
-            None,
+            None],
             'only remove the first double dot, science data shoud be allowed to use dot dot')
         test_h('localhost:3003/keywords/platforms?pretty=true',
-            'keywords/platforms',
+            ['keywords/platforms',
             {'pretty':'true'},
             {'env':'localhost'},
-            None,
+            None],
             "localhost url to the KMS Keywords interface")
         test_h('localhost:3003/keywords/platforms?pretty=true',
-            'keywords/platforms',
+            ['keywords/platforms',
             {'pretty':'true'},
             {'env':'localhost'},
-            None,
+            None],
             "localhost url to the KMS Keywords interface")
         test_h('localhost:3002/providers?pretty=true',
-            'providers',
+            ['providers',
             {'pretty':'true'},
             {'env':'localhost'},
-            'ingest',
+            'ingest'],
             "localhost url to the provider report from ingest interface")
 
         # Expected, Config-Env, Message
